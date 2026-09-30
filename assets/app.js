@@ -3,7 +3,7 @@
    試算表的工作表與欄位名稱見 tools/build_sheet.py。 */
 
 // Google 試算表 ID：網址 https://docs.google.com/spreadsheets/d/<這一段>/edit 中間那串
-const SHEET_ID = "";
+const SHEET_ID = "1Iqu6qJulH0lgWeHmsN78bDnxIN5MAq7GDt-2SdZtetc";
 const TABS = ["設定", "消息", "簡章", "簡章條目", "場次", "活動", "常見問題"];
 const CACHE_KEY = "dl-site-content-v1";
 const NEWS_LIMIT = 5;
@@ -33,7 +33,8 @@ function parseCSV(text) {
 
 async function fetchTab(name) {
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&headers=1&sheet=${encodeURIComponent(name)}`;
-  const res = await fetch(url, { cache: "no-store" });
+  // 不帶登入資訊：讀者若登入了其他 Google 帳號，帶上 cookie 反而會被導到登入頁
+  const res = await fetch(url, { cache: "no-store", credentials: "omit" });
   if (!res.ok) throw new Error(`${name}: HTTP ${res.status}`);
   const text = await res.text();
   if (/^\s*</.test(text)) throw new Error(`${name}: 試算表未開放檢視`);  // 權限不足時 Google 回傳登入頁

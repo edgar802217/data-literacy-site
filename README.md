@@ -29,6 +29,12 @@
 | `data/content.json` | 內容備份 |
 | `tools/build_sheet.py` | 產生試算表範本（xlsx）與 `data/content.json`，需要 openpyxl |
 
+## 修改程式或樣式後
+
+GitHub Pages 會讓瀏覽器快取 `app.js`、`style.css` 10 分鐘。改了這兩個檔案後，
+請把 `index.html` 裡對應的 `?v=數字` 加 1，訪客重新整理就會拿到新版。
+（只改試算表內容不需要做這件事：試算表每次都會重新讀取。）
+
 ## 本機預覽
 
 ```bash

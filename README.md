@@ -28,6 +28,8 @@
 | `assets/app.js` | 讀取試算表並顯示內容 |
 | `data/content.json` | 內容備份 |
 | `tools/build_sheet.py` | 產生試算表範本（xlsx）與 `data/content.json`，需要 openpyxl |
+| `assets/taiwan-map.js` | 研習場次地圖的縣市輪廓與四區標記座標 |
+| `tools/build_map.py` | 由 [taiwan-atlas](https://www.npmjs.com/package/taiwan-atlas) 的 `counties-10t.json` 產生 `assets/taiwan-map.js`；研習地點換了就改檔案裡的 `VENUES` 座標再執行 |
 
 ## 修改程式或樣式後
 

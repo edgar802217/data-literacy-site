@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC:wght@500;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="assets/style.css?v=2">
+<link rel="stylesheet" href="assets/style.css?v=3">
 </head>
 <body>
 
@@ -25,7 +25,7 @@
     <a class="brand" href="#top"><img src="assets/logo.png" alt=""><span>教育資料素養提升計畫</span></a>
     <ul>
       <li><a href="#news">最新消息</a></li>
-      <li><a href="#brochure">研習簡章</a></li>
+      <li><a href="#sessions">研習場次</a></li>
       <li><a href="#courses">課程介紹</a></li>
       <li><a href="#platform">分析平台</a></li>
       <li><a href="#faq">常見問題</a></li>
@@ -43,28 +43,65 @@
         <p class="motto" id="motto">數據治理．決策有理</p>
         <p class="sub">給縣市行政人員、校長主任與老師的資料素養研習。學會看懂教育數據、用數據討論問題，再搭配 AI 輔助分析平台實際操作。</p>
         <div class="actions">
-          <a class="btn btn-primary" href="#brochure">看研習簡章與場次</a>
-          <a class="btn btn-line" href="#platform" data-link="platform">進入分析平台</a>
+          <a class="btn btn-primary" href="#sessions">看研習場次</a>
+          <a class="btn btn-line" href="#try">試玩分析平台</a>
         </div>
       </div>
-      <div class="hero-logo"><img src="assets/logo.png" alt="計畫標誌：翻開的書本上長出長條圖與折線"></div>
+      <!-- 開場動畫：LOGO 的四根長條與折線依序長出來 -->
+      <svg class="hero-chart" viewBox="0 0 360 300" role="img" aria-label="LOGO 中的長條圖與折線">
+        <line class="hc-base" x1="20" y1="270" x2="340" y2="270"/>
+        <rect class="hc-bar" x="50"  y="190" width="48" height="80"  rx="6" style="--c:var(--c-north);--d:0s"/>
+        <rect class="hc-bar" x="120" y="140" width="48" height="130" rx="6" style="--c:var(--c-central);--d:.12s"/>
+        <rect class="hc-bar" x="190" y="95"  width="48" height="175" rx="6" style="--c:var(--c-south);--d:.24s"/>
+        <rect class="hc-bar" x="260" y="45"  width="48" height="225" rx="6" style="--c:var(--c-east);--d:.36s"/>
+        <polyline class="hc-line" points="74,150 144,100 214,96 300,24"/>
+        <circle class="hc-dot" cx="74"  cy="150" r="11" style="--c:var(--c-north);--d:.9s"/>
+        <circle class="hc-dot" cx="144" cy="100" r="11" style="--c:var(--c-south);--d:1.05s"/>
+        <circle class="hc-dot" cx="300" cy="24"  r="13" style="--c:var(--c-east);--d:1.2s"/>
+      </svg>
     </div>
     <div class="next" id="next" aria-live="polite" hidden></div>
   </div>
 </header>
 
+<section class="stats" aria-label="計畫規模">
+  <div class="wrap">
+    <dl class="stat-row">
+      <div class="rv"><dt>涵蓋</dt><dd><b data-count="22">22</b><span>縣市＋國教署</span></dd></div>
+      <div class="rv"><dt>培育種子講師</dt><dd><b data-count="14">14</b><span>場講師培訓</span></dd></div>
+      <div class="rv"><dt>縣市行政研習</dt><dd><b data-count="10">10</b><span>場（116 年）</span></dd></div>
+      <div class="rv"><dt>教育資料素養框架</dt><dd><b data-count="59">59</b><span>項能力指標</span></dd></div>
+    </dl>
+  </div>
+</section>
+
 <section id="news">
   <div class="wrap">
-    <div class="sec-head"><h2>最新消息</h2></div>
-    <ul class="news" id="news-list"></ul>
+    <div class="sec-head rv"><h2>最新消息</h2></div>
+    <ul class="news rv" id="news-list"></ul>
+  </div>
+</section>
+
+<section id="sessions">
+  <div class="wrap">
+    <div class="sec-head rv"><h2>研習場次</h2><p class="sub">點地圖上的區域，查看日期、地點與報名方式。</p></div>
+    <div class="btabs" id="btabs" role="tablist" aria-label="選擇研習" hidden></div>
+    <div class="explorer rv">
+      <div class="map-wrap">
+        <svg class="tw-map" id="tw-map" role="group" aria-label="研習區域地圖"></svg>
+      </div>
+      <div class="reg-panel">
+        <div class="reg-chips" id="reg-chips" role="group" aria-label="選擇區域"></div>
+        <div class="reg-detail" id="reg-detail" aria-live="polite"></div>
+      </div>
+    </div>
   </div>
 </section>
 
 <section id="brochure">
   <div class="wrap">
-    <div class="btabs" id="btabs" role="tablist" aria-label="選擇研習簡章" hidden></div>
-    <div id="sheets"></div>
-    <div class="more" id="events-wrap" hidden>
+    <div id="sheets" class="rv"></div>
+    <div class="more rv" id="events-wrap" hidden>
       <h3>交流活動</h3>
       <ul id="events"></ul>
     </div>
@@ -73,51 +110,80 @@
 
 <section id="courses">
   <div class="wrap">
-    <div class="sec-head"><h2>課程介紹</h2><p class="sub">先一起建立基礎，再依你的工作角色，用你實際會碰到的數據練習。</p></div>
+    <div class="sec-head rv"><h2>課程介紹</h2><p class="sub">先一起建立基礎，再依你的工作角色，用你實際會碰到的數據練習。</p></div>
     <div class="levels">
-      <div class="level">
+      <div class="level rv">
         <div class="hrs">3<small>小時・初階</small></div>
         <h3>資料素養基礎與解讀</h3>
         <p>教育數據從哪裡來、圖表怎麼看、有哪些常見的誤讀，以及使用學生資料要注意的倫理與個資保護。</p>
       </div>
-      <div class="level adv">
+      <div class="level adv rv">
         <div class="hrs">6<small>小時・進階</small></div>
         <h3>教育數據分析與應用</h3>
         <p>依角色分組，實際整理和分析數據、判讀結果，並規劃接下來的做法。課堂上會使用 AI 輔助分析平台。</p>
       </div>
     </div>
     <div class="roles">
-      <div class="role" style="--c:var(--c-north)"><h3>縣市行政人員</h3><p>掌握轄區推動現況、追蹤成效，作為政策規劃與資源分配的依據。</p></div>
-      <div class="role" style="--c:var(--c-south)"><h3>校長、主任</h3><p>運用校務資料了解學生學習與學校發展，帶動校內用數據討論的習慣。</p></div>
-      <div class="role" style="--c:var(--c-east)"><h3>老師</h3><p>從評量結果與課堂回饋找出學生卡住的地方，調整教學與個別支持。</p></div>
+      <div class="role rv" style="--c:var(--c-north)"><h3>縣市行政人員</h3><p>掌握轄區推動現況、追蹤成效，作為政策規劃與資源分配的依據。</p></div>
+      <div class="role rv" style="--c:var(--c-south)"><h3>校長、主任</h3><p>運用校務資料了解學生學習與學校發展，帶動校內用數據討論的習慣。</p></div>
+      <div class="role rv" style="--c:var(--c-east)"><h3>老師</h3><p>從評量結果與課堂回饋找出學生卡住的地方，調整教學與個別支持。</p></div>
     </div>
   </div>
 </section>
 
 <section id="platform">
   <div class="wrap">
-    <div class="sec-head flush"><h2>AI 輔助教育數據分析平台</h2>
+    <div class="sec-head rv"><h2>AI 輔助教育數據分析平台</h2>
       <p class="sub">不用會寫程式。上傳資料、說出你想了解的問題，平台會完成分析並附上說明，最後由你確認結果。</p></div>
-    <ol class="steps">
-      <li><h3>上傳資料、說明目的</h3><p>用點選或對話的方式，告訴平台你想知道什麼。</p></li>
-      <li><h3>平台分析，AI 協助說明</h3><p>自動挑選合適的分析方法，產出統計結果和圖表。</p></li>
-      <li><h3>你來檢核、下載報告</h3><p>確認並修改說明文字後，再輸出成正式報告。</p></li>
-    </ol>
-    <div class="privacy">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
-      <p>資料會先去識別化。AI 只會看到欄位結構和統計摘要，不會取得學生的個別紀錄。</p>
+
+    <div class="demo rv" id="try" aria-labelledby="demo-title">
+      <div class="demo-head">
+        <h3 id="demo-title">試玩看看</h3>
+        <span class="demo-note">示範資料為虛構：某國中七年級數學段考，3 個班共 77 人</span>
+      </div>
+      <ol class="demo-steps" aria-label="操作步驟">
+        <li data-step="1" class="on">選一個問題</li>
+        <li data-step="2">平台分析</li>
+        <li data-step="3">AI 寫說明</li>
+        <li data-step="4">你來確認</li>
+      </ol>
+      <div class="demo-qs" id="demo-qs" role="group" aria-label="選擇問題">
+        <button type="button" class="q" data-q="dist">這次段考的成績分布如何？</button>
+        <button type="button" class="q" data-q="class">三個班的平均有差嗎？</button>
+      </div>
+      <div class="demo-body">
+        <figure class="demo-chart"><svg id="demo-svg" viewBox="0 0 420 240" role="img" aria-label="分析圖表"></svg>
+          <figcaption id="demo-cap">選一個問題，平台會畫出圖表</figcaption></figure>
+        <div class="demo-ai">
+          <p class="ai-label">AI 說明</p>
+          <p class="ai-text" id="ai-text">等你選好問題，這裡會出現 AI 根據統計結果寫的說明。</p>
+          <p class="ai-caution" id="ai-caution" hidden></p>
+          <div class="ai-actions" id="ai-actions" hidden>
+            <button type="button" class="btn btn-primary btn-sm" id="ai-ok">確認這段說明</button>
+            <button type="button" class="btn btn-line btn-sm" id="ai-edit">我要修改</button>
+          </div>
+          <p class="ai-done" id="ai-done" hidden></p>
+        </div>
+      </div>
     </div>
-    <div class="actions">
-      <a class="btn btn-primary" href="#platform" data-link="platform">進入分析平台</a>
-      <small>研習學員請使用研習提供的帳號登入</small>
+
+    <div class="plat-foot">
+      <div class="privacy rv">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        <p>真實資料會先去識別化。AI 只會看到欄位結構和統計摘要，不會取得學生的個別紀錄。</p>
+      </div>
+      <div class="actions">
+        <a class="btn btn-primary" href="#platform" data-link="platform">進入分析平台</a>
+        <small>研習學員請使用研習提供的帳號登入</small>
+      </div>
     </div>
   </div>
 </section>
 
 <section id="faq">
   <div class="wrap">
-    <div class="sec-head"><h2>常見問題</h2></div>
-    <div class="faq" id="faq-list"></div>
+    <div class="sec-head rv"><h2>常見問題</h2></div>
+    <div class="faq rv" id="faq-list"></div>
   </div>
 </section>
 
@@ -133,6 +199,7 @@
   </div>
 </footer>
 
-<script src="assets/app.js?v=2"></script>
+<script src="assets/taiwan-map.js?v=1"></script>
+<script src="assets/app.js?v=3"></script>
 </body>
 </html>

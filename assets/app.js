@@ -108,6 +108,7 @@ function renderSettings(rows) {
   const s = Object.fromEntries(rows.map(r => [r["項目"], r["內容"]]));
   if (s["標語"]) $("motto").textContent = s["標語"];
   const platform = isUrl(s["平台網址"]) ? s["平台網址"] : "";
+  window.SITE_PLATFORM_URL = platform;   // 試玩結束畫面的「進入分析平台」按鈕會用到
   document.querySelectorAll('[data-link="platform"]').forEach(a => {
     if (platform) { a.href = platform; a.target = "_blank"; a.rel = "noopener"; }
     else { a.href = "#platform"; a.removeAttribute("target"); }
@@ -343,105 +344,6 @@ if (MOTION && "IntersectionObserver" in window) {
   }, { threshold: 0, rootMargin: "0px 0px -40px 0px" });
   document.querySelectorAll(".rv").forEach(el => io.observe(el));
 }
-
-/* ---------- 平台試玩（虛構示範資料） ---------- */
-const DEMO = {
-  dist: {
-    caption: "七年級數學段考成績分布（虛構示範資料，77 人）",
-    unit: "人", yMax: 30, yStep: 10,
-    bars: [["0–59", 9], ["60–69", 24, true], ["70–79", 22], ["80–89", 15], ["90–100", 7]],
-    text: "77 位學生中，60–69 分的人數最多（24 人，約 31%），其次是 70–79 分（22 人）。有 9 位學生未達 60 分，約占 12%，建議先找出他們共同答錯的題型。",
-    caution: "判讀提醒：這是單次段考的結果，看不出進步或退步。若要比較，需要加入前一次段考的成績。",
-  },
-  class: {
-    caption: "各班平均分數（虛構示範資料，括號內為人數）",
-    unit: "分", yMax: 100, yStep: 20,
-    bars: [["701（30）", 74], ["702（29）", 71], ["703（18）", 66, true]],
-    text: "703 班平均 66 分，比 701 班低 8 分、比 702 班低 5 分。",
-    caution: "判讀提醒：703 班只有 18 人，少數學生的分數就會明顯拉動平均。建議同時看各班的分數分布，再決定是否需要補救教學。",
-  },
-};
-let demoRun = 0;
-
-function demoStep(n) {
-  document.querySelectorAll(".demo-steps li").forEach(li => li.classList.toggle("on", +li.dataset.step <= n));
-}
-
-function drawDemoChart(d) {
-  const W = 420, H = 240, L = 40, R = 12, T = 16, B = 34;
-  const iw = W - L - R, ih = H - T - B, slot = iw / d.bars.length, bw = Math.min(56, slot * .6);
-  const y = v => T + ih - (v / d.yMax) * ih;
-  let g = "";
-  for (let v = 0; v <= d.yMax; v += d.yStep) {
-    g += `<line class="axis" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" opacity="${v ? .5 : 1}"/>`
-       + `<text class="tick" x="${L - 8}" y="${y(v) + 4}" text-anchor="end">${v}</text>`;
-  }
-  d.bars.forEach(([label, v, hi], i) => {
-    const x = L + slot * i + (slot - bw) / 2;
-    g += `<rect class="b${hi ? " hi" : ""}" x="${x}" y="${y(v)}" width="${bw}" height="${y(0) - y(v)}" rx="4" style="--d:${i * 0.08}s"/>`
-       + `<text class="val" x="${x + bw / 2}" y="${y(v) - 6}" text-anchor="middle">${v}</text>`
-       + `<text class="tick" x="${x + bw / 2}" y="${H - 12}" text-anchor="middle">${label}</text>`;
-  });
-  g += `<text class="tick" x="${L - 8}" y="${T - 4}" text-anchor="end">${d.unit}</text>`;
-  $("demo-svg").innerHTML = g;
-  $("demo-svg").setAttribute("aria-label", `${d.caption}：${d.bars.map(([l, v]) => `${l} ${v}${d.unit}`).join("，")}`);
-}
-
-function typeText(el, text, run, done) {
-  if (!MOTION) { el.textContent = text; done(); return; }
-  el.textContent = ""; el.classList.add("typing");
-  let i = 0;
-  const tick = () => {
-    if (run !== demoRun) return;
-    el.textContent = text.slice(0, ++i);
-    if (i < text.length) setTimeout(tick, 22);
-    else { el.classList.remove("typing"); done(); }
-  };
-  tick();
-}
-
-function runDemo(key) {
-  const d = DEMO[key], run = ++demoRun;
-  document.querySelectorAll(".q").forEach(b => b.setAttribute("aria-pressed", b.dataset.q === key));
-  const text = $("ai-text");
-  text.contentEditable = "false"; text.classList.remove("typing");
-  $("ai-caution").hidden = true; $("ai-actions").hidden = true; $("ai-done").hidden = true;
-  $("ai-edit").textContent = "我要修改";
-  demoStep(2);
-  $("demo-cap").textContent = "平台分析中…";
-  text.textContent = "";
-  setTimeout(() => {
-    if (run !== demoRun) return;
-    drawDemoChart(d);
-    $("demo-cap").textContent = d.caption;
-    demoStep(3);
-    typeText(text, d.text, run, () => {
-      if (run !== demoRun) return;
-      $("ai-caution").textContent = d.caution; $("ai-caution").hidden = false;
-      $("ai-actions").hidden = false;
-      demoStep(4);
-    });
-  }, MOTION ? 650 : 0);
-}
-
-function confirmDemo(edited) {
-  const text = $("ai-text");
-  text.contentEditable = "false";
-  $("ai-actions").hidden = true;
-  $("ai-done").textContent = edited
-    ? "已確認你修改後的說明。正式平台會把它連同圖表放進分析報告。"
-    : "已確認。正式平台會把這段說明連同圖表放進分析報告。";
-  $("ai-done").hidden = false;
-}
-
-$("demo-qs").addEventListener("click", e => { const b = e.target.closest(".q"); if (b) runDemo(b.dataset.q); });
-$("ai-ok").addEventListener("click", () => confirmDemo($("ai-text").isContentEditable));
-$("ai-edit").addEventListener("click", () => {
-  const text = $("ai-text");
-  if (text.isContentEditable) { confirmDemo(true); return; }
-  text.contentEditable = "true"; text.focus();
-  $("ai-edit").textContent = "完成修改";
-});
 
 /* ---------- 啟動 ---------- */
 (async function start() {

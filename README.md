@@ -1,5 +1,9 @@
 # 教育資料素養提升計畫網站
 
+> **新版開發中**：多頁式網站（研習報名、我的研習、證書查驗、分析平台、後台）在 [`web/`](web/README.md)，預計部署到 Vercel。
+> 設計稿在 `docs/design/`（`wireframes.html` 線框圖、`visual.html` 視覺稿與設計系統）。
+> 新版上線前，下面這個一頁式網站繼續在 GitHub Pages 運作。
+
 一頁式計畫網站：最新消息、研習簡章與場次、課程介紹、AI 輔助分析平台入口、常見問題。
 部署在 GitHub Pages：https://edgar802217.github.io/data-literacy-site/
 

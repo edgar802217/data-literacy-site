@@ -29,6 +29,8 @@
 | `data/content.json` | 內容備份 |
 | `tools/build_sheet.py` | 產生試算表範本（xlsx）與 `data/content.json`，需要 openpyxl |
 | `assets/taiwan-map.js` | 研習場次地圖的縣市輪廓與四區標記座標 |
+| `tools/expo_src.html` | 展場互動展區（2026 資訊教育科技展）的頁面原始檔；試玩程式以 `/*DEMO_JS*/` 佔位 |
+| `tools/build_expo.py` | 把 `expo_src.html` 和 `assets/demo.js` 組成可離線開啟的單一 HTML（輸出在 repo 根目錄，檔名結尾 `_重構版.html`）。改了展區頁或 `demo.js` 後執行 `python tools/build_expo.py` |
 | `tools/build_map.py` | 由 [taiwan-atlas](https://www.npmjs.com/package/taiwan-atlas) 的 `counties-10t.json` 產生 `assets/taiwan-map.js`；研習地點換了就改檔案裡的 `VENUES` 座標再執行 |
 
 ## 修改程式或樣式後

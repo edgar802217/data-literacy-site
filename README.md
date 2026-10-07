@@ -1,5 +1,9 @@
 # 教育資料素養提升計畫網站
 
+> **新版開發中**：多頁式網站（研習報名、我的研習、證書查驗、分析平台、後台）在 [`web/`](web/README.md)，預計部署到 Vercel。
+> 設計稿在 `docs/design/`（`wireframes.html` 線框圖、`visual.html` 視覺稿與設計系統）。
+> 新版上線前，下面這個一頁式網站繼續在 GitHub Pages 運作。
+
 一頁式計畫網站：最新消息、研習簡章與場次、課程介紹、AI 輔助分析平台入口、常見問題。
 部署在 GitHub Pages：https://edgar802217.github.io/data-literacy-site/
 
@@ -31,16 +35,7 @@
 | `assets/taiwan-map.js` | 研習場次地圖的縣市輪廓與四區標記座標 |
 | `tools/expo_src.html` | 展場互動展區（2026 資訊教育科技展）的頁面原始檔；試玩程式以 `/*DEMO_JS*/` 佔位 |
 | `tools/build_expo.py` | 把 `expo_src.html` 和 `assets/demo.js` 組成可離線開啟的單一 HTML（輸出在 repo 根目錄，檔名結尾 `_重構版.html`）。改了展區頁或 `demo.js` 後執行 `python tools/build_expo.py` |
-| `member-demo.html` | 會員功能示範：原本的首頁加上登入後的內容（你的下一步、場次報名、研習路徑、分析平台開通狀態、我的報名、研習證明、個人資料）。由 `index.html` 複製而來，首頁改版時要一起改 |
-| `admin-demo.html` | 後台示範：講師工作台、縣市承辦（講師培訓推薦）、計畫承辦（審核、結業、全教網匯出、講師管理、課程設定、平台權限） |
-| `assets/portal-core.js`、`assets/portal-ui.css` | 兩個示範頁共用的示範資料、流程與元件樣式；資料只存在瀏覽器的 localStorage。`assets/member-demo.js` 是網站這一側的會員功能 |
 | `tools/build_map.py` | 由 [taiwan-atlas](https://www.npmjs.com/package/taiwan-atlas) 的 `counties-10t.json` 產生 `assets/taiwan-map.js`；研習地點換了就改檔案裡的 `VENUES` 座標再執行 |
-
-## 會員功能示範
-
-`member-demo.html` 與 `admin-demo.html` 是討論用的操作示範，不是正式功能：沒有後端、不會寄信。
-上方深色的示範列可以切換身分（訪客、學員、受推薦者、講師、縣市承辦、計畫承辦），兩頁共用同一份資料。
-`assets/app.js` 裡的 `SITE_HOOKS` 是示範頁用的接點，正式首頁沒有設定它，行為不變。
 
 ## 修改程式或樣式後
 

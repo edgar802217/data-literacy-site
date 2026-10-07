@@ -1,0 +1,865 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>研習入口網示範</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC:wght@500;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+</head>
+<body>
+<style>
+/* Layout: 主站同一套淺色系（顏色取自 LOGO）。上方深色「示範列」不屬於產品本身；
+   下方是入口網：左側依身分分組的選單，右側工作區。刻意只做淺色版，與主站一致。 */
+:root{
+  color-scheme:light;
+  --bg:#FFFFFF; --paper:#F4F8FA; --mist:#EAF5F7; --peach:#FFF3E6; --line:#E1E9EE;
+  --ink:#1E2B38; --soft:#5B6B7A;
+  --blue:#1B5FA6; --blue-dk:#164E89; --teal:#0E6E7A; --orange:#EE7A1D; --orange-tx:#B45309;
+  --good:#1F7A4D; --good-bg:#E6F4EC; --bad:#B42318; --bad-bg:#FDECEA; --info-bg:#E8F0FA;
+  --demo:#1E2B38; --demo-2:#2C3E50; --demo-tx:#F4F8FA;
+  --f-head:"Chiron GoRound TC","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --r:12px;
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{color:var(--ink);font:16px/1.7 var(--f-body);margin:0;-webkit-font-smoothing:antialiased}
+[hidden]{display:none!important}
+a{color:var(--blue)}
+:focus-visible{outline:3px solid #2185B5;outline-offset:2px;border-radius:6px}
+h1,h2,h3{font-family:var(--f-head);font-weight:800;line-height:1.35;margin:0;text-wrap:balance}
+h1{font-size:1.6rem} h2{font-size:1.2rem} h3{font-size:1.02rem;font-weight:700}
+p{margin:0}
+.muted{color:var(--soft)} .small{font-size:.88rem} .num{font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* 示範列 */
+.demobar{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--demo);color:var(--demo-tx)}
+.demobar .in{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:8px 16px;max-width:1240px;margin:auto}
+.demotag{font:700 .72rem/1 var(--f-body);letter-spacing:.08em;background:var(--orange);color:#fff;padding:5px 8px;border-radius:6px}
+.demobar label{font-size:.85rem;color:#C9D6E2}
+.demobar select{font:inherit;font-size:.9rem;padding:6px 10px;border-radius:8px;border:1px solid #4A6076;background:var(--demo-2);color:var(--demo-tx);width:auto;max-width:100%}
+.demobar .sp{flex:1}
+.dbtn{font:500 .85rem/1 var(--f-body);color:var(--demo-tx);background:transparent;border:1px solid #4A6076;border-radius:8px;padding:8px 10px;cursor:pointer;white-space:nowrap}
+.dbtn:hover{background:var(--demo-2)}
+.dbtn .cnt{display:inline-block;min-width:1.4em;margin-left:4px;padding:1px 5px;border-radius:99px;background:var(--orange);color:#fff;font-size:.75rem}
+.hint{background:var(--demo-2);color:#DCE6EF;font-size:.86rem}
+.hint .in{padding:6px 16px}
+.hint b{color:#FFC48A;font-weight:700}
+
+/* 產品頂欄 */
+.top{border-bottom:1px solid var(--line);background:var(--bg)}
+.top .in{display:flex;align-items:center;gap:14px;max-width:1240px;margin:auto;padding:12px 16px}
+.brand{display:flex;align-items:center;gap:10px;font:800 1.02rem/1.2 var(--f-head);color:var(--ink);text-decoration:none}
+.brand svg{width:34px;height:30px;flex:none}
+.brand small{display:block;font:500 .75rem/1.3 var(--f-body);color:var(--soft)}
+.who{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:.9rem;min-width:0}
+.avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--mist);color:var(--teal);font:800 .95rem/1 var(--f-head);flex:none}
+.who .nm{font-weight:700;line-height:1.3}
+.who .rl{color:var(--soft);font-size:.8rem;line-height:1.3}
+@media (max-width:560px){.who .txt{display:none}.brand small{display:none}}
+
+/* 版面 */
+.layout{display:grid;grid-template-columns:210px minmax(0,1fr);gap:28px;max-width:1240px;margin:auto;padding:24px 16px 64px}
+.side{position:sticky;top:120px;align-self:start}
+.side .grp{font-size:.74rem;font-weight:700;letter-spacing:.08em;color:var(--soft);margin:16px 10px 4px}
+.side .grp:first-child{margin-top:0}
+.side button{display:flex;width:100%;align-items:center;justify-content:space-between;gap:8px;text-align:left;font:500 .95rem/1.3 var(--f-body);color:var(--ink);background:none;border:0;border-radius:8px;padding:9px 10px;cursor:pointer}
+.side button:hover{background:var(--paper)}
+.side button[aria-current="page"]{background:var(--mist);color:var(--teal);font-weight:700}
+.badge{font:700 .72rem/1 var(--f-body);background:var(--orange);color:#fff;border-radius:99px;padding:3px 7px}
+@media (max-width:820px){
+  .layout{grid-template-columns:1fr;gap:16px;padding-top:12px}
+  .side{position:static;display:flex;gap:4px;overflow-x:auto;padding-bottom:6px;border-bottom:1px solid var(--line)}
+  .side .grp{display:none}
+  .side button{width:auto;white-space:nowrap;flex:none}
+}
+main{min-width:0;display:flex;flex-direction:column;gap:20px}
+.phead{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:8px 16px}
+.phead p{color:var(--soft);margin-top:4px}
+
+/* 元件 */
+.card{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:20px}
+.card.tint{background:var(--paper);border-color:transparent}
+.card>h2+*,.card>h3+*{margin-top:12px}
+.stack{display:flex;flex-direction:column;gap:12px}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:0 16px;border-radius:999px;font:700 .92rem/1 var(--f-body);border:2px solid transparent;cursor:pointer;text-decoration:none;white-space:nowrap}
+.btn-p{background:var(--blue);color:#fff}.btn-p:hover{background:var(--blue-dk)}
+.btn-l{background:var(--bg);color:var(--blue);border-color:var(--blue)}.btn-l:hover{background:var(--mist)}
+.btn-g{background:var(--paper);color:var(--ink)}.btn-g:hover{background:var(--line)}
+.btn-d{background:var(--bg);color:var(--bad);border-color:#F2C4BF}.btn-d:hover{background:var(--bad-bg)}
+.btn-s{min-height:32px;padding:0 12px;font-size:.84rem}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.chip{display:inline-flex;align-items:center;gap:4px;font:700 .78rem/1 var(--f-body);padding:5px 9px;border-radius:99px;white-space:nowrap;background:var(--paper);color:var(--soft)}
+.chip.good{background:var(--good-bg);color:var(--good)}
+.chip.warn{background:var(--peach);color:var(--orange-tx)}
+.chip.bad{background:var(--bad-bg);color:var(--bad)}
+.chip.info{background:var(--info-bg);color:var(--blue)}
+.chip.teal{background:var(--mist);color:var(--teal)}
+.why{font-size:.84rem;color:var(--orange-tx)}
+.note{display:flex;gap:10px;align-items:flex-start;background:var(--peach);border-radius:10px;padding:10px 14px;font-size:.88rem;color:#5A3A12}
+.note b{flex:none;font:700 .72rem/1 var(--f-body);letter-spacing:.06em;background:var(--orange);color:#fff;border-radius:5px;padding:5px 6px;margin-top:2px}
+.banner{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;border-radius:var(--r);padding:14px 18px;background:var(--mist);border:1px solid #CDE6EA}
+.banner.warn{background:var(--peach);border-color:#F7D8B5}
+.kpi{display:flex;flex-direction:column;gap:2px;text-align:left;font:inherit;color:inherit;background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;cursor:pointer}
+.kpi:hover{border-color:var(--blue)}
+.kpi b{font:800 1.7rem/1.2 var(--f-head);font-variant-numeric:tabular-nums}
+.kpi.hot b{color:var(--orange-tx)}
+.kpi span{font-size:.86rem;color:var(--soft)}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r)}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--paper);font-weight:700;font-size:.8rem;color:var(--soft);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td .sub{font-size:.8rem;color:var(--soft)}
+.course{border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.course .hd{padding:16px 20px;background:var(--paper);display:flex;flex-wrap:wrap;gap:8px 16px;align-items:flex-start;justify-content:space-between}
+.course .hd>div{min-width:0}
+.course .hd p{color:var(--soft);font-size:.9rem;margin-top:4px}
+.sess{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 16px;align-items:center;padding:14px 20px;border-top:1px solid var(--line)}
+.sess .when{font-weight:700}
+.sess .meta{font-size:.86rem;color:var(--soft)}
+.sess .act{display:flex;flex-direction:column;align-items:flex-end;gap:4px;text-align:right}
+@media (max-width:560px){.sess{grid-template-columns:1fr}.sess .act{align-items:flex-start;text-align:left}}
+.steps{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px;list-style:none;padding:0}
+.steps li{font-size:.78rem;padding:4px 10px;border-radius:99px;background:var(--paper);color:var(--soft)}
+.steps li.done{background:var(--good-bg);color:var(--good)}
+.steps li.now{background:var(--blue);color:#fff;font-weight:700}
+.checks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.checks li{display:flex;gap:10px;align-items:center}
+.tick{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font:700 .8rem/1 var(--f-body);flex:none;background:var(--paper);color:var(--soft)}
+.tick.ok{background:var(--good);color:#fff}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+
+/* 表單 */
+form.f{display:flex;flex-direction:column;gap:14px}
+.fld{display:flex;flex-direction:column;gap:5px;min-width:0}
+.fld>label,.fld>.lb{font-weight:700;font-size:.88rem}
+.fld .help{font-size:.8rem;color:var(--soft)}
+input[type=text],input[type=email],input[type=password],select,textarea{font:inherit;font-size:.95rem;color:var(--ink);background:var(--bg);border:1px solid #C9D5DE;border-radius:8px;padding:9px 11px;width:100%}
+textarea{min-height:84px;resize:vertical}
+input[readonly]{background:var(--paper)}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.radios{display:flex;flex-wrap:wrap;gap:8px}
+.radios label{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:8px;padding:7px 12px;font-weight:500;cursor:pointer}
+.err{color:var(--bad);font-size:.85rem}
+
+/* 對話框、通知 */
+.ov{position:fixed;inset:0;z-index:50;background:rgba(30,43,56,.45);display:flex;align-items:flex-start;justify-content:center;padding:max(24px,env(safe-area-inset-top,0px)) 16px 24px;overflow-y:auto}
+.dlg{background:var(--bg);border-radius:16px;width:min(640px,100%);padding:22px 24px;box-shadow:0 20px 50px -20px rgba(0,0,0,.45);display:flex;flex-direction:column;gap:14px}
+.dlg.wide{width:min(860px,100%)}
+.dlg .x{align-self:flex-end;margin:-8px -8px 0 0}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;background:var(--ink);color:#fff;padding:11px 18px;border-radius:10px;font-size:.92rem;max-width:calc(100% - 32px);box-shadow:0 10px 30px -10px rgba(0,0,0,.5)}
+.mail{border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.mail .mh{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;font-size:.82rem;color:var(--soft)}
+.mail .sj{font-weight:700}
+.mail .bd{font-size:.9rem;white-space:pre-line}
+
+/* 研習證明 */
+.certdoc{border:2px solid var(--teal);border-radius:6px;padding:28px 28px 22px;background:linear-gradient(180deg,var(--mist),var(--bg) 40%);text-align:center;display:flex;flex-direction:column;gap:12px}
+.certdoc h2{font-size:1.6rem;letter-spacing:.3em;color:var(--teal)}
+.certdoc .body{font-size:1rem;line-height:2;text-align:left}
+.certdoc .body b{font-family:var(--f-head);font-size:1.1rem}
+.certdoc .foot{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;text-align:left;font-size:.82rem;color:var(--soft);border-top:1px dashed var(--line);padding-top:12px}
+.certdoc svg{width:72px;height:72px;flex:none}
+.code{font:700 .95rem/1.2 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.04em;color:var(--ink)}
+pre.csv{margin:0;padding:12px;background:var(--paper);border-radius:8px;font:.82rem/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;overflow-x:auto;white-space:pre}
+footer{max-width:1240px;margin:auto;padding:0 16px 40px;color:var(--soft);font-size:.82rem}
+</style>
+
+<div class="demobar"><div class="in">
+  <span class="demotag">示範</span>
+  <label for="persona">目前身分</label>
+  <select id="persona" data-chg="persona"></select>
+  <span class="sp"></span>
+  <button class="dbtn" data-act="mailbox">示範信箱<span class="cnt" id="mailcnt">0</span></button>
+  <button class="dbtn" data-act="notes" id="notesbtn">隱藏討論註記</button>
+  <button class="dbtn" data-act="reset">重設示範資料</button>
+</div></div>
+<div class="hint"><div class="in" id="hint"></div></div>
+
+<header class="top"><div class="in">
+  <a class="brand" href="#" data-act="home">
+    <svg viewBox="0 0 34 30" aria-hidden="true"><rect x="1" y="18" width="6" height="11" rx="1.5" fill="#1B5FA6"/><rect x="9.5" y="13" width="6" height="16" rx="1.5" fill="#2185B5"/><rect x="18" y="9" width="6" height="20" rx="1.5" fill="#1E97A3"/><rect x="26.5" y="3" width="6" height="26" rx="1.5" fill="#EE7A1D"/></svg>
+    <span>教育資料素養提升計畫<small>研習與帳號入口網</small></span>
+  </a>
+  <div class="who" id="who"></div>
+</div></header>
+
+<div class="layout">
+  <nav class="side" id="side" aria-label="入口網選單"></nav>
+  <main id="main"></main>
+</div>
+<footer>這是討論用的操作示範：資料都是虛構的，只存在你的瀏覽器裡，不會送到任何伺服器。按上方「重設示範資料」回到初始狀態。</footer>
+<div id="ovroot"></div>
+
+<script>
+'use strict';
+const TODAY = '2026-10-07';
+const KEY = 'dl-portal-demo-v1';
+const JOB = {teacher:'學校教師', school_admin:'學校行政', county_admin:'縣市行政'};
+const ST = {
+  pending:['待審核','warn'], admitted:['已錄取','info'], waitlist:['備取','warn'], rejected:['未錄取','bad'],
+  cancelled:['已取消',''], attended:['已出席','teal'], absent:['缺席','bad'], completed:['已結業','good'], reported:['已登錄全教網','good']
+};
+const ELIG = {
+  open:['不限資格','已驗證 email 的帳號都能報名'],
+  track:['依職務分流','依帳號上的職務選擇分流，且須先完成初階研習'],
+  invite:['縣市推薦制','僅限收到推薦邀請的人報名']
+};
+const COUNTIES = ['臺北市','新北市','桃園市','臺中市','臺南市','高雄市','屏東縣','花蓮縣','宜蘭縣','新竹縣'];
+const QUOTA = 4;
+
+/* ---------- 示範資料 ---------- */
+function seed(){
+  const users = [
+    {id:'u1',name:'王小明',email:'wang.hm@kh.edu.tw',verified:true,job:'teacher',title:'教師',org:'高雄市立前鎮國中',county:'高雄市',roles:['learner'],persona:'一般學員（教師）',
+      hint:'王小明完成了初階，正在等進階（教師軌）審核。切到<b>計畫承辦</b>錄取他，再切回來看狀態變化。'},
+    {id:'u2',name:'林佳慧',email:'lin.jh@tn.edu.tw',verified:true,job:'school_admin',title:'教務主任',org:'臺南市永康區永康國小',county:'臺南市',roles:['learner'],persona:'學校行政（已開通分析平台）',
+      hint:'林佳慧完成了進階研習，所以<b>分析平台</b>已開通；她也被臺南市推薦參加講師培訓，已錄取。'},
+    {id:'u3',name:'陳怡君',email:'yijun.chen@gmail.com',verified:true,job:'school_admin',title:'教務主任',org:'屏東縣潮州鎮潮州國小',county:'屏東縣',roles:['learner'],persona:'被縣市推薦（邀請尚未接受）',
+      hint:'陳怡君的推薦邀請寄到學校信箱，但她是用 Gmail 註冊的。打開上方<b>示範信箱</b>，點她的邀請信，看邀請怎麼綁到現有帳號。'},
+    {id:'u4',name:'張志豪',email:'chang.ch@kh.edu.tw',verified:true,job:'teacher',title:'教師',org:'高雄市立鳳山國中',county:'高雄市',roles:['learner','lecturer'],persona:'講師',
+      lect:{until:'2028-07-05',regions:['南區'],tags:['描述統計','資料視覺化','學習扶助資料'],bio:'國中數學教師，114 年試辦場結訓。'},
+      hint:'10/4 南區初階場還沒點名。到<b>點名</b>完成後，切到<b>計畫承辦</b>核發結業、匯出全教網名單。'},
+    {id:'u5',name:'黃淑芬',email:'huang.sf@kh.edu.tw',verified:true,job:'county_admin',title:'科長',org:'高雄市政府教育局',county:'高雄市',roles:['county'],persona:'縣市承辦（高雄市）',
+      hint:'高雄市講師培訓有 4 個推薦名額，已用 2 個。新增一位，系統會自動寄出邀請信（可在<b>示範信箱</b>看到）。'},
+    {id:'u6',name:'李宜蓁',email:'office@dl-project.example',verified:true,job:null,title:'專任助理',org:'教育資料素養提升計畫辦公室',county:'',roles:['staff'],persona:'計畫承辦（管理者）',
+      hint:'<b>總覽</b>列出所有待辦。可以試著審核報名、核發結業、匯出全教網名單、審查講師認證。'}
+  ];
+  const F = [
+    ['f1','吳俊賢','school_admin','學務主任','高雄市立五福國中','高雄市'],
+    ['f3','蘇建宏','school_admin','教務主任','高雄市立中正高中','高雄市'],
+    ['f4','許雅雯','teacher','教師','臺中市立大墩國中','臺中市'],
+    ['f5','鄭雅文','teacher','教師','臺北市立中山國中','臺北市'],
+    ['f6','楊志明','teacher','教師','高雄市立前鎮國小','高雄市'],
+    ['f7','郭怡婷','teacher','教師','屏東縣屏東市屏東國小','屏東縣'],
+    ['f8','劉建志','school_admin','總務主任','高雄市立鼓山國小','高雄市'],
+    ['f9','何佩珊','teacher','教師','臺南市立後甲國中','臺南市'],
+    ['f10','謝宗翰','teacher','教師','高雄市立三民國中','高雄市'],
+    ['f11','羅淑娟','school_admin','輔導主任','屏東縣內埔鄉內埔國小','屏東縣'],
+    ['f12','洪家豪','teacher','教師','高雄市立左營國中','高雄市'],
+    ['f13','曾美玲','teacher','教師','臺南市立建興國中','臺南市'],
+    ['f14','廖俊傑','county_admin','股長','臺中市政府教育局','臺中市'],
+    ['f15','賴宛如','teacher','教師','高雄市立苓雅國中','高雄市'],
+    ['f16','周志偉','school_admin','教務主任','臺中市立惠文高中','臺中市']
+  ];
+  F.forEach(([id,name,job,title,org,county])=>users.push({id,name,email:id+'@example.edu.tw',verified:true,job,title,org,county,roles:['learner']}));
+  users.find(u=>u.id==='f5').roles.push('lecturer');
+  users.find(u=>u.id==='f5').lect = {until:'2028-07-05',regions:['北區'],tags:['問卷分析','縣市資料'],bio:''};
+
+  const courses = [
+    {id:'A',level:'初階',name:'資料素養基礎與解讀',hours:3,elig:'open',desc:'看懂常見的教育統計，學會提出好的資料問題。'},
+    {id:'B',level:'進階',name:'教育數據分析與應用',hours:6,elig:'track',desc:'依職務分流，用自己單位的資料實作分析。三個分流分開開班。'},
+    {id:'T',level:'講師培訓',name:'學校行政講師培訓工作坊（115 年）',hours:12,elig:'invite',proof:['A1','A2','B5-1'],desc:'兩天共 12 小時。結訓後繳交公版簡報與試教影片，審查通過取得講師資格（效期 2 年）。'}
+  ];
+  const S = (id,course,region,date,venue,cap,open,lect,x={})=>Object.assign({id,course,region,date,venue,cap,open,lect,roll:false},x);
+  const sessions = [
+    S('A0','A','南區','2026-09-12','國立高雄師範大學',60,false,'u4',{roll:true}),
+    S('A1','A','南區','2026-10-04','國立高雄師範大學',60,false,'u4'),
+    S('A2','A','北區','2026-10-17','國立臺北教育大學',60,true,'f5'),
+    S('A3','A','南區','2026-10-24','國立高雄師範大學',60,true,'u4'),
+    S('B0','B','南區','2026-08-22','國立臺南大學',40,false,'u4',{track:'school_admin',roll:true}),
+    S('B1','B','中區','2026-11-07','國立臺中教育大學',40,true,null,{track:'school_admin'}),
+    S('B2','B','南區','2026-11-14','國立高雄師範大學',40,true,'u4',{track:'teacher'}),
+    S('B3','B','中區','2026-11-21','國立臺中教育大學',30,true,'f5',{track:'county_admin'}),
+    S('TC','T','中區','2026-10-31','國立臺中教育大學',30,true,null,{date2:'2026-11-21'}),
+    S('TN','T','北區','2026-11-01','國立臺北教育大學',30,true,'f5',{date2:'2026-11-22'}),
+    S('TS','T','南區','2026-11-07','國立高雄師範大學',30,true,null,{date2:'2026-12-05'}),
+    S('TE','T','東區','2026-11-08','福容大飯店花蓮店',30,true,null,{date2:'2026-11-29'})
+  ];
+  let n = 0;
+  const regs = [];
+  const R = (user,sess,status,x={})=>regs.push(Object.assign({id:'r'+(++n),user,sess,status,at:'2026-09-0'+(1+n%8),meal:'葷',idm:fakeId(n),note:''},x));
+  ['u1','u2','u3','f6','f7','f8','f9'].forEach(u=>R(u,'A0','reported',{at:'2026-08-20'}));
+  ['f10','f11','f12','f13','f15','f16','f1','f3'].forEach(u=>R(u,'A1','admitted',{at:'2026-09-15'}));
+  R('f14','A3','pending',{at:'2026-10-03'});
+  R('f4','A3','admitted',{at:'2026-09-29'});
+  ['u2','f8'].forEach(u=>R(u,'B0','completed',{at:'2026-08-01'}));
+  R('u1','B2','pending',{at:'2026-10-02',note:'想分析學習扶助測驗的班級落差'});
+  R('f6','B2','pending',{at:'2026-10-03'});
+  R('f7','B2','pending',{at:'2026-10-05',note:'學校剛導入平板，想看使用紀錄'});
+  R('u2','TS','admitted',{at:'2026-10-01',files:['A1_研習證明.pdf','A2_研習證明.pdf','B5-1_研習證明.pdf']});
+  R('f1','TS','pending',{at:'2026-10-04',files:['A1A2_研習證明.pdf','B5-1_研習證明.pdf']});
+  R('f16','TC','pending',{at:'2026-10-05',files:['A1_研習證明.pdf']});
+
+  const invites = [
+    {id:'i1',course:'T',county:'高雄市',name:'吳俊賢',email:'f1@example.edu.tw',org:'高雄市立五福國中',status:'accepted',user:'f1',by:'u5',sent:'2026-09-30'},
+    {id:'i2',course:'T',county:'高雄市',name:'蔡雅婷',email:'tsai.yt@kh.edu.tw',org:'高雄市立鼓山高中',status:'sent',user:null,by:'u5',sent:'2026-09-30'},
+    {id:'i3',course:'T',county:'臺南市',name:'林佳慧',email:'lin.jh@tn.edu.tw',org:'臺南市永康區永康國小',status:'accepted',user:'u2',by:null,sent:'2026-09-29'},
+    {id:'i4',course:'T',county:'屏東縣',name:'陳怡君',email:'chen.yj@mail.ptc.edu.tw',org:'屏東縣潮州鎮潮州國小',status:'sent',user:null,by:null,sent:'2026-10-01'},
+    {id:'i5',course:'T',county:'臺中市',name:'周志偉',email:'f16@example.edu.tw',org:'臺中市立惠文高中',status:'accepted',user:'f16',by:null,sent:'2026-09-30'},
+    {id:'i6',course:'T',county:'臺中市',name:'江明哲',email:'chiang.mz@tc.edu.tw',org:'臺中市立居仁國中',status:'sent',user:null,by:null,sent:'2026-09-30'}
+  ];
+  const state = {users,courses,sessions,regs,invites,certs:[],ents:[],reviews:[],mails:[],seq:0,
+    cur:'u1',view:null,notes:true,rollSid:null,rollMarks:{},exportSid:null,reviewFilter:'pending'};
+  regs.filter(r=>r.status==='completed'||r.status==='reported').forEach(r=>issueCert(state,r));
+  state.certs.push({code:certCode(++state.seq),user:'u4',title:'學校行政講師培訓工作坊（114 年試辦）',hours:12,date:'2026-07-05'});
+  state.certs.push({code:certCode(++state.seq),user:'f5',title:'學校行政講師培訓工作坊（114 年試辦）',hours:12,date:'2026-07-05'});
+  state.ents = [
+    {user:'u2',src:'完成進階研習（學校行政軌）',date:'2026-08-22'},
+    {user:'f8',src:'完成進階研習（學校行政軌）',date:'2026-08-22'},
+    {user:'u4',src:'具講師資格',date:'2026-07-05'},
+    {user:'f5',src:'具講師資格',date:'2026-07-05'}
+  ];
+  state.reviews = [
+    {id:'v1',user:'f3',cohort:'114 年試辦場（南區）',at:'2026-09-28',files:['公版簡報_蘇建宏.pptx','試教影片（雲端連結）'],status:'submitted'},
+    {id:'v2',user:'f4',cohort:'114 年試辦場（中區）',at:'2026-10-02',files:['公版簡報_許雅雯.pptx','試教影片（雲端連結）'],status:'submitted'}
+  ];
+  invites.filter(i=>i.status==='sent').forEach(i=>inviteMail(state,i));
+  return state;
+}
+function fakeId(n){const L='EFSDABTHK';return L[n%L.length]+(n%2?'1':'2')+'2****'+String(100+(n*37)%900)}
+function certCode(seq){const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let x=seq*7919+1237,s='';for(let i=0;i<5;i++){s+=A[x%A.length];x=Math.floor(x/A.length)+seq*31}return 'DL115-'+s}
+function issueCert(st,r){
+  const s=st.sessions.find(x=>x.id===r.sess), c=st.courses.find(x=>x.id===s.course);
+  if(st.certs.some(x=>x.reg===r.id))return;
+  st.certs.push({code:certCode(++st.seq),user:r.user,reg:r.id,title:c.level+'研習「'+c.name+'」'+(s.track?'（'+JOB[s.track]+'軌）':''),hours:c.hours,date:s.date2||s.date});
+}
+function inviteMail(st,i){
+  const c=st.courses.find(x=>x.id===i.course);
+  st.mails.unshift({id:'m'+Date.now()+Math.random().toString(36).slice(2,6),to:i.email,date:i.sent,
+    subject:'【教育資料素養提升計畫】'+i.county+'推薦您參加'+c.name,
+    body:i.name+' 您好：\n'+i.county+'推薦您參加「'+c.name+'」。請點下方按鈕接受邀請：\n・還沒有帳號：直接註冊，email 會自動帶入並視為已驗證\n・已經有帳號：登入後，邀請會綁到您的帳號（帳號 email 不同也可以）\n此連結 14 天內有效，只能使用一次。',
+    action:{type:'invite',id:i.id,label:'接受邀請'}});
+}
+
+/* ---------- 狀態存取 ---------- */
+let st;
+function load(){try{const raw=localStorage.getItem(KEY);if(raw){st=JSON.parse(raw);if(st&&st.users)return}}catch(e){}st=seed()}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}}
+
+/* ---------- 小工具 ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const U=id=>st.users.find(u=>u.id===id);
+const SS=id=>st.sessions.find(s=>s.id===id);
+const C=id=>st.courses.find(c=>c.id===id);
+const me=()=>st.cur?U(st.cur):null;
+const has=(u,r)=>!!u&&u.roles.includes(r);
+function md(d){if(!d)return'';const t=new Date(d+'T00:00:00');return (t.getMonth()+1)+'/'+t.getDate()+'（'+'日一二三四五六'[t.getDay()]+'）'}
+function chip(t,k){return '<span class="chip '+(k||'')+'">'+esc(t)+'</span>'}
+function stChip(s){const m=ST[s];return chip(m[0],m[1])}
+function note(t){return st.notes?'<div class="note"><b>討論</b><span>'+t+'</span></div>':''}
+function ended(s){return (s.date2||s.date)<TODAY}
+function sessWhen(s){return md(s.date)+(s.date2?'、'+md(s.date2):'')}
+function sessName(s){const c=C(s.course);return c.level+(s.track?'・'+JOB[s.track]+'軌':'')+'｜'+s.region+' '+sessWhen(s)}
+function active(r){return !['cancelled','rejected'].includes(r.status)}
+function taken(s){return st.regs.filter(r=>r.sess===s.id&&['admitted','attended','completed','reported'].includes(r.status)).length}
+function done(uid,cid){return st.regs.some(r=>r.user===uid&&['completed','reported'].includes(r.status)&&SS(r.sess).course===cid)}
+function entitled(uid){return st.ents.some(e=>e.user===uid)}
+function mask(name){return name.length<2?name:name[0]+'○'+name.slice(2)}
+function toast(t){document.querySelectorAll('.toast').forEach(x=>x.remove());const d=document.createElement('div');d.className='toast';d.setAttribute('role','status');d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),3200)}
+function modal(html,wide){$('#ovroot').innerHTML='<div class="ov" data-act="closeov"><div class="dlg'+(wide?' wide':'')+'" role="dialog" aria-modal="true"><button class="btn btn-g btn-s x" data-act="close">關閉</button>'+html+'</div></div>';const f=$('#ovroot input:not([readonly]),#ovroot select,#ovroot .dlg .btn-p');if(f)f.focus()}
+function closeModal(){$('#ovroot').innerHTML=''}
+
+function elig(u,s){
+  const c=C(s.course);
+  if(!u)return{ok:false,why:'登入或註冊後即可報名',login:true};
+  if(!has(u,'learner'))return{ok:false,why:'此身分不能報名'};
+  if(!u.verified)return{ok:false,why:'請先完成 email 驗證'};
+  const mine=st.regs.find(r=>r.user===u.id&&active(r)&&SS(r.sess).course===c.id);
+  if(mine)return{ok:false,why:mine.sess===s.id?'你已報名這個場次':'你已報名本課程的其他場次',mine:true};
+  if(ended(s))return{ok:false,why:'已結束'};
+  if(!s.open)return{ok:false,why:'尚未開放報名'};
+  if(c.elig==='track'){
+    if(s.track&&u.job!==s.track)return{ok:false,why:'此分流限'+JOB[s.track]+'（你的職務是'+(JOB[u.job]||'未填')+'）'};
+    if(!done(u.id,'A'))return{ok:false,why:'需先完成初階研習'};
+  }
+  if(c.elig==='invite'&&!st.invites.some(i=>i.course===c.id&&i.user===u.id&&i.status==='accepted'))return{ok:false,why:'採縣市推薦，限收到邀請的人報名'};
+  if(taken(s)>=s.cap)return{ok:true,full:true};
+  return{ok:true};
+}
+
+/* ---------- 選單 ---------- */
+function navFor(u){
+  if(!u)return[['公開頁面',[['catalog','研習課程'],['signup','註冊／登入'],['verify','證書查驗']]]];
+  const g=[];
+  if(has(u,'learner'))g.push(['我的學習',[['home','我的首頁'],['catalog','研習報名'],['myregs','我的報名'],['certs','研習證明'],['analytics','分析平台']]]);
+  if(has(u,'lecturer'))g.push(['授課',[['teach','我的授課'],['roll','點名'],['lectq','講師資格']]]);
+  if(has(u,'county'))g.push(['縣市承辦',[['nominate','講師培訓推薦'],['countystat','本縣市參與']]]);
+  if(has(u,'staff'))g.push(['計畫管理',[['dash','總覽'],['review','報名審核'],['invites','推薦與邀請'],['complete','結業與全教網'],['lecturers','講師管理'],['courses','課程設定'],['ents','平台權限']]]);
+  if(!has(u,'staff'))g.push(['帳號',[['profile','個人資料']]]);
+  return g;
+}
+function badgeFor(v,u){
+  let n=0;
+  if(v==='review')n=st.regs.filter(r=>r.status==='pending').length;
+  if(v==='complete')n=st.sessions.filter(s=>ended(s)&&st.regs.some(r=>r.sess===s.id&&['admitted','attended','completed'].includes(r.status))).length;
+  if(v==='lecturers')n=st.reviews.filter(r=>r.status==='submitted').length;
+  if(v==='roll')n=st.sessions.filter(s=>s.lect===u.id&&ended(s)&&!s.roll).length;
+  if(v==='home'&&u)n=pendingInvites(u).length;
+  return n?'<span class="badge">'+n+'</span>':'';
+}
+function pendingInvites(u){return st.invites.filter(i=>i.status==='sent'&&i.email===u.email)}
+
+/* ---------- 畫面 ---------- */
+const V={};
+
+V.home=u=>{
+  const inv=pendingInvites(u);
+  const regs=st.regs.filter(r=>r.user===u.id&&active(r)&&!ended(SS(r.sess))).sort((a,b)=>SS(a.sess).date<SS(b.sess).date?-1:1);
+  const certs=st.certs.filter(c=>c.user===u.id);
+  let h='<div class="phead"><div><h1>'+esc(u.name)+'，你好</h1><p>'+esc(u.org)+'・'+esc(JOB[u.job]||'')+'</p></div></div>';
+  if(!u.verified)h+='<div class="banner warn"><span>email 還沒驗證，驗證後才能報名研習。驗證信已寄到 <b>'+esc(u.email)+'</b>。</span><button class="btn btn-l btn-s" data-act="mailbox">打開示範信箱</button></div>';
+  inv.forEach(i=>{h+='<div class="banner"><span><b>'+esc(i.county)+'</b>推薦你參加「'+esc(C(i.course).name)+'」。</span><button class="btn btn-p btn-s" data-act="accept" data-id="'+i.id+'">接受邀請</button></div>'});
+  h+='<div class="grid3">'
+    +'<button class="kpi" data-act="go" data-v="myregs"><span>進行中的報名</span><b>'+regs.length+'</b><span>'+(regs[0]?esc(sessName(SS(regs[0].sess))):'目前沒有')+'</span></button>'
+    +'<button class="kpi" data-act="go" data-v="certs"><span>研習證明</span><b>'+certs.length+'</b><span>共 '+certs.reduce((a,c)=>a+c.hours,0)+' 小時</span></button>'
+    +'<button class="kpi" data-act="go" data-v="analytics"><span>分析平台</span><b>'+(entitled(u.id)?'已開通':'未開通')+'</b><span>'+(entitled(u.id)?'用同一組帳號直接進入':'完成進階研習後開通')+'</span></button>'
+    +'</div>';
+  h+='<div class="card"><h2>接下來</h2><div class="stack">';
+  const next=[];
+  regs.forEach(r=>{const s=SS(r.sess);next.push('<div class="row"><span>'+stChip(r.status)+'</span><span>'+esc(sessName(s))+'・'+esc(s.venue)+'</span></div>')});
+  if(!done(u.id,'A')&&!regs.some(r=>SS(r.sess).course==='A'))next.push('<div class="row"><span>還沒上過初階研習。</span><button class="btn btn-l btn-s" data-act="go" data-v="catalog">看初階場次</button></div>');
+  else if(done(u.id,'A')&&!done(u.id,'B')&&!regs.some(r=>SS(r.sess).course==='B'))next.push('<div class="row"><span>已完成初階，可以報名'+esc(JOB[u.job]||'')+'的進階分流。</span><button class="btn btn-l btn-s" data-act="go" data-v="catalog">看進階場次</button></div>');
+  h+=(next.join('')||'<p class="muted">目前沒有待辦事項。</p>')+'</div></div>';
+  h+=note('首頁只放「這個人現在要做什麼」：待接受的邀請、報名進度、下一步該上的課。');
+  return h;
+};
+
+V.catalog=u=>{
+  let h='<div class="phead"><div><h1>研習報名</h1><p>每門課的報名資格不同，符合資格的場次才能按報名。</p></div></div>';
+  h+=note('資格寫在每門課的「資格類型」：不限、依職務分流、縣市推薦制。承辦可以在「課程設定」切換，下面的按鈕會跟著變。');
+  st.courses.forEach(c=>{
+    h+='<section class="course"><div class="hd"><div><div class="row">'+chip(c.level,'teal')+'<h2>'+esc(c.name)+'</h2></div><p>'+esc(c.desc)+'</p></div><div class="stack" style="align-items:flex-end;gap:4px">'+chip(ELIG[c.elig][0],c.elig==='invite'?'warn':'info')+'<span class="small muted">'+c.hours+' 小時・'+esc(ELIG[c.elig][1])+'</span></div></div>';
+    st.sessions.filter(s=>s.course===c.id).forEach(s=>{
+      const e=elig(u,s), end=ended(s);
+      let act;
+      if(end)act=chip('已結束');
+      else if(e.ok)act='<button class="btn btn-p btn-s" data-act="apply" data-id="'+s.id+'">'+(e.full?'登記備取':'報名')+'</button>';
+      else if(e.login)act='<button class="btn btn-l btn-s" data-act="go" data-v="signup">登入後報名</button>';
+      else if(e.mine)act=chip('已報名','good');
+      else act='<button class="btn btn-g btn-s" disabled>不符資格</button>';
+      h+='<div class="sess"><div><div class="when num">'+(s.track?chip(JOB[s.track]+'軌','info')+' ':'')+esc(s.region)+'・'+sessWhen(s)+'</div><div class="meta">'+esc(s.venue)+'・名額 <span class="num">'+taken(s)+'/'+s.cap+'</span>'+(s.lect?'・講師 '+esc(U(s.lect).name):'')+'</div></div><div class="act">'+act+(!e.ok&&!end&&!e.login&&!e.mine?'<span class="why">'+esc(e.why)+'</span>':'')+(e.mine?'<span class="small muted">'+esc(e.why)+'</span>':'')+'</div></div>';
+    });
+    h+='</section>';
+  });
+  return h;
+};
+
+V.myregs=u=>{
+  const list=st.regs.filter(r=>r.user===u.id).sort((a,b)=>SS(a.sess).date<SS(b.sess).date?1:-1);
+  let h='<div class="phead"><div><h1>我的報名</h1><p>每筆報名目前走到哪一步。</p></div></div>';
+  h+=note('一條狀態線走到底：報名 → 審核 → 出席 → 結業 → 登錄全教網。學員隨時看得到卡在哪一步，承辦不用一一回覆詢問。');
+  if(!list.length)return h+'<div class="card tint"><p>還沒有報名紀錄。</p></div>';
+  const steps=['報名','審核錄取','出席','結業','登錄全教網'];
+  const pos={pending:1,waitlist:1,admitted:2,attended:3,completed:4,reported:5};
+  list.forEach(r=>{
+    const s=SS(r.sess);
+    const p=pos[r.status];
+    let tl='';
+    if(p!=null)tl='<ol class="steps">'+steps.map((t,i)=>'<li class="'+(i<p?'done':i===p?'now':'')+'">'+t+'</li>').join('')+'</ol>';
+    const canCancel=['pending','admitted','waitlist'].includes(r.status)&&!ended(s);
+    h+='<div class="card"><div class="row" style="justify-content:space-between"><div><h3>'+esc(C(s.course).name)+'</h3><p class="small muted">'+esc(sessName(s))+'・'+esc(s.venue)+'</p></div><div class="row">'+stChip(r.status)+(canCancel?'<button class="btn btn-d btn-s" data-act="cancel" data-id="'+r.id+'">取消報名</button>':'')+'</div></div>'+tl+(r.files?'<p class="small muted" style="margin-top:8px">已附先修證明：'+r.files.map(esc).join('、')+'</p>':'')+'</div>';
+  });
+  return h;
+};
+
+V.certs=u=>{
+  const list=st.certs.filter(c=>c.user===u.id);
+  let h='<div class="phead"><div><h1>研習證明</h1><p>結業後自動產生。每張都有查驗碼，可以給學校或縣市核對。</p></div></div>';
+  h+=note('任何人都能在公開的「證書查驗」輸入查驗碼核對真偽。正式版的查驗碼要用不可預測的亂碼，避免被人猜出來。');
+  if(!list.length)return h+'<div class="card tint"><p>還沒有研習證明，完成研習並結業後會出現在這裡。</p></div>';
+  h+='<div class="tw"><table><thead><tr><th>研習</th><th>日期</th><th>時數</th><th>查驗碼</th><th></th></tr></thead><tbody>';
+  list.forEach(c=>{h+='<tr><td>'+esc(c.title)+'</td><td class="num">'+esc(c.date)+'</td><td class="num">'+c.hours+'</td><td class="code">'+esc(c.code)+'</td><td><button class="btn btn-l btn-s" data-act="cert" data-id="'+esc(c.code)+'">檢視</button></td></tr>'});
+  return h+'</tbody></table></div>';
+};
+
+V.analytics=u=>{
+  let h='<div class="phead"><div><h1>分析平台</h1><p>AI 輔助教育數據分析平台，和入口網共用同一組帳號。</p></div></div>';
+  if(entitled(u.id)){
+    const e=st.ents.find(x=>x.user===u.id);
+    h+='<div class="banner"><div><b>已開通</b><p class="small muted">開通原因：'+esc(e.src)+'（'+esc(e.date)+'）</p></div><button class="btn btn-p" data-act="enter">進入分析平台</button></div>';
+  }else{
+    const a=done(u.id,'A'), b=done(u.id,'B');
+    h+='<div class="card"><h2>開通條件</h2><ul class="checks">'
+      +'<li><span class="tick '+(a?'ok':'')+'">'+(a?'✓':'1')+'</span><span>完成初階研習「資料素養基礎與解讀」</span></li>'
+      +'<li><span class="tick '+(b?'ok':'')+'">'+(b?'✓':'2')+'</span><span>完成進階研習（'+esc(JOB[u.job]||'對應職務')+'軌）</span></li>'
+      +'</ul><div class="row" style="margin-top:14px"><button class="btn btn-l" data-act="go" data-v="catalog">去報名</button><span class="small muted">結業當下自動開通，不用另外申請。</span></div></div>';
+  }
+  h+=note('開通條件存成資料，沒有寫死在程式裡。目前的規則是「完成任一進階研習，或具講師資格」。之後要開放試用、設期限、或讓某個縣市整批開通，只要改規則。');
+  return h;
+};
+
+V.profile=u=>{
+  let h='<div class="phead"><div><h1>個人資料</h1></div></div>';
+  h+='<div class="card"><form class="f" data-form="profile"><div class="fgrid">'
+   +'<div class="fld"><label for="p-name">姓名</label><input id="p-name" name="name" type="text" value="'+esc(u.name)+'" required></div>'
+   +'<div class="fld"><span class="lb">Email</span><div class="row"><span>'+esc(u.email)+'</span>'+(u.verified?chip('已驗證','good'):chip('未驗證','warn'))+'</div></div>'
+   +'<div class="fld"><label for="p-job">職務</label><select id="p-job" name="job">'+Object.entries(JOB).map(([k,v])=>'<option value="'+k+'"'+(u.job===k?' selected':'')+'>'+v+'</option>').join('')+'</select><span class="help">決定你能報哪一個進階分流。</span></div>'
+   +'<div class="fld"><label for="p-title">職稱</label><input id="p-title" name="title" type="text" value="'+esc(u.title)+'"></div>'
+   +'<div class="fld"><label for="p-org">服務單位</label><input id="p-org" name="org" type="text" value="'+esc(u.org)+'"></div>'
+   +'<div class="fld"><label for="p-county">縣市</label><select id="p-county" name="county">'+COUNTIES.map(c=>'<option'+(u.county===c?' selected':'')+'>'+c+'</option>').join('')+'</select></div>'
+   +'</div><div class="row"><button class="btn btn-p" type="submit">儲存</button></div></form></div>';
+  h+='<div class="card tint"><h3>教育雲端帳號</h3><div class="row"><span class="muted small">尚未綁定。綁定後可以用教育雲端帳號直接登入。</span><button class="btn btn-g btn-s" disabled>綁定（規劃中）</button></div></div>';
+  h+=note('職務目前由使用者自己填，承辦在報名審核時把關。也可以改成由學校或縣市確認，要看行政負擔能不能接受。');
+  return h;
+};
+
+/* 公開頁 */
+V.signup=()=>{
+  let h='<div class="phead"><div><h1>註冊／登入</h1></div></div><div class="grid2">';
+  h+='<div class="card"><h2>登入</h2><div class="stack"><button class="btn btn-g" disabled>以教育雲端帳號登入（規劃中）</button><p class="small muted">示範中不需要密碼，請用上方「目前身分」切換成任一位使用者。</p></div></div>';
+  h+='<div class="card"><h2>註冊新帳號</h2>'+signupForm({})+'</div></div>';
+  h+=note('先用 email＋密碼註冊，並驗證信箱。之後接上教育雲端帳號時，同一個人可以把兩種登入方式綁在一起，報名紀錄不會斷。');
+  return h;
+};
+function signupForm(o){
+  return '<form class="f" data-form="signup">'+(o.inv?'<input type="hidden" name="inv" value="'+o.inv.id+'">':'')
+   +'<div class="fgrid"><div class="fld"><label for="s-name">姓名</label><input id="s-name" name="name" type="text" required value="'+esc(o.inv?o.inv.name:'')+'"></div>'
+   +'<div class="fld"><label for="s-email">Email</label><input id="s-email" name="email" type="email" required '+(o.inv?'readonly ':'')+'value="'+esc(o.inv?o.inv.email:'')+'" placeholder="name@school.edu.tw">'+(o.inv?'<span class="help">由邀請連結帶入，視為已驗證</span>':'')+'</div></div>'
+   +'<div class="fld"><span class="lb">職務</span><div class="radios">'+Object.entries(JOB).map(([k,v],i)=>'<label><input type="radio" name="job" value="'+k+'"'+(i===(o.inv?1:0)?' checked':'')+'>'+v+'</label>').join('')+'</div></div>'
+   +'<div class="fgrid"><div class="fld"><label for="s-org">服務單位</label><input id="s-org" name="org" type="text" required value="'+esc(o.inv?o.inv.org:'')+'"></div>'
+   +'<div class="fld"><label for="s-county">縣市</label><select id="s-county" name="county">'+COUNTIES.map(c=>'<option'+(o.inv&&o.inv.county===c?' selected':'')+'>'+c+'</option>').join('')+'</select></div></div>'
+   +'<div class="fld"><label for="s-pw">密碼</label><input id="s-pw" name="pw" type="password" minlength="12" required placeholder="至少 12 個字元"></div>'
+   +'<div class="row"><button class="btn btn-p" type="submit">'+(o.inv?'註冊並接受邀請':'註冊')+'</button></div></form>';
+}
+
+V.verify=()=>{
+  const ex=st.certs[0]?st.certs[0].code:'';
+  return '<div class="phead"><div><h1>證書查驗</h1><p>輸入研習證明上的查驗碼，確認證明是否由本計畫核發。</p></div></div>'
+   +'<div class="card"><form class="f" data-form="verify"><div class="fld"><label for="v-code">查驗碼</label><input id="v-code" name="code" type="text" placeholder="例如 '+esc(ex)+'" required><span class="help">示範用查驗碼：<span class="code">'+esc(ex)+'</span></span></div><div class="row"><button class="btn btn-p" type="submit">查驗</button></div></form><div id="vres" style="margin-top:14px"></div></div>'
+   +note('查驗結果只顯示遮罩過的姓名、課程、日期與時數，不露出服務單位或聯絡方式。');
+};
+
+/* 講師 */
+V.teach=u=>{
+  const list=st.sessions.filter(s=>s.lect===u.id).sort((a,b)=>a.date<b.date?-1:1);
+  let h='<div class="phead"><div><h1>我的授課</h1><p>承辦指派給你的場次。</p></div></div>';
+  h+='<div class="tw"><table><thead><tr><th>場次</th><th>地點</th><th>學員</th><th>狀態</th><th></th></tr></thead><tbody>';
+  list.forEach(s=>{
+    const n=st.regs.filter(r=>r.sess===s.id&&['admitted','attended','absent','completed','reported'].includes(r.status)).length;
+    const stt=!ended(s)?chip('即將開始','info'):s.roll?chip('已點名','good'):chip('待點名','warn');
+    h+='<tr><td>'+esc(sessName(s))+'</td><td>'+esc(s.venue)+'</td><td class="num">'+n+'</td><td>'+stt+'</td><td>'+(ended(s)&&!s.roll?'<button class="btn btn-p btn-s" data-act="roll" data-id="'+s.id+'">去點名</button>':'<button class="btn btn-g btn-s" data-act="roster" data-id="'+s.id+'">學員名單</button>')+'</td></tr>';
+  });
+  h+='</tbody></table></div>';
+  h+=note('講師只看得到自己場次的學員姓名與服務單位，看不到身分證字號、email 等資料。');
+  return h;
+};
+V.roll=u=>{
+  const pool=st.sessions.filter(s=>ended(s)&&(has(u,'staff')||s.lect===u.id)&&st.regs.some(r=>r.sess===s.id&&r.status==='admitted'));
+  let h='<div class="phead"><div><h1>點名</h1><p>研習結束後登記每位學員是否出席，承辦會依此核發結業。</p></div></div>';
+  if(!pool.length)return h+'<div class="card tint"><p>沒有待點名的場次。</p></div>'+note('之後可以改成學員現場掃 QR code 自行簽到，講師只要確認。');
+  if(!pool.some(s=>s.id===st.rollSid)){st.rollSid=pool[0].id;st.rollMarks={}}
+  const s=SS(st.rollSid);
+  const list=st.regs.filter(r=>r.sess===s.id&&r.status==='admitted');
+  h+='<div class="card"><div class="row" style="justify-content:space-between"><div class="fld" style="flex:1 1 260px"><label for="rollsel">場次</label><select id="rollsel" data-chg="rollsel">'+pool.map(x=>'<option value="'+x.id+'"'+(x.id===s.id?' selected':'')+'>'+esc(sessName(x))+'</option>').join('')+'</select></div><button class="btn btn-l btn-s" data-act="rollall">全部標為出席</button></div></div>';
+  h+='<div class="tw"><table><thead><tr><th>學員</th><th>服務單位</th><th>出席</th></tr></thead><tbody>';
+  list.forEach(r=>{const p=U(r.user),m=st.rollMarks[r.id];
+    h+='<tr><td>'+esc(p.name)+'</td><td>'+esc(p.org)+'</td><td><div class="row"><button class="btn btn-s '+(m==='attended'?'btn-p':'btn-g')+'" data-act="mark" data-id="'+r.id+'" data-v="attended" aria-pressed="'+(m==='attended')+'">出席</button><button class="btn btn-s '+(m==='absent'?'btn-d':'btn-g')+'" data-act="mark" data-id="'+r.id+'" data-v="absent" aria-pressed="'+(m==='absent')+'">缺席</button></div></td></tr>'});
+  const left=list.filter(r=>!st.rollMarks[r.id]).length;
+  h+='</tbody></table></div><div class="row"><button class="btn btn-p" data-act="rollsubmit" '+(left?'disabled':'')+'>送出點名結果</button><span class="small muted">'+(left?'還有 '+left+' 位未標記':'全部已標記')+'</span></div>';
+  h+=note('之後可以改成學員現場掃 QR code 自行簽到，講師只要確認。');
+  return h;
+};
+V.lectq=u=>{
+  const L=u.lect, taught=st.sessions.filter(s=>s.lect===u.id&&ended(s));
+  let h='<div class="phead"><div><h1>講師資格</h1></div></div>';
+  h+='<div class="grid3"><div class="kpi" style="cursor:default"><span>資格效期至</span><b class="num">'+esc(L.until)+'</b><span>效期 2 年</span></div><div class="kpi" style="cursor:default"><span>已授課</span><b>'+taught.length+' 場</b><span>系統自動累計</span></div><div class="kpi" style="cursor:default"><span>可授課區域</span><b>'+esc(L.regions.join('、')||'未填')+'</b><span>承辦排課時參考</span></div></div>';
+  h+='<div class="card"><h2>講師檔案</h2><form class="f" data-form="lect"><div class="fld"><span class="lb">可授課區域</span><div class="radios">'+['北區','中區','南區','東區'].map(r=>'<label><input type="checkbox" name="regions" value="'+r+'"'+(L.regions.includes(r)?' checked':'')+'>'+r+'</label>').join('')+'</div></div>'
+   +'<div class="fld"><label for="l-tags">專長（以頓號分隔）</label><input id="l-tags" name="tags" type="text" value="'+esc(L.tags.join('、'))+'"></div>'
+   +'<div class="fld"><label for="l-bio">簡介</label><textarea id="l-bio" name="bio">'+esc(L.bio)+'</textarea></div><div class="row"><button class="btn btn-p" type="submit">儲存</button></div></form></div>';
+  h+='<div class="card tint"><h3>授課紀錄</h3>'+(taught.length?'<ul>'+taught.map(s=>'<li>'+esc(sessName(s))+'・'+esc(s.venue)+'</li>').join('')+'</ul>':'<p class="muted">尚無</p>')+'</div>';
+  h+=note('資格期滿時要參加回流研習，並出示期間內擔任講師的證明。授課紀錄由系統累計，就可以直接當作續證依據。');
+  return h;
+};
+
+/* 縣市承辦 */
+V.nominate=u=>{
+  const mine=st.invites.filter(i=>i.county===u.county&&i.course==='T');
+  const used=mine.filter(i=>i.status!=='withdrawn').length;
+  let h='<div class="phead"><div><h1>講師培訓推薦</h1><p>'+esc(C('T').name)+'・'+esc(u.county)+'名額 <b class="num">'+used+' / '+QUOTA+'</b></p></div></div>';
+  h+='<div class="tw"><table><thead><tr><th>被推薦人</th><th>服務單位</th><th>邀請狀態</th><th>報名狀態</th><th></th></tr></thead><tbody>';
+  mine.forEach(i=>{
+    const r=i.user&&st.regs.find(x=>x.user===i.user&&SS(x.sess).course==='T'&&active(x));
+    const is={sent:chip('已寄邀請・未回應','warn'),accepted:chip('已接受','good'),withdrawn:chip('已撤回')}[i.status];
+    h+='<tr><td>'+esc(i.name)+'<div class="sub">'+esc(i.email)+'</div></td><td>'+esc(i.org)+'</td><td>'+is+'<div class="sub">寄出 '+esc(i.sent)+'</div></td><td>'+(r?stChip(r.status)+'<div class="sub">'+esc(SS(r.sess).region)+'場</div>':'<span class="muted small">尚未報名</span>')+'</td><td>'+(i.status==='sent'?'<div class="row"><button class="btn btn-g btn-s" data-act="resend" data-id="'+i.id+'">重寄</button><button class="btn btn-d btn-s" data-act="withdraw" data-id="'+i.id+'">撤回</button></div>':'')+'</td></tr>';
+  });
+  if(!mine.length)h+='<tr><td colspan="5" class="muted">尚未推薦</td></tr>';
+  h+='</tbody></table></div>';
+  if(used<QUOTA){
+    h+='<div class="card"><h2>新增推薦</h2><form class="f" data-form="nominate"><div class="fgrid"><div class="fld"><label for="n-name">姓名</label><input id="n-name" name="name" type="text" required></div><div class="fld"><label for="n-email">Email</label><input id="n-email" name="email" type="email" required placeholder="建議填常用信箱"></div><div class="fld"><label for="n-org">服務單位</label><input id="n-org" name="org" type="text" required></div></div><div class="row"><button class="btn btn-p" type="submit">推薦並寄出邀請</button><span class="small muted">被推薦人會收到邀請信，點連結就能報名。</span></div></form></div>';
+  }else h+='<div class="card tint"><p>名額已用完。撤回未回應的推薦可以釋出名額。</p></div>';
+  h+=note('縣市直接在平台推薦，取代交 Excel 表格。被推薦人點邀請信就能報名，就算 email 跟帳號不同也能綁定；承辦也看得到誰還沒回應。');
+  return h;
+};
+V.countystat=u=>{
+  const ppl=st.users.filter(x=>x.county===u.county&&has(x,'learner'));
+  let h='<div class="phead"><div><h1>本縣市參與</h1><p>'+esc(u.county)+'教師與行政人員的研習進度。</p></div></div><div class="grid3">';
+  st.courses.forEach(c=>{const reg=ppl.filter(p=>st.regs.some(r=>r.user===p.id&&active(r)&&SS(r.sess).course===c.id)).length,dn=ppl.filter(p=>done(p.id,c.id)).length;
+    h+='<div class="kpi" style="cursor:default"><span>'+esc(c.level)+'・'+esc(c.name)+'</span><b class="num">'+dn+'</b><span>已結業（報名 '+reg+' 人）</span></div>'});
+  h+='</div><div class="tw"><table><thead><tr><th>姓名</th><th>服務單位</th><th>職務</th><th>初階</th><th>進階</th><th>分析平台</th></tr></thead><tbody>';
+  ppl.forEach(p=>{h+='<tr><td>'+esc(p.name)+'</td><td>'+esc(p.org)+'</td><td>'+esc(JOB[p.job])+'</td><td>'+(done(p.id,'A')?chip('結業','good'):'—')+'</td><td>'+(done(p.id,'B')?chip('結業','good'):'—')+'</td><td>'+(entitled(p.id)?chip('已開通','teal'):'—')+'</td></tr>'});
+  h+='</tbody></table></div>';
+  h+=note('縣市只看得到自己縣市的人。要列出姓名，還是只給統計數字，需要再討論。');
+  return h;
+};
+
+/* 計畫承辦 */
+V.dash=()=>{
+  const pend=st.regs.filter(r=>r.status==='pending').length;
+  const roll=st.sessions.filter(s=>ended(s)&&!s.roll&&st.regs.some(r=>r.sess===s.id&&r.status==='admitted')).length;
+  const att=st.regs.filter(r=>r.status==='attended').length;
+  const comp=st.regs.filter(r=>r.status==='completed').length;
+  const rev=st.reviews.filter(r=>r.status==='submitted').length;
+  const inv=st.invites.filter(i=>i.status==='sent').length;
+  const k=(n,t,s,v)=>'<button class="kpi'+(n?' hot':'')+'" data-act="go" data-v="'+v+'"><span>'+t+'</span><b>'+n+'</b><span>'+s+'</span></button>';
+  let h='<div class="phead"><div><h1>總覽</h1><p>今天是 '+md(TODAY)+'。數字是待處理的件數，點進去處理。</p></div></div><div class="grid3">'
+    +k(pend,'待審核報名','含先修證明檢視','review')
+    +k(roll,'待點名場次','等講師點名，或由承辦代點','complete')
+    +k(att,'待核發結業','已出席、尚未結業的人數','complete')
+    +k(comp,'待登錄全教網','已結業、尚未登錄的人數','complete')
+    +k(rev,'待審講師認證','公版簡報與試教影片','lecturers')
+    +k(inv,'推薦邀請未回應','可提醒縣市或重寄','invites')
+    +'</div>';
+  const nol=st.sessions.filter(s=>!ended(s)&&!s.lect);
+  if(nol.length)h+='<div class="banner warn"><span>有 '+nol.length+' 個場次還沒指派講師。</span><button class="btn btn-l btn-s" data-act="go" data-v="lecturers">去指派</button></div>';
+  h+='<div class="card"><h2>近期場次</h2><div class="tw" style="margin-top:12px"><table><thead><tr><th>場次</th><th>地點</th><th>錄取／名額</th><th>待審</th><th>講師</th></tr></thead><tbody>';
+  st.sessions.filter(s=>!ended(s)).sort((a,b)=>a.date<b.date?-1:1).forEach(s=>{h+='<tr><td>'+esc(sessName(s))+'</td><td>'+esc(s.venue)+'</td><td class="num">'+taken(s)+' / '+s.cap+'</td><td class="num">'+st.regs.filter(r=>r.sess===s.id&&r.status==='pending').length+'</td><td>'+(s.lect?esc(U(s.lect).name):chip('未指派','warn'))+'</td></tr>'});
+  return h+'</tbody></table></div></div>';
+};
+V.review=()=>{
+  const f=st.reviewFilter;
+  const list=st.regs.filter(r=>f==='pending'?r.status==='pending':(r.sess===f&&active(r)));
+  let h='<div class="phead"><div><h1>報名審核</h1><p>檢查資格與先修證明後，決定錄取、備取或不錄取。</p></div></div>';
+  h+=note('先修證明（例如 A1、A2、B5-1）是全教網無法幫你審的資料，所以在這裡由承辦檢視。錄取、備取、不錄取都會自動寄信通知學員。');
+  const opts=['<option value="pending"'+(f==='pending'?' selected':'')+'>所有待審核</option>'].concat(st.sessions.filter(s=>!ended(s)).map(s=>'<option value="'+s.id+'"'+(f===s.id?' selected':'')+'>'+esc(sessName(s))+'</option>'));
+  h+='<div class="row"><div class="fld" style="flex:1 1 280px"><label for="rf">顯示</label><select id="rf" data-chg="rfilter">'+opts.join('')+'</select></div>'+(list.some(r=>r.status==='pending')?'<button class="btn btn-l btn-s" data-act="admitall" style="align-self:flex-end">待審核的全部錄取</button>':'')+'</div>';
+  if(!list.length)return h+'<div class="card tint"><p>沒有符合條件的報名。</p></div>';
+  h+='<div class="tw"><table><thead><tr><th>報名者</th><th>場次</th><th>資格檢核</th><th>報名留言</th><th>狀態／處理</th></tr></thead><tbody>';
+  list.forEach(r=>{
+    const p=U(r.user),s=SS(r.sess),c=C(s.course);
+    let chk=[];
+    if(s.track)chk.push(p.job===s.track?chip('職務相符','good'):chip('職務不符','bad'));
+    if(c.elig==='track')chk.push(done(p.id,'A')?chip('初階已結業','good'):chip('查無初階紀錄','bad'));
+    if(c.elig==='invite'){const iv=st.invites.find(i=>i.user===p.id&&i.course===c.id);chk.push(iv?chip(iv.county+'推薦','good'):chip('無推薦','bad'))}
+    if(c.proof)chk.push(r.files&&r.files.length?'<div class="sub">附件：'+r.files.map(esc).join('、')+'</div>':chip('未附先修證明','warn'));
+    if(!chk.length)chk.push(chip('不限資格'));
+    h+='<tr><td>'+esc(p.name)+'<div class="sub">'+esc(p.org)+'・'+esc(JOB[p.job])+'</div></td><td>'+esc(sessName(s))+'<div class="sub">名額 '+taken(s)+'/'+s.cap+'</div></td><td><div class="tags">'+chk.join('')+'</div></td><td class="small">'+(esc(r.note)||'<span class="muted">—</span>')+'</td><td><div class="stack" style="gap:6px">'+stChip(r.status)+'<div class="row" style="gap:4px">'
+      +(r.status!=='admitted'?'<button class="btn btn-p btn-s" data-act="decide" data-id="'+r.id+'" data-v="admitted">錄取</button>':'')
+      +(r.status!=='waitlist'?'<button class="btn btn-g btn-s" data-act="decide" data-id="'+r.id+'" data-v="waitlist">備取</button>':'')
+      +(r.status!=='rejected'?'<button class="btn btn-d btn-s" data-act="decide" data-id="'+r.id+'" data-v="rejected">不錄取</button>':'')
+      +'</div></div></td></tr>';
+  });
+  return h+'</tbody></table></div>';
+};
+V.invites=()=>{
+  let h='<div class="phead"><div><h1>推薦與邀請</h1><p>'+esc(C('T').name)+'・每縣市 '+QUOTA+' 名</p></div></div>';
+  const byC={};st.invites.forEach(i=>{(byC[i.county]=byC[i.county]||{n:0,a:0});if(i.status!=='withdrawn')byC[i.county].n++;if(i.status==='accepted')byC[i.county].a++});
+  h+='<div class="tw"><table><thead><tr><th>縣市</th><th>已推薦</th><th>已接受</th><th>未回應</th></tr></thead><tbody>';
+  Object.entries(byC).forEach(([c,v])=>{h+='<tr><td>'+esc(c)+'</td><td class="num">'+v.n+' / '+QUOTA+'</td><td class="num">'+v.a+'</td><td class="num">'+(v.n-v.a)+'</td></tr>'});
+  h+='</tbody></table></div>';
+  h+='<div class="tw"><table><thead><tr><th>被推薦人</th><th>縣市</th><th>推薦方式</th><th>狀態</th><th></th></tr></thead><tbody>';
+  st.invites.forEach(i=>{h+='<tr><td>'+esc(i.name)+'<div class="sub">'+esc(i.email)+'</div></td><td>'+esc(i.county)+'</td><td class="small">'+(i.by?'縣市在平台推薦':'承辦匯入名單')+'</td><td>'+({sent:chip('未回應','warn'),accepted:chip('已接受','good'),withdrawn:chip('已撤回')}[i.status])+'</td><td>'+(i.status==='sent'?'<button class="btn btn-g btn-s" data-act="resend" data-id="'+i.id+'">重寄</button>':'')+'</td></tr>'});
+  h+='</tbody></table></div>';
+  h+='<div class="card"><h2>匯入推薦名單</h2><p class="small muted">縣市用表格交來的名單，貼上後系統逐筆寄出邀請。每行一位：姓名,email,縣市,服務單位</p><form class="f" data-form="import" style="margin-top:10px"><div class="fld"><label for="imp">名單</label><textarea id="imp" name="rows" placeholder="王大同,wang.dt@hl.edu.tw,花蓮縣,花蓮縣立花崗國中">何志遠,ho.cy@hl.edu.tw,花蓮縣,花蓮縣立花崗國中\n李明珠,lee.mc@hl.edu.tw,花蓮縣,花蓮縣花蓮市明義國小</textarea></div><div class="row"><button class="btn btn-p" type="submit">匯入並寄出邀請</button></div></form></div>';
+  h+=note('兩種來源並存：縣市自己在平台推薦，或承辦匯入縣市交來的名單。兩者都是寄出一次性邀請連結，所以 email 對不上也沒關係。');
+  return h;
+};
+V.complete=()=>{
+  const list=st.sessions.filter(s=>ended(s)).sort((a,b)=>a.date<b.date?1:-1);
+  let h='<div class="phead"><div><h1>結業與全教網</h1><p>已結束的場次：點名 → 核發結業與研習證明 → 匯出名單登錄全教網。</p></div></div>';
+  h+='<div class="tw"><table><thead><tr><th>場次</th><th>點名</th><th>出席</th><th>已結業</th><th>已登錄</th><th>下一步</th></tr></thead><tbody>';
+  list.forEach(s=>{
+    const R=st.regs.filter(r=>r.sess===s.id), cnt=k=>R.filter(r=>r.status===k).length;
+    const att=cnt('attended'),cp=cnt('completed'),rp=cnt('reported');
+    let nx='';
+    if(!s.roll&&cnt('admitted'))nx='<button class="btn btn-g btn-s" data-act="roll" data-id="'+s.id+'">代為點名</button>';
+    else if(att)nx='<button class="btn btn-p btn-s" data-act="graduate" data-id="'+s.id+'">核發結業（'+att+' 人）</button>';
+    else if(cp)nx='<button class="btn btn-p btn-s" data-act="export" data-id="'+s.id+'">匯出全教網名單（'+cp+' 人）</button>';
+    else nx=chip('已完成','good');
+    h+='<tr><td>'+esc(sessName(s))+'<div class="sub">講師 '+esc(s.lect?U(s.lect).name:'—')+'</div></td><td>'+(s.roll?chip('已點名','good'):chip('等講師點名','warn'))+'</td><td class="num">'+(att+cp+rp)+'</td><td class="num">'+(cp+rp)+'</td><td class="num">'+rp+'</td><td>'+nx+'</td></tr>';
+  });
+  h+='</tbody></table></div>';
+  h+=note('核發結業時同時產生研習證明，並依規則自動開通分析平台。匯出欄位要再依全教網實際的批次匯入格式調整，這部分還待確認。');
+  return h;
+};
+V.lecturers=()=>{
+  const L=st.users.filter(u=>has(u,'lecturer'));
+  let h='<div class="phead"><div><h1>講師管理</h1></div></div>';
+  h+=note('講師認證流程：完成講師培訓 → 繳交公版簡報與試教影片 → 計畫團隊審查 → 取得講師資格（效期 2 年）。通過後自動加上講師身分，並開通分析平台。');
+  const q=st.reviews.filter(r=>r.status==='submitted');
+  h+='<div class="card"><h2>講師認證審查</h2>'+(q.length?'<div class="tw" style="margin-top:12px"><table><thead><tr><th>申請人</th><th>培訓梯次</th><th>繳交資料</th><th></th></tr></thead><tbody>'+q.map(r=>{const p=U(r.user);return '<tr><td>'+esc(p.name)+'<div class="sub">'+esc(p.org)+'</div></td><td>'+esc(r.cohort)+'<div class="sub">繳交 '+esc(r.at)+'</div></td><td class="small">'+r.files.map(esc).join('<br>')+'</td><td><div class="row" style="gap:4px"><button class="btn btn-p btn-s" data-act="lectok" data-id="'+r.id+'">通過</button><button class="btn btn-g btn-s" data-act="lectback" data-id="'+r.id+'">退回補件</button></div></td></tr>'}).join('')+'</tbody></table></div>':'<p class="muted">沒有待審件。</p>')+'</div>';
+  h+='<div class="card"><h2>講師名冊</h2><div class="tw" style="margin-top:12px"><table><thead><tr><th>講師</th><th>可授課區域</th><th>專長</th><th>效期至</th><th>已授課</th></tr></thead><tbody>'+L.map(u=>'<tr><td>'+esc(u.name)+'<div class="sub">'+esc(u.org)+'</div></td><td>'+esc(u.lect.regions.join('、')||'—')+'</td><td><div class="tags">'+(u.lect.tags.map(t=>chip(t)).join('')||'—')+'</div></td><td class="num">'+esc(u.lect.until)+'</td><td class="num">'+st.sessions.filter(s=>s.lect===u.id&&ended(s)).length+'</td></tr>').join('')+'</tbody></table></div></div>';
+  h+='<div class="card"><h2>場次指派</h2><div class="tw" style="margin-top:12px"><table><thead><tr><th>場次</th><th>地點</th><th>講師</th></tr></thead><tbody>'+st.sessions.filter(s=>!ended(s)).sort((a,b)=>a.date<b.date?-1:1).map(s=>'<tr><td>'+esc(sessName(s))+'</td><td>'+esc(s.venue)+'</td><td><select aria-label="指派講師" data-chg="assign" data-id="'+s.id+'"><option value="">— 未指派 —</option>'+L.map(u=>'<option value="'+u.id+'"'+(s.lect===u.id?' selected':'')+'>'+esc(u.name)+'（'+esc(u.lect.regions.join('、'))+(u.lect.regions.includes(s.region)?'' :'，非可授課區')+'）</option>').join('')+'</select></td></tr>').join('')+'</tbody></table></div></div>';
+  return h;
+};
+V.courses=()=>{
+  let h='<div class="phead"><div><h1>課程設定</h1><p>改「資格類型」後，切換到學員身分看看報名按鈕的變化。</p></div></div>';
+  st.courses.forEach(c=>{
+    h+='<div class="card"><div class="row" style="justify-content:space-between"><div><div class="row">'+chip(c.level,'teal')+'<h2>'+esc(c.name)+'</h2></div><p class="small muted">'+c.hours+' 小時'+(c.proof?'・報名須附先修證明（'+c.proof.join('、')+'）':'')+'</p></div><div class="fld" style="min-width:200px"><label for="el-'+c.id+'">資格類型</label><select id="el-'+c.id+'" data-chg="elig" data-id="'+c.id+'">'+Object.entries(ELIG).map(([k,v])=>'<option value="'+k+'"'+(c.elig===k?' selected':'')+'>'+v[0]+'</option>').join('')+'</select></div></div>';
+    h+='<div class="tw" style="margin-top:12px"><table><thead><tr><th>場次</th><th>地點</th><th>名額</th><th>報名</th></tr></thead><tbody>'+st.sessions.filter(s=>s.course===c.id).map(s=>'<tr><td>'+esc(sessName(s))+'</td><td>'+esc(s.venue)+'</td><td class="num">'+taken(s)+' / '+s.cap+'</td><td>'+(ended(s)?chip('已結束'):'<button class="btn btn-s '+(s.open?'btn-l':'btn-g')+'" data-act="toggleopen" data-id="'+s.id+'">'+(s.open?'開放中・點此關閉':'已關閉・點此開放')+'</button>')+'</td></tr>').join('')+'</tbody></table></div></div>';
+  });
+  h+=note('116 年的「學校教師講師培訓」與「縣市行政研習」也能用同一套設定開課：前者設成縣市推薦制，後者設成依職務分流。');
+  return h;
+};
+V.ents=()=>{
+  let h='<div class="phead"><div><h1>平台權限</h1><p>誰可以使用 AI 輔助分析平台。</p></div></div>';
+  h+='<div class="card tint"><h3>自動開通規則</h3><ul class="checks" style="margin-top:10px"><li><span class="tick ok">✓</span><span>完成任一進階研習（結業當下開通）</span></li><li><span class="tick ok">✓</span><span>取得講師資格</span></li></ul></div>';
+  h+='<div class="tw"><table><thead><tr><th>使用者</th><th>開通原因</th><th>開通日</th><th></th></tr></thead><tbody>';
+  st.ents.forEach(e=>{const p=U(e.user);h+='<tr><td>'+esc(p.name)+'<div class="sub">'+esc(p.org)+'</div></td><td>'+esc(e.src)+'</td><td class="num">'+esc(e.date)+'</td><td><button class="btn btn-d btn-s" data-act="revoke" data-id="'+e.user+'">停用</button></td></tr>'});
+  h+='</tbody></table></div>';
+  const cand=st.users.filter(u=>has(u,'learner')&&!entitled(u.id));
+  h+='<div class="card"><h2>手動開通</h2><form class="f" data-form="grant" style="margin-top:10px"><div class="fgrid"><div class="fld"><label for="g-user">使用者</label><select id="g-user" name="user">'+cand.map(u=>'<option value="'+u.id+'">'+esc(u.name)+'・'+esc(u.org)+'</option>').join('')+'</select></div><div class="fld"><label for="g-src">原因</label><input id="g-src" name="src" type="text" value="試用（縣市推薦）" required></div></div><div class="row"><button class="btn btn-p" type="submit">開通</button></div></form></div>';
+  h+=note('手動開通都要填原因，留下紀錄。之後可以加上「到期日」，做成限期試用。');
+  return h;
+};
+
+/* ---------- 繪製 ---------- */
+function render(){
+  const u=me();
+  $('#persona').innerHTML='<option value="">訪客（未登入）</option>'+st.users.filter(x=>x.persona).map(x=>'<option value="'+x.id+'"'+(x.id===st.cur?' selected':'')+'>'+esc(x.name)+'｜'+esc(x.persona)+'</option>').join('');
+  if(!u)$('#persona').value='';
+  $('#hint').innerHTML='<b>試試看：</b>'+(u?(u.hint||'新帳號要先驗證 email 才能報名。'):'註冊一個新帳號，再到<b>示範信箱</b>點驗證信；或在<b>證書查驗</b>輸入查驗碼。');
+  $('#mailcnt').textContent=st.mails.length;
+  $('#notesbtn').textContent=st.notes?'隱藏討論註記':'顯示討論註記';
+  $('#who').innerHTML=u?'<div class="txt" style="text-align:right"><div class="nm">'+esc(u.name)+'</div><div class="rl">'+esc(u.org)+'</div></div><div class="avatar" aria-hidden="true">'+esc(u.name[0])+'</div>':'<button class="btn btn-l btn-s" data-act="go" data-v="signup">登入／註冊</button>';
+  const groups=navFor(u), all=groups.flatMap(g=>g[1].map(i=>i[0]));
+  if(!all.includes(st.view)&&!(st.view==='roll'&&has(u,'staff')))st.view=all[0];
+  $('#side').innerHTML=groups.map(([g,items])=>'<div class="grp">'+g+'</div>'+items.map(([k,t])=>'<button data-act="go" data-v="'+k+'"'+(st.view===k?' aria-current="page"':'')+'><span>'+t+'</span>'+badgeFor(k,u)+'</button>').join('')).join('');
+  $('#main').innerHTML=V[st.view](u);
+  save();
+}
+
+/* ---------- 動作 ---------- */
+const A={
+  go:d=>{st.view=d.v;render();window.scrollTo(0,0)},
+  home:()=>{const g=navFor(me());st.view=g[0][1][0][0];render()},
+  reset:()=>{modal('<h2>重設示範資料？</h2><p>所有操作（新註冊的帳號、報名、審核結果）都會清除，回到初始狀態。</p><div class="row"><button class="btn btn-d" data-act="doreset">重設</button><button class="btn btn-g" data-act="close">取消</button></div>')},
+  doreset:()=>{try{localStorage.removeItem(KEY)}catch(e){}st=seed();closeModal();render();toast('已重設示範資料')},
+  notes:()=>{st.notes=!st.notes;render()},
+  close:()=>closeModal(),
+  closeov:(d,el,ev)=>{if(ev.target===el)closeModal()},
+  mailbox:()=>{
+    const list=st.mails;
+    modal('<h2>示範信箱</h2><p class="small muted">系統在示範中寄出的所有信件。正式版會真的寄到對方信箱。</p>'+(list.length?list.map(m=>'<div class="mail"><div class="mh"><span>寄給 '+esc(m.to)+'</span><span>'+esc(m.date)+'</span></div><div class="sj">'+esc(m.subject)+'</div><div class="bd">'+esc(m.body)+'</div>'+(m.action&&!m.used?'<div class="row"><button class="btn btn-p btn-s" data-act="mailgo" data-id="'+m.id+'">'+esc(m.action.label)+'</button></div>':m.action?'<div>'+chip('連結已使用')+'</div>':'')+'</div>').join(''):'<p class="muted">沒有信件。</p>'),true);
+  },
+  mailgo:d=>{
+    const m=st.mails.find(x=>x.id===d.id);if(!m)return;
+    if(m.action.type==='verify'){const u=U(m.action.id);u.verified=true;m.used=true;st.cur=u.id;closeModal();render();toast('email 已驗證，現在可以報名研習了')}
+    else if(m.action.type==='invite')A.accept({id:m.action.id});
+  },
+  accept:d=>{
+    const i=st.invites.find(x=>x.id===d.id), u=me();
+    if(!i||i.status!=='sent'){toast('這個邀請已經使用過');return}
+    if(!u||!has(u,'learner')){
+      modal('<h2>接受邀請：註冊帳號</h2><p class="small muted">'+esc(i.county)+'推薦你參加「'+esc(C(i.course).name)+'」。如果你已經有帳號，請先切換到該帳號再點邀請信。</p>'+signupForm({inv:i}));
+      return;
+    }
+    modal('<h2>把邀請綁到目前的帳號？</h2><div class="tw"><table><tbody><tr><th>邀請寄送的信箱</th><td>'+esc(i.email)+'</td></tr><tr><th>目前登入的帳號</th><td>'+esc(u.name)+'・'+esc(u.email)+'</td></tr></tbody></table></div>'+(i.email!==u.email?'<p class="small">兩個 email 不同沒關係：能點開這封信，就代表你收得到學校信箱。綁定後，推薦資格會掛在目前這個帳號上。</p>':'')+'<div class="row"><button class="btn btn-p" data-act="bind" data-id="'+i.id+'">接受並綁定</button><button class="btn btn-g" data-act="close">取消</button></div>');
+  },
+  bind:d=>{
+    const i=st.invites.find(x=>x.id===d.id),u=me();
+    i.status='accepted';i.user=u.id;st.mails.forEach(m=>{if(m.action&&m.action.id===i.id)m.used=true});
+    closeModal();st.view='catalog';render();toast('已接受邀請，現在可以報名講師培訓了');
+  },
+  apply:d=>{
+    const s=SS(d.id),c=C(s.course),u=me(),e=elig(u,s);
+    modal('<h2>報名：'+esc(c.name)+'</h2><p class="muted small">'+esc(sessName(s))+'・'+esc(s.venue)+(e.full?'・名額已滿，將列為備取':'')+'</p>'
+      +'<form class="f" data-form="apply"><input type="hidden" name="sid" value="'+s.id+'">'
+      +'<div class="fgrid"><div class="fld"><span class="lb">報名者</span><span>'+esc(u.name)+'・'+esc(u.org)+'</span></div><div class="fld"><span class="lb">職務</span><span>'+esc(JOB[u.job])+'</span></div></div>'
+      +'<div class="fld"><label for="a-id">身分證字號</label><input id="a-id" name="idno" type="text" required placeholder="A123456789" autocomplete="off"><span class="help">僅用於登錄全教網研習時數。加密保存、只有承辦看得到，登錄完成 90 天後刪除。（示範中只會留下遮罩後的字號）</span></div>'
+      +(c.proof?'<div class="fld"><label for="a-file">先修證明（'+c.proof.join('、')+'）</label><input id="a-file" name="file" type="file" multiple accept=".pdf,.jpg,.png"><span class="help">沒選檔案的話，示範會自動附上範例檔。</span></div>':'')
+      +'<div class="fld"><span class="lb">午餐</span><div class="radios">'+['葷','素','不用餐'].map((m,i)=>'<label><input type="radio" name="meal" value="'+m+'"'+(i?'':' checked')+'>'+m+'</label>').join('')+'</div></div>'
+      +'<div class="fld"><label for="a-note">想在研習中解決的資料問題（選填）</label><textarea id="a-note" name="note" placeholder="例如：想看學習扶助測驗各班的落差"></textarea></div>'
+      +'<div class="err" id="a-err" hidden></div><div class="row"><button class="btn btn-p" type="submit">送出報名</button><button class="btn btn-g" type="button" data-act="close">取消</button></div></form>'
+      +note('每門課要收的資料不同：先做「固定欄位＋每門課幾個自訂題目」，不要一開始就做成萬用表單產生器。'));
+  },
+  cancel:d=>{modal('<h2>取消這筆報名？</h2><p>取消後名額會釋出給備取的人。</p><div class="row"><button class="btn btn-d" data-act="docancel" data-id="'+d.id+'">取消報名</button><button class="btn btn-g" data-act="close">保留</button></div>')},
+  docancel:d=>{st.regs.find(r=>r.id===d.id).status='cancelled';closeModal();render();toast('已取消報名')},
+  cert:d=>{
+    const c=st.certs.find(x=>x.code===d.id),p=U(c.user);
+    modal('<div class="certdoc"><h2>研習證明</h2><div class="body"><b>'+esc(p.name)+'</b>（'+esc(p.org)+'）於 <span class="num">'+esc(c.date)+'</span> 參加<br>教育資料素養提升計畫 '+esc(c.title)+'，<br>研習時數共 <b class="num">'+c.hours+'</b> 小時，特此證明。</div><div class="foot"><div>教育部補助｜國立高雄師範大學執行<br>查驗碼 <span class="code">'+esc(c.code)+'</span><br>可至入口網「證書查驗」核對</div>'+qr(c.code)+'</div></div><p class="small muted">正式版可下載 PDF。右下角是示意的查驗 QR code，掃描後直接開啟查驗結果。</p>',true);
+  },
+  enter:()=>toast('正式版會直接進入分析平台，不需要再登入一次（共用登入狀態）'),
+  roll:d=>{st.rollSid=d.id;st.rollMarks={};st.view='roll';render();window.scrollTo(0,0)},
+  roster:d=>{const s=SS(d.id),list=st.regs.filter(r=>r.sess===s.id&&['admitted','attended','absent','completed','reported'].includes(r.status));
+    modal('<h2>學員名單</h2><p class="small muted">'+esc(sessName(s))+'</p>'+(list.length?'<div class="tw"><table><thead><tr><th>姓名</th><th>服務單位</th><th>職務</th></tr></thead><tbody>'+list.map(r=>{const p=U(r.user);return '<tr><td>'+esc(p.name)+'</td><td>'+esc(p.org)+'</td><td>'+esc(JOB[p.job])+'</td></tr>'}).join('')+'</tbody></table></div>':'<p class="muted">目前還沒有錄取的學員。</p>'))},
+  mark:d=>{st.rollMarks[d.id]=d.v;render()},
+  rollall:()=>{st.regs.filter(r=>r.sess===st.rollSid&&r.status==='admitted').forEach(r=>st.rollMarks[r.id]='attended');render()},
+  rollsubmit:()=>{const s=SS(st.rollSid);let a=0;st.regs.filter(r=>r.sess===s.id&&r.status==='admitted').forEach(r=>{r.status=st.rollMarks[r.id];if(r.status==='attended')a++});s.roll=true;st.rollMarks={};render();toast('已送出點名：出席 '+a+' 人。承辦會接著核發結業。')},
+  resend:d=>{const i=st.invites.find(x=>x.id===d.id);i.sent=TODAY;inviteMail(st,i);render();toast('已重寄邀請信給 '+i.name)},
+  withdraw:d=>{const i=st.invites.find(x=>x.id===d.id);i.status='withdrawn';st.mails.forEach(m=>{if(m.action&&m.action.id===i.id)m.used=true});render();toast('已撤回推薦，名額已釋出')},
+  decide:d=>{const r=st.regs.find(x=>x.id===d.id);r.status=d.v;const p=U(r.user);st.mails.unshift({id:'m'+Date.now(),to:p.email,date:TODAY,subject:'【教育資料素養提升計畫】報名結果：'+ST[d.v][0],body:p.name+' 您好：\n您報名的「'+sessName(SS(r.sess))+'」審核結果為：'+ST[d.v][0]+'。\n詳情請登入入口網查看「我的報名」。'});render();toast(p.name+'：'+ST[d.v][0]+'，已寄信通知')},
+  admitall:()=>{const f=st.reviewFilter;let n=0;st.regs.filter(r=>r.status==='pending'&&(f==='pending'||r.sess===f)).forEach(r=>{r.status='admitted';n++});render();toast('已錄取 '+n+' 人，已寄信通知')},
+  graduate:d=>{
+    const s=SS(d.id),c=C(s.course);let n=0,g=0;
+    st.regs.filter(r=>r.sess===s.id&&r.status==='attended').forEach(r=>{r.status='completed';issueCert(st,r);n++;
+      if((c.id==='B'||c.id==='T')&&!entitled(r.user)){st.ents.push({user:r.user,src:c.id==='B'?'完成進階研習（'+JOB[s.track]+'軌）':'完成講師培訓',date:TODAY});g++}});
+    render();toast('已核發 '+n+' 張研習證明'+(g?'，並開通 '+g+' 人的分析平台':''));
+  },
+  export:d=>{
+    const s=SS(d.id),c=C(s.course),list=st.regs.filter(r=>r.sess===s.id&&r.status==='completed');
+    const rows=list.map(r=>{const p=U(r.user);return [r.idm,p.name,p.org,s.date2||s.date,c.hours]});
+    const csv=['身分證字號,姓名,服務單位,研習日期,研習時數'].concat(rows.map(x=>x.join(','))).join('\n');
+    st.exportSid=s.id;
+    modal('<h2>匯出全教網名單</h2><p class="small muted">'+esc(sessName(s))+'・共 '+rows.length+' 人</p><pre class="csv" id="csvtext">'+esc(csv)+'</pre><p class="small">示範中身分證字號維持遮罩；正式版匯出時才解密完整字號，而且每次匯出都會記錄在稽核紀錄裡。</p><div class="row"><button class="btn btn-l" data-act="copycsv">複製 CSV</button><button class="btn btn-p" data-act="reported" data-id="'+s.id+'">已登錄完成，標記這 '+rows.length+' 人</button></div>',true);
+  },
+  copycsv:()=>{const t=$('#csvtext').textContent;const sel=()=>{const r=document.createRange();r.selectNodeContents($('#csvtext'));const s=getSelection();s.removeAllRanges();s.addRange(r);toast('已選取文字，請按 Ctrl+C 複製')};try{navigator.clipboard.writeText(t).then(()=>toast('已複製 CSV'),sel)}catch(e){sel()}},
+  reported:d=>{let n=0;st.regs.filter(r=>r.sess===d.id&&r.status==='completed').forEach(r=>{r.status='reported';n++});closeModal();render();toast(n+' 人已標記為登錄全教網')},
+  lectok:d=>{const r=st.reviews.find(x=>x.id===d.id),u=U(r.user);r.status='approved';if(!has(u,'lecturer'))u.roles.push('lecturer');
+    const y=Number(TODAY.slice(0,4))+2;u.lect={until:y+TODAY.slice(4),regions:[],tags:[],bio:''};
+    if(!entitled(u.id))st.ents.push({user:u.id,src:'具講師資格',date:TODAY});render();toast(u.name+' 已取得講師資格（效期至 '+u.lect.until+'）')},
+  lectback:d=>{const r=st.reviews.find(x=>x.id===d.id);r.status='returned';const u=U(r.user);st.mails.unshift({id:'m'+Date.now(),to:u.email,date:TODAY,subject:'【教育資料素養提升計畫】講師認證資料請補件',body:u.name+' 您好：\n您的試教影片需要補充說明，請登入入口網重新上傳。'});render();toast('已退回補件，並寄信通知 '+u.name)},
+  toggleopen:d=>{const s=SS(d.id);s.open=!s.open;render();toast(s.open?'已開放報名':'已關閉報名')},
+  revoke:d=>{const p=U(d.id);st.ents=st.ents.filter(e=>e.user!==d.id);render();toast('已停用 '+p.name+' 的分析平台權限')}
+};
+const CHG={
+  persona:v=>{st.cur=v||null;st.view=null;closeModal();render();window.scrollTo(0,0)},
+  rollsel:v=>{st.rollSid=v;st.rollMarks={};render()},
+  rfilter:v=>{st.reviewFilter=v;render()},
+  assign:(v,el)=>{const s=SS(el.dataset.id);s.lect=v||null;render();toast(v?'已指派 '+U(v).name:'已取消指派')},
+  elig:(v,el)=>{C(el.dataset.id).elig=v;render();toast('已改為「'+ELIG[v][0]+'」')}
+};
+const FORM={
+  signup:(fd,form)=>{
+    const email=fd.get('email').trim().toLowerCase();
+    if(st.users.some(u=>u.email===email)){toast('這個 email 已經註冊過，請直接登入');return}
+    const inv=fd.get('inv')?st.invites.find(i=>i.id===fd.get('inv')):null;
+    const u={id:'n'+Date.now(),name:fd.get('name').trim(),email,verified:!!inv,job:fd.get('job'),title:'',org:fd.get('org').trim(),county:fd.get('county'),roles:['learner'],persona:'新註冊帳號'};
+    st.users.push(u);st.cur=u.id;
+    if(inv){inv.status='accepted';inv.user=u.id;st.mails.forEach(m=>{if(m.action&&m.action.id===inv.id)m.used=true});closeModal();st.view='catalog';render();toast('帳號已建立，邀請已接受')}
+    else{st.mails.unshift({id:'m'+Date.now(),to:email,date:TODAY,subject:'【教育資料素養提升計畫】請驗證您的 email',body:u.name+' 您好：\n請點下方按鈕完成 email 驗證，驗證後即可報名研習。',action:{type:'verify',id:u.id,label:'驗證 email'}});
+      closeModal();st.view='home';render();toast('帳號已建立，驗證信已寄到示範信箱')}
+  },
+  apply:(fd,form)=>{
+    const id=fd.get('idno').trim().toUpperCase();
+    if(!/^[A-Z][1289]\d{8}$/.test(id)){const e=$('#a-err');e.hidden=false;e.textContent='身分證字號格式不對：第 1 碼是英文字母，後面接 9 個數字。';return}
+    const s=SS(fd.get('sid')),c=C(s.course),e=elig(me(),s);
+    const files=c.proof?([...(form.querySelector('#a-file')||{files:[]}).files].map(f=>f.name)):null;
+    st.regs.push({id:'r'+Date.now(),user:st.cur,sess:s.id,status:e.full?'waitlist':'pending',at:TODAY,meal:fd.get('meal'),idm:id.slice(0,3)+'****'+id.slice(-3),note:fd.get('note').trim(),files:c.proof?(files.length?files:c.proof.map(p=>p+'_研習證明（範例）.pdf')):undefined});
+    closeModal();st.view='myregs';render();toast('報名已送出，審核結果會寄信通知');
+  },
+  profile:(fd)=>{const u=me();const old=u.job;['name','job','title','org','county'].forEach(k=>u[k]=fd.get(k).trim());render();toast(old!==u.job?'已儲存。職務已變更，可報名的進階分流也會跟著變。':'已儲存')},
+  lect:(fd)=>{const u=me();u.lect.regions=fd.getAll('regions');u.lect.tags=fd.get('tags').split(/[、,，]/).map(s=>s.trim()).filter(Boolean);u.lect.bio=fd.get('bio');render();toast('講師檔案已更新')},
+  nominate:(fd)=>{const u=me();const i={id:'i'+Date.now(),course:'T',county:u.county,name:fd.get('name').trim(),email:fd.get('email').trim().toLowerCase(),org:fd.get('org').trim(),status:'sent',user:null,by:u.id,sent:TODAY};
+    const ex=st.users.find(x=>x.email===i.email);st.invites.push(i);inviteMail(st,i);render();toast('已推薦 '+i.name+'，邀請信已寄出'+(ex?'（此 email 已有帳號，登入後即可接受）':''))},
+  import:(fd)=>{let n=0;fd.get('rows').split('\n').map(l=>l.trim()).filter(Boolean).forEach(l=>{const [name,email,county,org]=l.split(/[,，]/).map(s=>(s||'').trim());if(!name||!email)return;const i={id:'i'+Date.now()+n,course:'T',county:county||'未填',name,email:email.toLowerCase(),org:org||'',status:'sent',user:null,by:null,sent:TODAY};st.invites.push(i);inviteMail(st,i);n++});render();toast('已匯入 '+n+' 位，邀請信已寄出')},
+  grant:(fd)=>{const id=fd.get('user');if(!id)return;st.ents.push({user:id,src:fd.get('src').trim(),date:TODAY});render();toast('已開通 '+U(id).name+' 的分析平台')},
+  verify:(fd)=>{const code=fd.get('code').trim().toUpperCase(),c=st.certs.find(x=>x.code===code),box=$('#vres');
+    box.innerHTML=c?'<div class="banner"><div><div class="row">'+chip('有效證明','good')+'<span class="code">'+esc(c.code)+'</span></div><p style="margin-top:6px"><b>'+esc(mask(U(c.user).name))+'</b>・'+esc(c.title)+'・'+esc(c.date)+'・'+c.hours+' 小時</p></div></div>':'<div class="banner warn"><span>查無此查驗碼。請確認大小寫與連字號是否正確。</span></div>'}
+};
+function qr(code){
+  let h=0;for(const ch of code)h=(h*31+ch.charCodeAt(0))>>>0;
+  let r='';const N=11,c=6.5;
+  const fin=(x,y)=>'<rect x="'+x+'" y="'+y+'" width="19.5" height="19.5" fill="none" stroke="#1E2B38" stroke-width="3"/><rect x="'+(x+6)+'" y="'+(y+6)+'" width="7.5" height="7.5" fill="#1E2B38"/>';
+  for(let i=0;i<N;i++)for(let j=0;j<N;j++){if((i<3&&j<3)||(i<3&&j>N-4)||(i>N-4&&j<3))continue;h=(h*1103515245+12345)>>>0;if(h&0x10000)r+='<rect x="'+(i*c+1)+'" y="'+(j*c+1)+'" width="'+c+'" height="'+c+'" fill="#1E2B38"/>'}
+  return '<svg viewBox="0 0 74 74" role="img" aria-label="查驗 QR code（示意）"><rect width="74" height="74" fill="#FFFFFF"/>'+fin(1.5,1.5)+fin(53,1.5)+fin(1.5,53)+r+'</svg>';
+}
+
+document.addEventListener('click',ev=>{const el=ev.target.closest('[data-act]');if(!el)return;const f=A[el.dataset.act];if(!f)return;if(el.tagName==='A')ev.preventDefault();f(el.dataset,el,ev)});
+document.addEventListener('change',ev=>{const el=ev.target.closest('[data-chg]');if(el&&CHG[el.dataset.chg])CHG[el.dataset.chg](el.value,el)});
+document.addEventListener('submit',ev=>{const f=ev.target.closest('form[data-form]');if(!f)return;ev.preventDefault();FORM[f.dataset.form](new FormData(f),f)});
+document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&$('#ovroot').innerHTML)closeModal()});
+
+load();render();
+</script>
+</body>
+</html>

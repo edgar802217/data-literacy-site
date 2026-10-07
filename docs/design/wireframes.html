@@ -136,7 +136,12 @@ button{font:inherit;color:inherit}
 .mycard .k{font-size:.8rem;font-weight:700;color:var(--mute);letter-spacing:.06em}
 .mycard .big{font:800 1.12rem/1.4 var(--f-head)}
 .mycard .mfoot{font-size:.86rem;color:var(--mute);display:flex;align-items:center;gap:8px;padding-top:10px;border-top:1px solid var(--line-2)}
-.path{display:grid;grid-template-columns:1fr 1fr 1fr;gap:28px;list-style:none;margin:0;padding:0}
+.tracks{display:grid;grid-template-columns:2fr 1fr;gap:28px;align-items:stretch}
+.tk{display:flex;flex-direction:column;gap:10px}
+.tk-h{font-size:.78rem;font-weight:700;color:var(--mute);letter-spacing:.06em}
+.tk>.pcard{flex:1}
+.unlock{display:flex;align-items:center;gap:8px;font-size:.86rem;color:var(--mute);padding:8px 12px;border:1.5px dashed var(--line);border-radius:10px;align-self:flex-start}
+.path{display:grid;grid-template-columns:1fr 1fr;gap:28px;list-style:none;margin:0;padding:0}
 .pcard{border:1.5px solid var(--line);border-top:5px solid var(--c);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:8px;position:relative;background:var(--paper)}
 .pcard.la{--c:var(--lv-a)}.pcard.lb{--c:var(--lv-b)}.pcard.lt{--c:var(--lv-t)}
 .path li:not(:last-child) .pcard::after{content:"";position:absolute;right:-20px;top:50%;width:10px;height:10px;border-top:2px solid var(--faint);border-right:2px solid var(--faint);transform:translateY(-50%) rotate(45deg)}
@@ -270,7 +275,7 @@ button{font:inherit;color:inherit}
   .hero{grid-template-columns:1fr;gap:24px;padding-block:32px}
   .hero h2{font-size:1.75rem}
   .hero .ph{display:none}
-  .path{grid-template-columns:1fr;gap:12px}
+  .path,.tracks{grid-template-columns:1fr;gap:12px}
   .path li .pcard::after{display:none}
   .teaser,.cols,.gate{grid-template-columns:1fr;gap:20px}
   .stats{grid-template-columns:1fr 1fr}
@@ -390,8 +395,9 @@ W.home = () => {
   return wTop('home')
    +'<div class="wrap hero"><div><p class="eyebrow">教育部補助｜國立高雄師範大學執行</p><h2>教育資料素養提升計畫 '+mk(1)+'</h2><p class="lead">給縣市行政人員、校長主任與老師的資料素養研習。學會看懂教育數據、用數據討論問題，再搭配 AI 輔助分析平台實際操作。</p>'
    +'<div class="acts"><button class="b pri" data-go="find">找研習</button><button class="b sec" data-go="platform">試玩分析平台</button></div></div>'+right+'</div>'
-   +'<section class="sec wash"><div class="wrap"><div class="sec-h"><h3>研習路徑 '+mk(3)+mk(4)+'</h3><p>先建立基礎，再依你的職務用真實資料練習。</p></div><ol class="path">'
-   +pc('A','不限資格','看初階場次',lA)+pc('B','依職務三分流・需先完成初階','看進階場次',lB)+pc('T','縣市推薦','了解講師培訓',lT)+'</ol></div></section>'
+   +'<section class="sec wash"><div class="wrap"><div class="sec-h"><h3>研習課程 '+mk(3)+mk(4)+'</h3><p>一般研習：先建立基礎，再依你的職務用真實資料練習。講師培訓另外由縣市推薦。</p></div><div class="tracks"><div class="tk"><span class="tk-h">一般研習</span><ol class="path">'
+   +pc('A','不限資格','看初階場次',lA)+pc('B','依職務三分流・需先完成初階','看進階場次',lB)+'</ol><span class="unlock">完成進階 → 自動開通 AI 分析平台</span></div>'
+   +'<div class="tk"><span class="tk-h">講師培訓（獨立）</span>'+pc('T','縣市推薦・先修 A1、A2、B5-1','了解講師培訓',lT).replace('<li>','').replace('</li>','')+'</div></div></div></section>'
    +'<section class="sec"><div class="wrap teaser"><div class="ph">平台畫面預覽（靜態截圖或短動畫）</div><div><h3>AI 輔助教育數據分析平台 '+mk(5)+'</h3><p>不用會寫程式。上傳資料、說出想了解的問題，平台完成分析並附上說明，最後由你確認結果。</p><div class="acts"><button class="b sec" data-go="platform">試玩看看</button></div></div></div></section>'
    +'<section class="sec wash"><div class="wrap cols"><div><div class="sec-h"><h3>最新消息 '+mk(6)+'</h3><button class="more" data-go="news">看全部 →</button></div><ul class="list">'+NEWS.map(n=>'<li><time>'+n[0]+'</time><span><span class="k">'+n[1]+'</span>'+n[2]+'</span></li>').join('')+'</ul></div>'
    +'<div><div class="sec-h"><h3>近期活動</h3></div><ul class="list">'+EVENTS.map(e=>'<li><time>'+e[0]+'</time><span>'+e[1]+'</span></li>').join('')+'</ul></div></div></section>'
@@ -481,7 +487,7 @@ const NOTES = {
   home:['首頁','訪客與登入後是同一頁',[
     'Hero 只回答三件事：這是什麼、給誰、下一步按哪裡。主要按鈕只有一個：「找研習」。',
     '登入後，右側動畫換成「你的研習」卡，只放最重要的一件事；完整內容在「研習 › 我的研習」。',
-    '「研習路徑」是首頁的骨幹，合併原本的「課程介紹」和「近期研習」。每張卡直接帶下一場日期，登入後標出自己的狀態。',
+    '「研習課程」是首頁的骨幹，合併原本的「課程介紹」和「近期研習」。一般研習是「初階 → 進階」一條主線，講師培訓是獨立的另一條（縣市推薦）。每張卡直接帶下一場日期，登入後標出自己的狀態。',
     '顏色只代表課程等級：初階藍、進階青、講師培訓橘，全站一致。區域只用文字，不再用顏色。',
     '分析平台只放預覽和一句話；完整試玩移到「分析平台」頁。',
     '消息只放 3 則，附「看全部」。計畫規模數字移到後面，用來建立信任，不搶開頭。',

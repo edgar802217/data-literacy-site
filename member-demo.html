@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>教育資料素養提升計畫</title>
+<title>教育資料素養提升計畫（會員功能示範）</title>
 <meta name="description" content="教育部補助、國立高雄師範大學執行的教育資料素養研習：研習簡章與場次、最新消息、AI 輔助教育數據分析平台。">
 <!-- 內部預覽階段：不讓搜尋引擎收錄。正式公開時刪掉這一行 -->
 <meta name="robots" content="noindex, nofollow">
@@ -17,8 +17,68 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC:wght@500;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="assets/style.css?v=4">
+<link rel="stylesheet" href="assets/portal-ui.css?v=1">
+<style>
+/* 會員功能示範：只補「登入後」才出現的元件，其餘全部沿用主站 style.css */
+.acct{position:relative;flex:none}
+@media (max-width:900px){.acct{margin-left:auto}}
+.av-btn{display:flex;align-items:center;gap:8px;font:700 .92rem/1 var(--f-body);color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:999px;padding:4px 14px 4px 4px;cursor:pointer;min-height:40px}
+.av-btn:hover{border-color:var(--blue)}
+.av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--mist);color:var(--teal);font:800 .95rem/1 var(--f-head)}
+@media (max-width:400px){.av-btn .nm{display:none}.av-btn{padding-right:4px}}
+.menu{position:absolute;right:0;top:calc(100% + 8px);z-index:20;width:240px;background:var(--bg);border:1px solid var(--line);border-radius:12px;box-shadow:0 16px 40px -16px rgba(30,43,56,.35);padding:6px;display:flex;flex-direction:column}
+.menu .mh{padding:8px 10px 10px;display:flex;flex-direction:column;line-height:1.4}
+.menu .mh span{font-size:.82rem;color:var(--soft)}
+.menu button,.menu a{font:inherit;font-size:.95rem;text-align:left;background:none;border:0;border-radius:8px;padding:9px 10px;color:var(--ink);text-decoration:none;cursor:pointer}
+.menu button:hover,.menu a:hover{background:var(--paper)}
+.menu a{color:var(--teal);font-weight:700}
+.menu .sep{height:1px;background:var(--line);margin:4px 6px}
+/* hero：你的下一步 */
+.mine{margin-top:16px;padding:16px 20px;background:var(--bg);border:1px solid var(--line);border-radius:var(--r);box-shadow:0 6px 20px -12px rgba(30,43,56,.25);max-width:760px;display:flex;flex-direction:column;gap:10px}
+.mine-h{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px}
+.mine-h .label{font-size:.85rem;font-weight:700;color:var(--teal);background:var(--mist);padding:2px 10px;border-radius:999px}
+.mine-h .who{font-size:.88rem;color:var(--soft)}
+.mine-list{list-style:none;margin:0;padding:0}
+.mine-list li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px 12px;align-items:center;padding:10px 0;border-top:1px solid var(--line);font-size:.97rem}
+.mine-list li:first-child{border-top:0}
+.mine-list .c{min-width:5.5em}
+@media (max-width:600px){.mine-list li{grid-template-columns:1fr}.mine-list .c{min-width:0}}
+/* 課程介紹：研習路徑 */
+.path{margin-top:48px;display:flex;flex-direction:column;gap:14px}
+.pathl{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;counter-reset:none}
+.pathside{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.pn button{font:inherit;width:100%;height:100%;text-align:left;display:grid;grid-template-columns:auto 1fr;gap:2px 12px;align-items:center;padding:14px 16px;border-radius:var(--r);border:1.5px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;position:relative}
+.pn button:hover{border-color:var(--blue)}
+.pn .k{grid-row:span 2;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font:800 1rem/1 var(--f-head);background:var(--paper);color:var(--soft)}
+.pn .tt{font:700 1.02rem/1.3 var(--f-head)}
+.pn .ss{font-size:.86rem;color:var(--soft)}
+.pn.done button{border-color:#BFE3CF;background:var(--good-bg)}
+.pn.done .k{background:var(--good);color:#fff}
+.pn.done .ss{color:var(--good);font-weight:700}
+.pn.now button{border-color:var(--blue);box-shadow:inset 0 0 0 1px var(--blue)}
+.pn.now .k{background:var(--blue);color:#fff}
+.pn.now .ss{color:var(--blue);font-weight:700}
+.pathl .pn:not(:last-child) button::after{content:"";position:absolute;right:-10px;top:50%;width:8px;height:8px;border-top:2px solid var(--soft);border-right:2px solid var(--soft);transform:translateY(-50%) rotate(45deg)}
+@media (max-width:760px){.pathl,.pathside{grid-template-columns:1fr}.pathl .pn button::after{display:none}}
+/* 分析平台：開通狀態 */
+.plat-lock{display:flex;flex-direction:column;gap:6px;padding:10px 14px;background:var(--bg);border-radius:var(--r);font-size:.92rem}
+#plat-note,#sess-note{margin-top:20px}
+#plat-note:empty,#sess-note:empty{display:none}
+/* 個人頁：沿用主站版型 */
+.member{padding-block:40px 80px;min-height:60vh}
+.member .wrap{display:flex;flex-direction:column;gap:16px}
+.member .sec-head{margin-bottom:0}
+.member .back{align-self:flex-start;font-size:.95rem}
+.mtabs{justify-content:flex-start;margin:0;max-width:none}
+.m-card{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:20px}
+.m-card.tint{background:var(--paper);border-color:transparent}
+.m-card h3{font-size:1.08rem}
+.mpage .hero,.mpage .stats,.mpage main~section,.mpage>section{display:none}
+footer.site .p-link{font-size:.93rem}
+</style>
 </head>
 <body>
+<div id="demobar"></div>
 
 <nav class="nav" aria-label="主選單">
   <div class="wrap">
@@ -30,9 +90,11 @@
       <li><a href="#platform">分析平台</a></li>
       <li><a href="#faq">常見問題</a></li>
     </ul>
-    <a class="btn btn-line" href="#platform" data-link="platform">進入平台</a>
+    <div class="acct" id="acct"></div>
   </div>
 </nav>
+
+<main id="member" class="member" hidden></main>
 
 <header class="hero" id="top">
   <div class="wrap">
@@ -61,6 +123,7 @@
       </svg>
     </div>
     <div class="next" id="next" aria-live="polite" hidden></div>
+    <div class="mine" id="mine" aria-live="polite" hidden></div>
   </div>
 </header>
 
@@ -84,7 +147,7 @@
 
 <section id="sessions">
   <div class="wrap">
-    <div class="sec-head rv"><h2>研習場次</h2><p class="sub">點地圖上的區域，查看日期、地點與報名方式。</p></div>
+    <div class="sec-head rv"><h2>研習場次</h2><p class="sub">點地圖上的區域，查看日期、地點與報名方式。</p><div id="sess-note"></div></div>
     <div class="btabs" id="btabs" role="tablist" aria-label="選擇研習" hidden></div>
     <div class="explorer rv">
       <div class="map-wrap">
@@ -128,6 +191,7 @@
       <div class="role rv" style="--c:var(--c-south)"><h3>校長、主任</h3><p>運用校務資料了解學生學習與學校發展，帶動校內用數據討論的習慣。</p></div>
       <div class="role rv" style="--c:var(--c-east)"><h3>老師</h3><p>從評量結果與課堂回饋找出學生卡住的地方，調整教學與個別支持。</p></div>
     </div>
+    <div class="path" id="path"></div>
   </div>
 </section>
 
@@ -169,11 +233,9 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
         <p>真實資料會先去識別化。AI 只會看到欄位結構和統計摘要，不會取得學生的個別紀錄。</p>
       </div>
-      <div class="actions">
-        <a class="btn btn-primary" href="#platform" data-link="platform">進入分析平台</a>
-        <small>研習學員請使用研習提供的帳號登入</small>
-      </div>
+      <div class="actions" id="plat-acts"></div>
     </div>
+    <div id="plat-note"></div>
   </div>
 </section>
 
@@ -193,9 +255,12 @@
       <dt>計畫主持人</dt><dd>李文廷 教授</dd>
     </dl>
     <dl id="contact" hidden></dl>
+    <p><button type="button" class="p-link" data-pa="page" data-v="verify">研習證明查驗</button></p>
   </div>
 </footer>
 
+<script src="assets/portal-core.js?v=1"></script>
+<script src="assets/member-demo.js?v=1"></script>
 <script src="assets/taiwan-map.js?v=1"></script>
 <script src="assets/app.js?v=5"></script>
 <script src="assets/demo.js?v=1"></script>

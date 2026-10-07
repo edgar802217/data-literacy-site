@@ -8,6 +8,9 @@ const TABS = ["設定", "消息", "簡章", "簡章條目", "場次", "活動", 
 const CACHE_KEY = "dl-site-content-v1";
 const NEWS_LIMIT = 5;
 const MOTION = !matchMedia("(prefers-reduced-motion: reduce)").matches;
+// 會員功能示範（member-demo.html）用的接點：改寫場次資料、在場次上加報名按鈕。
+// 正式頁面沒有設定 window.SITE_HOOKS，行為不變。
+const HOOKS = window.SITE_HOOKS || {};
 
 /* ---------- 讀取資料 ---------- */
 function parseCSV(text) {
@@ -151,7 +154,7 @@ function scheduleTable(sessions, brochure) {
   const dayCell = (d, h) => `<td data-h="${h}"><span>${d ? `${md(d)}<span class="wd">${wd(d)}</span>` : "—"}</span></td>`;
   const rows = sessions.map(s => {
     const [cls, txt] = status(s, brochure["狀態文字"]);
-    const form = isUrl(s["報名表連結"]) && cls !== "done"
+    const form = HOOKS.sessionCell ? HOOKS.sessionCell(s, cls) : isUrl(s["報名表連結"]) && cls !== "done"
       ? `<br><a href="${esc(s["報名表連結"])}" target="_blank" rel="noopener">報名表</a>` : "";
     return `<tr class="${cls === "done" ? "done" : ""}">
       <td class="r"><span class="dot" style="--c:${regionColor(s["區域"])}"></span>${esc(s["區域"])}</td>
@@ -248,7 +251,8 @@ function renderExplorer() {
     <div class="reg-place">${PIN}<div><strong>${s["地點"] ? esc(s["地點"]) : "地點公布中"}</strong>${
       s["時間"] ? `<div class="muted">${esc(s["時間"])}</div>` : ""}</div></div>
     <div class="reg-acts">
-      ${isUrl(s["報名表連結"]) && cls !== "done" ? `<a class="btn btn-primary btn-sm" href="${esc(s["報名表連結"])}" target="_blank" rel="noopener">填寫報名表</a>` : ""}
+      ${HOOKS.sessionActions ? HOOKS.sessionActions(s, cls)
+        : isUrl(s["報名表連結"]) && cls !== "done" ? `<a class="btn btn-primary btn-sm" href="${esc(s["報名表連結"])}" target="_blank" rel="noopener">填寫報名表</a>` : ""}
       <a class="btn btn-line btn-sm" href="#brochure">看完整簡章</a>
     </div>`;
   if (MOTION) { card.classList.remove("swap"); void card.offsetWidth; card.classList.add("swap"); }
@@ -306,6 +310,7 @@ function renderFaq(rows) {
 }
 
 function render(data) {
+  if (HOOKS.data) data = HOOKS.data(data);
   // 缺少的工作表以空陣列處理，避免單一工作表出錯讓整頁壞掉
   state.data = Object.fromEntries(TABS.map(t => [t, Array.isArray(data?.[t]) ? data[t] : []]));
   const parts = [["設定", renderSettings], ["消息", renderNews], ["簡章", renderBrochures],
@@ -314,6 +319,9 @@ function render(data) {
     try { fn(state.data[name]); } catch (e) { console.warn(`「${name}」顯示失敗`, e); }
   }
 }
+
+// 登入身分改變時，示範頁用這個重畫場次區塊
+window.SITE_RERENDER = () => { if (state.data) render(state.data); };
 
 $("btabs").addEventListener("click", e => {
   const t = e.target.closest(".btab"); if (!t) return;

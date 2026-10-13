@@ -138,6 +138,30 @@ li[data-ok="-"] .mk::before { content: "–"; color: var(--muted); }
 .platform { margin-top: 36px; padding-top: 28px; border-top: 1px solid var(--line); }
 .platform h2 { margin: 6px 0 8px; font: 700 25px/1.45 var(--head); }
 .platform p { margin: 0; color: var(--muted); }
+/* 研習路徑：細線、小字，不搶主視覺 */
+.path { margin-top: 28px; }
+.path .eyebrow { margin-bottom: 6px; }
+.path svg { display: block; width: 100%; height: auto; overflow: visible; }
+.path text { font: 400 12.5px var(--sans); fill: var(--muted); }
+.path text.n { font-weight: 700; fill: var(--ink); }
+.path .ln { fill: none; stroke-width: 2; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 700ms var(--ease) var(--d, 0ms), stroke-width 140ms var(--ease); }
+.path .drawn .ln { stroke-dashoffset: 0; }
+.path .dot, .path text { opacity: 0; transition: opacity 400ms var(--ease) calc(var(--d, 0ms) + 300ms); }
+.path .drawn .dot, .path .drawn text { opacity: 1; }
+.path g[data-c] { transition: opacity 160ms var(--ease); }
+.path svg.focus g[data-c]:not(.on) { opacity: .28; }
+.path svg.focus g.on .ln { stroke-width: 3; }
+.path a { cursor: pointer; }
+.path a:focus-visible { outline: none; }
+.path a:focus-visible .dot { stroke: var(--brand); stroke-width: 3; }
+.ca { stroke: var(--lv-a); } .cb { stroke: var(--lv-b); } .ct { stroke: var(--lv-t); }
+.fa { fill: var(--lv-a); } .fb { fill: var(--lv-b); } .ft { fill: var(--lv-t); } .fp { fill: var(--act); }
+.hollow { fill: var(--bg); stroke: var(--lv-t); stroke-width: 2; }
+/* 平台：一筆場次就是一格 */
+.pf-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 250px); gap: 28px; align-items: end; }
+.pf-chart { margin: 0; }
+.pf-chart canvas { display: block; width: 100%; height: 168px; cursor: pointer; }
+.pf-chart figcaption { margin-top: 6px; font-size: 12.5px; color: var(--muted); }
 .platform a { color: var(--brand); display: inline-block; margin-top: 12px; font-weight: 500; text-decoration: underline; text-underline-offset: 7px; padding-block: 8px; }
 
 /* 頁尾 */
@@ -182,6 +206,9 @@ html.fast .rv, html.fast [data-ln] { transition-duration: 200ms; transition-dela
   .site-head { position: relative; z-index: 3; }
 }
 @media (max-width: 767px) {
+  .pf-grid { grid-template-columns: minmax(0, 1fr); }
+  .path .scroll { overflow-x: auto; margin-inline: -20px; padding-inline: 20px; }
+  .path svg { min-width: 560px; }
   .wrap { padding-inline: 20px; }
   .head-in { min-height: 72px; }
   .brand img { width: 42px; }
@@ -202,6 +229,7 @@ html.fast .rv, html.fast [data-ln] { transition-duration: 200ms; transition-dela
 }
 @media (max-width: 359px) { .wrap { padding-inline: 16px; } .pin { margin-left: 12px; } }
 @media (prefers-reduced-motion: reduce) {
+  .path .ln, .path .dot, .path text, .path g[data-c],
   .rv, [data-ln], .panel, .item, .btn, .arr, .checks li, .verdict, .bar i, .ticks i { transition: none; }
 }
 </style>
@@ -294,7 +322,7 @@ html.fast .rv, html.fast [data-ln] { transition-duration: 200ms; transition-dela
           </div>
         </div>
       </div>
-      <div class="item" data-c="B" data-ln="b">
+      <div class="item" data-c="B" data-track="school_admin" data-ln="b">
         <div class="ihead">
           <div class="date"><time class="rv" datetime="2026-11-07">11.07</time></div>
           <div class="main" data-ln="l">
@@ -320,13 +348,52 @@ html.fast .rv, html.fast [data-ln] { transition-duration: 200ms; transition-dela
     </div>
     <div class="all rv" style="--d:560ms"><a href="#">查看全部場次 <span class="arr" aria-hidden="true">→</span></a></div>
 
-    <div class="platform" data-ln="t">
+    <div class="path rv" style="--d:600ms">
+      <p class="eyebrow" id="path-h">研習路徑</p>
+      <div class="scroll">
+      <svg id="pathsvg" viewBox="0 0 640 146" role="group" aria-labelledby="path-h path-d">
+        <desc id="path-d">初階研習之後，依職務選一個進階分流；完成進階研習即開通分析平台。講師培訓由縣市推薦，是另外一條路，取得講師資格後也能使用分析平台。</desc>
+        <g data-c="A">
+          <path class="ln ca" pathLength="1" style="--d:0ms" d="M24 44H150"/>
+          <a href="#" aria-label="初階研習：看場次"><circle class="dot fa" cx="24" cy="44" r="6"/><text class="n" x="14" y="24">初階研習</text></a>
+        </g>
+        <g data-c="B">
+          <path class="ln cb" pathLength="1" style="--d:200ms" d="M150 44C190 44 196 20 236 20H330"/>
+          <path class="ln cb" pathLength="1" style="--d:200ms" d="M150 44H330"/>
+          <path class="ln cb" pathLength="1" style="--d:200ms" d="M150 44C190 44 196 68 236 68H330"/>
+          <path class="ln cb" pathLength="1" style="--d:420ms" d="M410 20C446 20 450 44 486 44"/>
+          <path class="ln cb" pathLength="1" style="--d:420ms" d="M410 44H486"/>
+          <path class="ln cb" pathLength="1" style="--d:420ms" d="M410 68C446 68 450 44 486 44"/>
+          <path class="ln cb" pathLength="1" style="--d:560ms" d="M486 44H592"/>
+          <a href="#" aria-label="進階研習：看場次"><circle class="dot fb" cx="150" cy="44" r="5"/><text class="n" x="150" y="92" text-anchor="middle">進階研習</text></a>
+          <g data-t="county_admin"><text x="340" y="24">縣市行政軌</text></g>
+          <g data-t="school_admin"><text x="340" y="48">學校行政軌</text></g>
+          <g data-t="teacher"><text x="340" y="72">教師軌</text></g>
+        </g>
+        <g data-c="T">
+          <path class="ln ct" pathLength="1" style="--d:150ms" d="M24 118H380"/>
+          <path class="ln ct" pathLength="1" style="--d:500ms" d="M380 118H566C590 118 600 104 600 86V54"/>
+          <circle class="dot hollow" cx="24" cy="118" r="5"/><text x="14" y="142">縣市推薦</text>
+          <a href="#" aria-label="講師培訓：看場次"><circle class="dot ft" cx="200" cy="118" r="6"/><text class="n" x="200" y="142" text-anchor="middle">講師培訓</text></a>
+          <circle class="dot ft" cx="380" cy="118" r="5"/><text x="380" y="142" text-anchor="middle">講師資格（效期 2 年）</text>
+        </g>
+        <a href="#" aria-label="分析平台：了解開通方式"><circle class="dot fp" cx="600" cy="44" r="8"/><text class="n" x="604" y="24" text-anchor="end">開通分析平台</text></a>
+      </svg>
+      </div>
+    </div>
+
+    <div class="platform pf-grid" data-ln="t">
       <div class="rv" data-tx style="--d:620ms">
         <p class="eyebrow">學習，延伸到實際應用</p>
         <h2>把研習所學，帶進資料分析。</h2>
         <p>完成指定培訓後即可使用分析平台，也可以先用示範資料試玩。</p>
         <a href="#">認識分析平台 <span class="arr" aria-hidden="true">→</span></a>
       </div>
+      <figure class="pf-chart rv" style="--d:680ms">
+        <canvas id="pf" aria-hidden="true"></canvas>
+        <figcaption>示範：各區研習場次，一筆場次就是一格。點一下重新排列。</figcaption>
+        <table class="vh"><caption>各區研習場次（示範資料）</caption><tr><th>南區</th><td>6</td></tr><tr><th>北區</th><td>3</td></tr><tr><th>中區</th><td>3</td></tr><tr><th>東區</th><td>1</td></tr></table>
+      </figure>
     </div>
   </section>
 </main>
@@ -381,7 +448,7 @@ html.fast .rv, html.fast [data-ln] { transition-duration: 200ms; transition-dela
   const readColors = () => {
     const cs = getComputedStyle(root);
     const g = n => cs.getPropertyValue(n).trim();
-    C = { bg: g("--bg"), ink: g("--ink"), muted: g("--muted"), paper: g("--paper"), brand: g("--brand"), sea: g("--sea"), A: g("--lv-a-tx"), B: g("--lv-b-tx"), T: g("--lv-t-tx") };
+    C = { bg: g("--bg"), ink: g("--ink"), muted: g("--muted"), paper: g("--paper"), brand: g("--brand"), sea: g("--sea"), A: g("--lv-a-tx"), B: g("--lv-b-tx"), T: g("--lv-t-tx"), act: g("--act"), la: g("--lv-a"), lb: g("--lv-b"), lt: g("--lv-t"), line: g("--line") };
   };
   readColors();
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { readColors(); kick(); });
@@ -660,6 +727,7 @@ html.fast .rv, html.fast [data-ln] { transition-duration: 200ms; transition-dela
     kept = p;
     const cat = p ? CAT[p.tok] : null;
     document.querySelectorAll(".item").forEach(it => it.classList.toggle("linked", !!cat && it.dataset.c === cat));
+    pathFocus(cat, null);
   }
   function drawSlot(now, dt) {
     const rm = RM.matches || !dt;
@@ -773,6 +841,90 @@ html.fast .rv, html.fast [data-ln] { transition-duration: 200ms; transition-dela
     items.forEach(o => { if (o !== it && o.classList.contains("open")) collapse(o); });
     open ? collapse(it) : expand(it);
   }));
+
+  /* ---------- 研習路徑：第一次看到時畫出來；場次或數字被指到時，路徑上對應的位置亮起 ---------- */
+  const psvg = document.getElementById("pathsvg");
+  function pathFocus(cat, track) {
+    psvg.classList.toggle("focus", !!cat);
+    psvg.querySelectorAll("g[data-c]").forEach(g => g.classList.toggle("on", g.dataset.c === cat));
+    psvg.querySelectorAll("g[data-t]").forEach(g => g.querySelector("text").classList.toggle("n", !!track && g.dataset.t === track));
+  }
+  document.querySelectorAll(".item").forEach(it => {
+    const on = () => pathFocus(it.dataset.c, it.dataset.track || null), off = () => pathFocus(null, null);
+    it.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") on(); });
+    it.addEventListener("pointerleave", e => { if (e.pointerType === "mouse") off(); });
+    it.addEventListener("focusin", on); it.addEventListener("focusout", off);
+  });
+  const drawPath = () => psvg.classList.add("drawn");
+  if (RM.matches || !("IntersectionObserver" in window)) drawPath();
+  else {
+    const io = new IntersectionObserver(es => { if (es[0].isIntersecting && mode !== "intro" && !root.classList.contains("pre")) { setTimeout(drawPath, 250); io.disconnect(); } }, { threshold: 0.6 });
+    io.observe(psvg);
+    addEventListener("scroll", function once() { if (mode !== "intro") { io.unobserve(psvg); io.observe(psvg); removeEventListener("scroll", once); } }, { passive: true });
+    setTimeout(() => { io.unobserve(psvg); io.observe(psvg); }, 3400);
+  }
+
+  /* ---------- 平台：散落的場次排成長條圖（一筆一格） ---------- */
+  const pf = document.getElementById("pf");
+  const REG = [["南區", ["09.12", "10.04", "10.24", "08.22", "11.14", "11.07"]], ["北區", ["10.17", "11.21", "11.01"]], ["中區", ["10.25", "11.07", "10.31"]], ["東區", ["11.08"]]];
+  let pctx, pW = 0, pH = 168, cells = [], pT0 = 0, pRaf = 0, pDone = false;
+  function pfLayout() {
+    pW = pf.getBoundingClientRect().width; if (!pW) return false;
+    pctx = fit(pf, pW, pH);
+    const gap = 12, bw = Math.min(58, (pW - gap * 3) / 4), x0 = (pW - (bw * 4 + gap * 3)) / 2;
+    const cols = [C.act, C.la, C.lb, C.lt];
+    cells = [];
+    REG.forEach(([reg, ds], i) => ds.forEach((d, k) => cells.push({
+      reg: i, d, col: cols[i], x: x0 + i * (bw + gap), w: bw, y: pH - 28 - (k + 1) * 17,
+      sx: Math.random() * (pW - bw), sy: 6 + Math.random() * (pH - 50), dl: i * 110 + k * 70
+    })));
+    pfLayout.bars = REG.map(([reg, ds], i) => ({ reg, n: ds.length, x: x0 + i * (bw + gap) + bw / 2, top: pH - 28 - ds.length * 17, col: cols[i] }));
+    return true;
+  }
+  function pfDraw(t) {
+    pctx.clearRect(0, 0, pW, pH);
+    pctx.textBaseline = "alphabetic";
+    let all = true;
+    for (const c of cells) {
+      const q = ease(clamp((t - c.dl) / 760, 0, 1)); if (q < 1) all = false;
+      const x = c.sx + (c.x - c.sx) * q, y = c.sy + (c.y - c.sy) * q;
+      const landed = q > 0.6;
+      if (landed) { pctx.globalAlpha = 0.16 * (q - 0.6) / 0.4; pctx.fillStyle = c.col; pctx.fillRect(x, y, c.w, 15); }
+      pctx.globalAlpha = landed ? 1 : 0.5;
+      pctx.fillStyle = landed ? c.col : C.sea;
+      pctx.font = `10.5px ${MONO}`;
+      pctx.fillText(c.d, x + (landed ? (c.w - pctx.measureText(c.d).width) / 2 : 0), y + 11.5);
+    }
+    const la = clamp((t - 1100) / 400, 0, 1);
+    pctx.globalAlpha = la;
+    pctx.fillStyle = C.line || C.muted; pctx.fillRect(0, pH - 24, pW, 1);
+    for (const b of pfLayout.bars) {
+      pctx.fillStyle = C.muted; pctx.font = `12px ${SANS}`; pctx.textAlign = "center";
+      pctx.fillText(b.reg, b.x, pH - 6);
+      pctx.fillStyle = b.col; pctx.font = `700 15px ${HEAD}`;
+      pctx.fillText(String(b.n), b.x, b.top - 6);
+      pctx.textAlign = "start";
+    }
+    pctx.globalAlpha = 1;
+    return all && la >= 1;
+  }
+  function pfRun() {
+    if (!pfLayout()) return;
+    cancelAnimationFrame(pRaf);
+    if (RM.matches) { pfDraw(1e9); return; }
+    pT0 = performance.now();
+    const step = now => { if (!pfDraw(now - pT0)) pRaf = requestAnimationFrame(step); };
+    pRaf = requestAnimationFrame(step);
+  }
+  function pfScatter() { if (pfLayout()) pfDraw(-1); }
+  pf.addEventListener("click", () => { cells.forEach(c => { c.sx = Math.random() * (pW - c.w); c.sy = 6 + Math.random() * (pH - 50); }); pfRun(); });
+  if (RM.matches || !("IntersectionObserver" in window)) pfRun();
+  else {
+    const io2 = new IntersectionObserver(es => { if (es[0].isIntersecting && mode !== "intro" && !root.classList.contains("pre") && !pDone) { pDone = true; setTimeout(pfRun, 200); } }, { threshold: 0.6 });
+    pfScatter(); io2.observe(pf);
+    setTimeout(() => { io2.unobserve(pf); io2.observe(pf); }, 3400);
+  }
+  addEventListener("resize", () => { if (pDone || RM.matches) { pfLayout() && pfDraw(1e9); } else pfScatter(); });
 
   /* 手機選單 */
   const mb = document.querySelector(".menu-btn"), nav = document.getElementById("nav");

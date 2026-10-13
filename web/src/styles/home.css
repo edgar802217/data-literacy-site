@@ -163,3 +163,6 @@ html.hm-pre .hm-rule { background-color: transparent; }
   .hm-rv, .hm [data-ln], .hm-panel, .hm-item, .hm-btn, .hm-arr, .hm-checks li, .hm-verdict, .hm-bar i, .hm-ticks i,
   .hm-path .ln, .hm-path .dot, .hm-path text, .hm-path g[data-c] { transition: none; }
 }
+.hm-path .fut { opacity: .4; }
+.hm-path svg.focus g.fut:not(.on) { opacity: .2; }
+.hm-path .hollow-a { fill: var(--bg); stroke: var(--lv-a); stroke-width: 2; }

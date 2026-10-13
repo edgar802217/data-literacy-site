@@ -11,12 +11,12 @@ export interface User {
   persona?: string; hint?: string; lect?: Lecturer;
 }
 export interface Course {
-  id: CourseId; level: string; name: string; hours: number; elig: Elig;
+  id: CourseId; level: string; code: string; name: string; hours: number; elig: Elig;
   proof?: string[]; desc: string; content: string[];
 }
 export interface Session {
   id: string; course: CourseId; region: string; date: string; date2?: string;
-  time: string; venue: string; address: string; cap: number; open: boolean;
+  time: string; venue: string; address: string; venue2?: string; address2?: string; cap: number; open: boolean;
   lect: string | null; track?: Job; roll: boolean; deadline: string;
 }
 export interface Reg {

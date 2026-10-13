@@ -2,17 +2,18 @@
 import type { Course, CourseId, Invite, Job, Reg, RegStatus, Session, State, User } from "./types";
 
 // 示範資料以這一天為「今天」，畫面才會和場次日期對得上
-export const TODAY = "2026-10-07";
+export const TODAY = "2026-10-13";
 
 export const JOB: Record<Job, string> = { teacher: "學校教師", school_admin: "學校行政", county_admin: "縣市行政" };
 export const ST: Record<RegStatus, [string, "can" | "ok" | "wait" | "no"]> = {
   pending: ["待審核", "wait"], admitted: ["已錄取", "ok"], waitlist: ["備取", "wait"], rejected: ["未錄取", "no"],
   cancelled: ["已取消", "no"], attended: ["已出席", "ok"], absent: ["缺席", "no"], completed: ["已結業", "ok"], reported: ["已登錄全教網", "ok"],
 };
-export const ELIG_LABEL = { open: "不限資格", track: "依職務分流", invite: "縣市推薦制" } as const;
+export const ELIG_LABEL = { open: "不限資格", track: "依職務分流", invite: "推動辦公室推薦" } as const;
 export const LV_CLASS: Record<CourseId, string> = { A: "la", B: "lb", T: "lt" };
 export const COUNTIES = ["臺北市", "新北市", "桃園市", "臺中市", "臺南市", "高雄市", "基隆市", "新竹市", "嘉義市", "新竹縣", "苗栗縣", "彰化縣", "南投縣", "雲林縣", "嘉義縣", "屏東縣", "宜蘭縣", "花蓮縣", "臺東縣", "澎湖縣", "金門縣", "連江縣"];
-export const QUOTA = 4;
+/** 各推動辦公室至少推薦的 G1 人數 */
+export const MIN_G1 = 1;
 
 const WD = "日一二三四五六";
 const dt = (d: string) => new Date(d + "T00:00:00");
@@ -29,9 +30,16 @@ export const user = (st: State, id: string | null) => (id ? st.users.find(u => u
 export const has = (u: User | undefined, r: User["roles"][number]) => !!u && u.roles.includes(r);
 export const isAdmin = (u?: User) => has(u, "staff") || has(u, "county") || has(u, "lecturer");
 
-/** 例：進階・學校教師軌 */
-export const levelName = (st: State, s: Session) => course(st, s.course).level + (s.track ? "・" + JOB[s.track] + "軌" : "");
-/** 例：進階・學校教師軌｜南區 11/14（六） */
+/** 課程代碼：進階課程依分流是 B6-1／B6-2／B6-3 */
+export const TRACK_CODE: Record<Job, string> = { county_admin: "B6-1.", school_admin: "B6-2.", teacher: "B6-3." };
+export const codeOf = (st: State, s: Session) => (s.course === "B" && s.track ? TRACK_CODE[s.track] : course(st, s.course).code);
+/** 例：進階課程｜B6-2. */
+export const kindOf = (st: State, s: Session) => course(st, s.course).level + "｜" + codeOf(st, s);
+/** 例：教育資料實務應用工作坊（學校行政） */
+export const titleOf = (st: State, s: Session) => course(st, s.course).name + (s.course === "B" && s.track ? "（" + JOB[s.track] + "）" : "");
+/** 例：B6-2. 教育資料實務應用工作坊（學校行政） */
+export const levelName = (st: State, s: Session) => codeOf(st, s) + " " + titleOf(st, s);
+/** 例：G1. …講師培訓工作坊｜南區 11/7（六） */
 export const sessName = (st: State, s: Session) => levelName(st, s) + "｜" + s.region + " " + sessWhen(s);
 
 export const active = (r: Reg) => !["cancelled", "rejected"].includes(r.status);
@@ -51,8 +59,8 @@ export function elig(st: State, u: User | undefined, s: Session): EligResult {
   const c = course(st, s.course);
   if (ended(s)) return { ok: false, kind: "no", label: "已結束", why: "這個場次已經結束" };
   if (!u) {
-    if (c.elig === "invite") return { ok: false, kind: "no", label: "縣市推薦制", why: "受推薦者請點邀請信中的連結報名", alt: "invite" };
-    if (c.elig === "track") return { ok: false, kind: "no", label: ELIG_LABEL.track, why: "需先完成初階，並選擇與職務相符的分流", login: true };
+    if (c.elig === "invite") return { ok: false, kind: "no", label: "推薦制", why: "由推動辦公室彙整名單，計畫團隊會以 email 寄送報名連結", alt: "invite" };
+    if (c.elig === "track") return { ok: false, kind: "no", label: ELIG_LABEL.track, why: "需先完成 B6. 基礎課程，並選擇與職務相符的分流", login: true };
     return { ok: false, kind: "can", label: "不限資格", why: "登入後即可報名", login: true };
   }
   const mine = st.regs.find(r => r.user === u.id && r.sess === s.id && active(r));
@@ -64,11 +72,11 @@ export function elig(st: State, u: User | undefined, s: Session): EligResult {
   if (!u.verified) return { ok: false, kind: "no", label: "無法報名", why: "請先完成 email 驗證" };
   if (!s.open || s.deadline < TODAY) return { ok: false, kind: "no", label: "未開放報名", why: s.open ? "報名已截止" : "這個場次目前沒有開放報名" };
   if (c.elig === "track") {
-    if (!done(st, u.id, "A")) return { ok: false, kind: "no", label: "無法報名", why: "需先完成初階研習", alt: "basic" };
+    if (!done(st, u.id, "A")) return { ok: false, kind: "no", label: "無法報名", why: "需先完成 B6. 教育資料素養工作坊", alt: "basic" };
     if (s.track && u.job !== s.track) return { ok: false, kind: "no", label: "無法報名", why: `此分流限${JOB[s.track]}（你的職務是${u.job ? JOB[u.job] : "未填"}）`, alt: "otherTrack" };
   }
   if (c.elig === "invite" && !st.invites.some(i => i.course === c.id && i.user === u.id && i.status === "accepted"))
-    return { ok: false, kind: "no", label: "縣市推薦制", why: "沒有收到這門課的推薦邀請", alt: "invite" };
+    return { ok: false, kind: "no", label: "推薦制", why: "沒有收到這門課的報名連結（由推動辦公室彙整名單）", alt: "invite" };
   if (taken(st, s) >= s.cap) return { ok: true, full: true, kind: "can", label: "可登記備取", why: "" };
   return { ok: true, kind: "can", label: "可報名", why: "" };
 }
@@ -82,25 +90,26 @@ export function certCode(seq: number) {
 export function issueCert(st: State, r: Reg) {
   const s = sess(st, r.sess)!, c = course(st, s.course);
   if (st.certs.some(x => x.reg === r.id)) return;
-  st.certs.push({ code: certCode(++st.seq), user: r.user, reg: r.id, title: c.level + "研習「" + c.name + "」" + (s.track ? "（" + JOB[s.track] + "軌）" : ""), hours: c.hours, date: s.date2 || s.date });
+  st.certs.push({ code: certCode(++st.seq), user: r.user, reg: r.id, title: levelName(st, s), hours: c.hours, date: s.date2 || s.date });
 }
 export function addMail(st: State, to: string, subject: string, body: string, action?: NonNullable<State["mails"][number]["action"]>) {
   st.mails.unshift({ id: "m" + Date.now() + Math.random().toString(36).slice(2, 6), to, date: TODAY, subject, body, action });
 }
 export function inviteMail(st: State, i: Invite) {
   const c: Course = course(st, i.course);
-  addMail(st, i.email, `【教育資料素養提升計畫】${i.county}推薦您參加${c.name}`,
-    `${i.name} 您好：\n${i.county}推薦您參加「${c.name}」。請點下方按鈕接受邀請：\n・還沒有帳號：直接註冊，email 會自動帶入並視為已驗證\n・已經有帳號：登入後，邀請會綁到您的帳號（帳號 email 不同也可以）\n此連結 14 天內有效，只能使用一次。`,
+  addMail(st, i.email, `【教育資料素養提升計畫】${i.county}推動辦公室推薦您參加 ${c.code} ${c.name}`,
+    `${i.name} 您好：\n${i.county}推動辦公室推薦您參加「${c.code} ${c.name}」。請點下方按鈕接受邀請：\n・還沒有帳號：直接註冊，email 會自動帶入並視為已驗證\n・已經有帳號：登入後，邀請會綁到您的帳號（帳號 email 不同也可以）\n此連結 14 天內有效，只能使用一次。`,
     { type: "invite", id: i.id, label: "接受邀請" });
   st.mails[0].date = i.sent;
 }
+const c0 = (st: State, s: Session) => codeOf(st, s);
 /** 結業：核發證明，並依規則開通分析平台 */
 export function graduate(st: State, sid: string) {
   const s = sess(st, sid)!; let n = 0, g = 0;
   st.regs.filter(r => r.sess === sid && r.status === "attended").forEach(r => {
     r.status = "completed"; issueCert(st, r); n++;
     if ((s.course === "B" || s.course === "T") && !entitled(st, r.user)) {
-      st.ents.push({ user: r.user, src: s.course === "B" ? `完成進階研習（${JOB[s.track!]}軌）` : "完成講師培訓", date: TODAY }); g++;
+      st.ents.push({ user: r.user, src: s.course === "B" ? `完成 ${codeOf(st, s)}（${JOB[s.track!]}）` : `完成 ${c0(st, s)} 講師培訓`, date: TODAY }); g++;
     }
   });
   return { n, g };

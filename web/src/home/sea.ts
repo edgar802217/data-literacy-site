@@ -19,7 +19,7 @@ export const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matc
 const ease = (p: number) => (p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 
-function fit(cv: HTMLCanvasElement, w: number, h: number) {
+function fitCanvas(cv: HTMLCanvasElement, w: number, h: number) {
   const d = Math.min(2, devicePixelRatio || 1);
   cv.width = Math.round(w * d); cv.height = Math.round(h * d);
   const x = cv.getContext("2d")!; x.setTransform(d, 0, 0, d, 0, 0); return x;
@@ -61,11 +61,11 @@ function label(x: CanvasRenderingContext2D, C: Colors, w: SeaWords, px: number, 
 /* ---------- 開場 ---------- */
 /** 數字海鋪滿畫面 → 排成版面的線、日期與文字區 → 內容浮現。回傳取消函式。
  *  scope 內：[data-ln] 是要畫出的細線（b/t/l/m），[data-tx] 是文字區，.hm-date time 是日期，.hm-sea 是主視覺方塊。 */
-export function playIntro(scope: HTMLElement, words: SeaWords, onReveal: () => void, onDone: (slotSeed: P[]) => void) {
+export function playIntro(scope: HTMLElement, words: SeaWords, onReveal: () => void, onDone: (slotSeed: SlotSeed) => void) {
   const cv = document.createElement("canvas");
   cv.className = "hm-introcv"; cv.setAttribute("aria-hidden", "true");
   document.body.appendChild(cv);
-  const W = innerWidth, H = innerHeight, x = fit(cv, W, H), C = colors(scope), tok = pick(words);
+  const W = innerWidth, H = innerHeight, x = fitCanvas(cv, W, H), C = colors(scope), tok = pick(words);
   const mobile = W < 768, K = mobile ? 0.75 : 1;
   const T: { x: number; y: number; kind: string; tok?: string; size?: number; cat?: Cat }[] = [];
   const vis = (b: DOMRect) => b.bottom > 0 && b.top < H && b.width > 0;
@@ -166,24 +166,41 @@ export function playIntro(scope: HTMLElement, words: SeaWords, onReveal: () => v
   return () => { if (over) return; over = true; cancelAnimationFrame(raf); SK.forEach(e => removeEventListener(e, skip)); cv.remove(); };
 }
 
-/* ---------- 主視覺：指到的數字留下，其他數字讓開 ---------- */
-export function createSlot(box: HTMLElement, cv: HTMLCanvasElement, words: SeaWords, onKept: (cat: Cat | null) => void, seed?: P[]) {
-  const PUSH = 92, SNAP = 64, tok = pick(words);
-  let C = colors(box), x: CanvasRenderingContext2D, W = 0, H = 0, parts: P[] = [], raf = 0, last = 0, on = true;
-  let ptr: { x: number; y: number } | null = null, kept: P | null = null, rowCat: Cat | null = null, keptCat: Cat | null = null;
-  const seedGrid = () => {
-    const out: P[] = [];
-    for (let y = 16; y < H - 4; y += 22) for (let xx = 6; xx < W; xx += 30)
-      out.push({ x: xx + (Math.random() - .5) * 10, y: y + (Math.random() - .5) * 6, vx: 0.004 + Math.random() * 0.006, ph: Math.random() * 6.28, tok: tok(), a0: 1 });
-    return out;
-  };
-  function layout(s?: P[]) {
-    const b = box.getBoundingClientRect(); W = b.width; H = b.height; if (!W) return false;
-    x = fit(cv, W, H); C = colors(box);
-    parts = (s && s.length ? s : seedGrid()).map(p => ({ ...p, ox: 0, oy: 0, s: 0, f: 0 }));
-    kept = null; return true;
+/* ---------- 左欄數字海：換頁時不重建；指到的數字留下、其他數字讓開；每頁亮起相關的數字 ---------- */
+export type SlotSeed = P[];
+export function createSlot(box: HTMLElement, cv: HTMLCanvasElement, init: SeaWords, onKept: (tok: string | null) => void, seed?: SlotSeed) {
+  const PUSH = 92, SNAP = 64;
+  let words = init, tok = pick(words);
+  let C = colors(box), x: CanvasRenderingContext2D | null = null, W = 0, H = 0, parts: P[] = [], raf = 0, last = 0, on = true;
+  let ptr: { x: number; y: number } | null = null, kept: P | null = null, keptTok: string | null = null;
+  let pageSet = new Set<string>(), rowSet = new Set<string>();
+  const mk = (xx: number, y: number): P => ({ x: xx, y, vx: 0.004 + Math.random() * 0.006, ph: Math.random() * 6.28, tok: tok(), a0: 1, ox: 0, oy: 0, s: 0, f: 0 });
+  /** 量一次方塊大小；舞台收窄或放寬時，數字等比例移動，不重新產生 */
+  function fit() {
+    const b = box.getBoundingClientRect(); if (!b.width) return;
+    const ow = W, oh = H; W = b.width; H = b.height;
+    x = fitCanvas(cv, W, H); C = colors(box);
+    if (!parts.length) {
+      parts = seed && seed.length ? seed.map(p => ({ ...p, ox: 0, oy: 0, s: 0, f: 0 })) : [];
+      if (!parts.length) for (let y = 16; y < H - 4; y += 22) for (let xx = 6; xx < W; xx += 30) parts.push(mk(xx + (Math.random() - .5) * 10, y + (Math.random() - .5) * 6));
+    } else if (ow && oh) {
+      const rx = W / ow, ry = H / oh; parts.forEach(p => { p.x *= rx; p.y *= ry; });
+      const want = Math.round(W * H / 660);
+      if (parts.length > want * 1.3) parts.length = Math.round(want * 1.15);
+      while (parts.length < want) parts.push(mk(Math.random() * W, 16 + Math.random() * (H - 20)));
+    }
+    if (reduced()) draw(0, 0);
   }
-  /* 只有講得出意義的數字會被留下；新的候選要明顯更近才換，避免抖動 */
+  /** 讓這一頁相關的數字至少出現幾次 */
+  function surface(list: string[]) {
+    list.forEach(t => {
+      let n = parts.filter(p => p.tok === t).length;
+      for (let i = 0; i < parts.length * 2 && n < 3; i++) {
+        const p = parts[(Math.random() * parts.length) | 0];
+        if (!words.mean[p.tok] && !pageSet.has(p.tok)) { p.tok = t; p.s = 0; n++; }
+      }
+    });
+  }
   function pickKept() {
     if (!ptr) return null;
     let best: P | null = null, bd = SNAP * SNAP;
@@ -199,10 +216,11 @@ export function createSlot(box: HTMLElement, cv: HTMLCanvasElement, words: SeaWo
     return best;
   }
   function draw(now: number, dt: number) {
+    if (!x) return;
     const rm = reduced() || !dt, k1 = rm ? 1 : 1 - Math.exp(-dt / 90);
     kept = pickKept();
-    const kc = kept ? words.cat[kept.tok] || null : null;
-    if (kc !== keptCat) { keptCat = kc; onKept(kc); }
+    const kt = kept ? kept.tok : null;
+    if (kt !== keptTok) { keptTok = kt; onKept(kt); }
     const cx = kept ? kept.x : ptr ? ptr.x : 0, cy = kept ? kept.y : ptr ? ptr.y : 0;
     x.clearRect(0, 0, W, H);
     let font = "";
@@ -217,19 +235,19 @@ export function createSlot(box: HTMLElement, cv: HTMLCanvasElement, words: SeaWo
         }
       }
       p.ox! += (tox - p.ox!) * k1; p.oy! += (toy - p.oy!) * k1; p.f! += (fade - p.f!) * k1;
-      const hit = !!rowCat && words.cat[p.tok] === rowCat;
-      p.s! += ((p === kept || hit ? 1 : 0) - p.s!) * k1;
-      const sz = 11 + (p === kept ? 9 : 3) * p.s!;
-      const col = p.s! > 0.35 ? C[words.cat[p.tok]] || C.ink : C.sea;
-      const f = `${p.s! > 0.35 ? 500 : 400} ${sz.toFixed(1)}px ${MONO}`;
+      const target = p === kept ? 1 : rowSet.has(p.tok) ? 0.85 : pageSet.has(p.tok) ? 0.55 : 0;
+      p.s! += (target - p.s!) * k1;
+      const sz = 11 + (p === kept ? 9 : 4) * p.s!;
+      const col = p.s! > 0.3 ? C[words.cat[p.tok]] || C.ink : C.sea;
+      const f = `${p.s! > 0.3 ? 500 : 400} ${sz.toFixed(1)}px ${MONO}`;
       if (f !== font) { x.font = f; font = f; }
-      x.globalAlpha = (0.42 + 0.58 * p.s!) * (1 - 0.82 * p.f!); x.fillStyle = col;
+      x.globalAlpha = (0.42 + 0.58 * Math.min(1, p.s! * 1.3)) * (1 - 0.82 * p.f!); x.fillStyle = col;
       x.fillText(p.tok, p.x + p.ox!, p.y + p.oy!);
     }
     if (kept && kept.s! > 0.2) label(x, C, words, kept.x, kept.y, kept.tok, W, Math.min(1, kept.s! * 1.4), 20);
     x.globalAlpha = 1;
   }
-  const frame = (now: number) => { const dt = Math.min(48, now - last); last = now; if (on) draw(now, dt); raf = requestAnimationFrame(frame); };
+  const frame = (now: number) => { const dt = Math.min(48, now - last); last = now; if (on) draw(now, reduced() ? 0 : dt); raf = requestAnimationFrame(frame); };
   const redraw = () => { if (reduced()) draw(0, 0); };
   const local = (e: PointerEvent) => { const b = box.getBoundingClientRect(); return { x: e.clientX - b.left, y: e.clientY - b.top }; };
   const move = (e: PointerEvent) => { if (e.pointerType === "mouse") { ptr = local(e); redraw(); } };
@@ -238,21 +256,24 @@ export function createSlot(box: HTMLElement, cv: HTMLCanvasElement, words: SeaWo
   const away = (e: PointerEvent) => { if (e.pointerType !== "mouse" && !box.contains(e.target as Node)) { ptr = null; redraw(); } };
   const vis = () => { on = !document.hidden; };
   const io = "IntersectionObserver" in window ? new IntersectionObserver(es => { on = es[0].isIntersecting; }) : null;
-  let rt = 0;
-  const resize = () => { clearTimeout(rt); rt = window.setTimeout(() => { if (layout()) redraw(); }, 200); };
+  const ro = new ResizeObserver(() => fit());
   box.addEventListener("pointermove", move); box.addEventListener("pointerleave", leave); box.addEventListener("pointerdown", down);
-  document.addEventListener("pointerdown", away); document.addEventListener("visibilitychange", vis); addEventListener("resize", resize);
-  io?.observe(box);
-  if (layout(seed)) { last = performance.now(); if (reduced()) draw(0, 0); else raf = requestAnimationFrame(frame); }
+  document.addEventListener("pointerdown", away); document.addEventListener("visibilitychange", vis);
+  io?.observe(box); ro.observe(box);
+  fit(); last = performance.now();
+  if (!reduced()) raf = requestAnimationFrame(frame);
   return {
-    setRowCat(c: Cat | null) { rowCat = c; redraw(); },
+    setWords(w: SeaWords) { words = w; tok = pick(w); redraw(); },
+    setPage(list: string[]) { pageSet = new Set(list); surface(list); redraw(); },
+    setRow(list: string[] | null) { rowSet = new Set(list || []); redraw(); },
     destroy() {
-      cancelAnimationFrame(raf); clearTimeout(rt); io?.disconnect();
+      cancelAnimationFrame(raf); io?.disconnect(); ro.disconnect();
       box.removeEventListener("pointermove", move); box.removeEventListener("pointerleave", leave); box.removeEventListener("pointerdown", down);
-      document.removeEventListener("pointerdown", away); document.removeEventListener("visibilitychange", vis); removeEventListener("resize", resize);
+      document.removeEventListener("pointerdown", away); document.removeEventListener("visibilitychange", vis);
     },
   };
 }
+export type Slot = ReturnType<typeof createSlot>;
 
 /* ---------- 平台區：散落的資料排成長條圖，一筆一格 ---------- */
 export interface BarGroup { label: string; items: string[]; color: "act" | "la" | "lb" | "lt" }
@@ -263,7 +284,7 @@ export function createBars(cv: HTMLCanvasElement, groups: BarGroup[]) {
   let bars: { label: string; n: number; x: number; top: number; col: string }[] = [];
   function layout() {
     W = cv.getBoundingClientRect().width; if (!W) return false;
-    x = fit(cv, W, H); C = colors(cv);
+    x = fitCanvas(cv, W, H); C = colors(cv);
     const n = groups.length, gap = 12, bw = Math.min(58, (W - gap * (n - 1)) / n), x0 = (W - (bw * n + gap * (n - 1))) / 2;
     const row = Math.min(17, (H - 56) / Math.max(1, ...groups.map(g => g.items.length)));
     cells = []; bars = [];

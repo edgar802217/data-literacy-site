@@ -2,7 +2,8 @@ import { useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useDemo } from "../demo/store";
 import { done, entitled, has, JOB, openReg, ST } from "../demo/logic";
-import { Badge, Icon, Level } from "../components/ui";
+import { Icon } from "../components/ui";
+import { Stage } from "../shell/Shell";
 import "../styles/platform-demo.css";
 
 /* 試玩沿用舊網站的拖曳流程（public/platform-demo.js）。它直接操作 DOM，所以這裡只放好它要的骨架再載入。 */
@@ -36,45 +37,29 @@ export default function Platform() {
   const bReg = learner ? openReg(st, me!.id, "B") : undefined;
   return (
     <>
-      <section className="hero plat">
-        <div className="wrap">
-          <div>
-            <Level c="B">分析平台</Level>
-            <h1>AI 輔助教育數據分析平台</h1>
-            <p className="lead">不用會寫程式。上傳資料、說出你想了解的問題，平台會完成分析並附上說明，最後由你確認結果。</p>
-            <div className="acts">
-              <a href="#try" className="btn btn-s" onClick={e => { e.preventDefault(); document.getElementById("try")?.scrollIntoView({ behavior: "smooth" }); }}>先試玩看看</a>
-              {ent ? <Link to="/platform/enter" className="btn btn-p">進入分析平台 <Icon n="arrow" /></Link>
-                : me ? <button className="btn btn-p" disabled>進入平台（尚未開通）</button>
-                : <Link to="/login?next=/platform" className="btn btn-p">登入分析平台</Link>}
-            </div>
-            {me && !ent && learner && <p className="hint-line">還差：{!a ? "初階研習、" : ""}進階研習（{me.job ? JOB[me.job] : ""}軌）。{bReg ? <>你的進階報名目前「{ST[bReg.status][0]}」。</> : <Link to={a ? "/trainings?course=B" : "/trainings?course=A"}>去報名 →</Link>}</p>}
-          </div>
-          <div className="app big" aria-hidden="true">
-            <div className="app-bar"><i /><i /><i /></div>
-            <div className="app-body"><div className="app-side"><span className="on" /><span /><span /><span /></div>
-              <div className="app-main"><div className="r"><span className="pill">✓ 已去識別</span><span className="pill b">七年級段考.xlsx</span></div>
-                <svg viewBox="0 0 240 100" style={{ width: "100%", height: "auto" }}><line x1="0" y1="92" x2="240" y2="92" stroke="#DCE4EA" />{[48, 62, 40, 70, 56, 30].map((h, i) => <rect key={i} x={18 + i * 34} y={92 - h} width="24" height={h} rx="4" fill={i === 5 ? "#EE7A1D" : "#2185B5"} />)}</svg>
-                <div className="ai"><b>AI 解讀草稿・需你確認</b>第 6 班平均明顯低於其他班，建議先確認是否有缺考或特殊狀況。</div></div></div>
-          </div>
+      <Stage eyebrow="分析平台" doc="分析平台" title="把研習所學，帶進資料分析。"
+        lead="不用寫程式。上傳資料、說出想了解的問題，平台完成分析並附上說明，最後由你確認結果。"
+        cap="亮起的是開通平台的研習時數：進階 6 小時、講師培訓 12 小時。" focus={["6", "12"]}>
+        <div className="sh-actions">
+          {ent ? <Link to="/platform/enter" className="pg-btn">進入分析平台 <span className="hm-arr" aria-hidden="true">→</span></Link>
+            : !me ? <Link to="/login?next=/platform" className="pg-btn">登入分析平台</Link> : null}
+          <a href="#try" className="pg-tlink" onClick={e => { e.preventDefault(); document.getElementById("try")?.scrollIntoView({ behavior: "smooth" }); }}>先試玩看看</a>
         </div>
-      </section>
+        {me && !ent && learner && <p className="sh-lead" style={{ marginTop: 14 }}>還差：{!a ? "初階研習、" : ""}進階研習（{me.job ? JOB[me.job] : ""}軌）。{bReg ? <>你的進階報名目前「{ST[bReg.status][0]}」。</> : <Link className="pg-link" to={a ? "/trainings?course=B" : "/trainings?course=A"}>去報名</Link>}</p>}
+      </Stage>
 
-      <section className="sec tint" id="try">
-        <div className="wrap"><div className="sh"><div><h2>試玩：從匯入資料到產出報告</h2><p>把左邊的物件拖到對的位置（或點一下），五個步驟走完一次平台的分析流程。</p></div></div><Trial /></div>
-      </section>
+      <h2 className="pg-sec" id="try">試玩：從匯入資料到產出報告</h2>
+      <p className="pg-text">把左邊的物件拖到對的位置（或點一下），五個步驟走完一次平台的分析流程。資料是虛構的。</p>
+      <Trial />
 
-      <section className="sec" id="unlock">
-        <div className="wrap">
-          <div className="sh"><div><h2>怎麼開通</h2><p>結業當下自動開通，不用另外申請。</p></div>{ent && <Badge kind="ok">你已開通</Badge>}</div>
-          <ol className="steps3">
-            <li className={a || ent ? "done" : ""}><span className="n">{a || ent ? "✓" : "1"}</span><b>完成初階研習</b><p>3 小時，不限資格。</p></li>
-            <li className={b || ent ? "done" : ""}><span className="n">{b || ent ? "✓" : "2"}</span><b>完成進階研習</b><p>依職務分流，6 小時。結業當下開通。</p></li>
-            <li className={ent ? "done" : ""}><span className="n">{ent ? "✓" : "3"}</span><b>用同一組帳號進入</b><p>不用再註冊或登入一次。</p></li>
-          </ol>
-          <div className="priv"><Icon n="shield" /><p>真實資料會先在你的電腦上去識別化。AI 只會看到欄位結構和統計摘要，不會取得學生的個別紀錄；數字一律由平台計算。</p></div>
-        </div>
-      </section>
+      <h2 className="pg-sec" id="unlock">怎麼開通</h2>
+      <p className="pg-text">結業當下自動開通，不用另外申請。{ent && <b>你已開通。</b>}</p>
+      <ol className="pg-unlock">
+        <li className={a || ent ? "pg-done" : ""}><b>完成初階研習</b><p>3 小時，不限資格。</p></li>
+        <li className={b || ent ? "pg-done" : ""}><b>完成進階研習或講師培訓</b><p>進階依職務分流，6 小時；講師培訓由縣市推薦。結業當下開通。</p></li>
+        <li className={ent ? "pg-done" : ""}><b>用同一組帳號進入</b><p>不用再註冊或登入一次。</p></li>
+      </ol>
+      <p className="pg-priv">真實資料會先在你的電腦上去識別化。AI 只會看到欄位結構和統計摘要，不會取得學生的個別紀錄；數字一律由平台計算。</p>
     </>
   );
 }

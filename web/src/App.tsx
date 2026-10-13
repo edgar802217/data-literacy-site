@@ -1,5 +1,6 @@
 import { Link, Route, Routes } from "react-router-dom";
 import { Layout } from "./components/Layout";
+import { Shell } from "./shell/Shell";
 import Home from "./pages/Home";
 import { Faq, Find, Mine, TrainingsLayout, Verify } from "./pages/Trainings";
 import SessionDetail from "./pages/SessionDetail";
@@ -11,18 +12,21 @@ export default function App() {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route index element={<Home />} />
-        <Route path="trainings" element={<TrainingsLayout />}>
-          <Route index element={<Find />} />
-          <Route path="mine" element={<Mine />} />
-          <Route path="verify" element={<Verify />} />
-          <Route path="faq" element={<Faq />} />
+        {/* 公開頁面共用骨架：左欄舞台留在原地，右欄換內容 */}
+        <Route element={<Shell />}>
+          <Route index element={<Home />} />
+          <Route path="trainings" element={<TrainingsLayout />}>
+            <Route index element={<Find />} />
+            <Route path="mine" element={<Mine />} />
+            <Route path="verify" element={<Verify />} />
+            <Route path="faq" element={<Faq />} />
+          </Route>
+          <Route path="trainings/:id" element={<SessionDetail />} />
+          <Route path="platform" element={<Platform />} />
+          <Route path="news" element={<News />} />
+          <Route path="about" element={<About />} />
         </Route>
-        <Route path="trainings/:id" element={<SessionDetail />} />
-        <Route path="platform" element={<Platform />} />
         <Route path="platform/enter" element={<PlatformEnter />} />
-        <Route path="news" element={<News />} />
-        <Route path="about" element={<About />} />
         <Route path="login" element={<Login />} />
         <Route path="account" element={<Account />} />
         <Route path="admin" element={<AdminLayout />}>

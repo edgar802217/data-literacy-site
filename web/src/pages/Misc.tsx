@@ -4,21 +4,25 @@ import { useContent } from "../lib/content";
 import { useDemo } from "../demo/store";
 import { addMail, COUNTIES, has, isAdmin, JOB } from "../demo/logic";
 import type { Job } from "../demo/types";
-import { Badge, Icon } from "../components/ui";
+import { Badge } from "../components/ui";
+import { Stage, useSea } from "../shell/Shell";
 
 /* ---------- 最新消息 ---------- */
 export function News() {
   const { news, events } = useContent();
   const kinds = Array.from(new Set(news.map(n => n["分類"]).filter(Boolean)));
   const [k, setK] = useState("all");
+  const dd = (d: string) => (d || "").slice(5).replace("-", ".");
   return (
     <>
-      <div className="phead"><div className="wrap"><div className="crumb"><Link to="/">首頁</Link>›<span>最新消息</span></div><h1>最新消息</h1>
-        <div className="chips">{["all", ...kinds].map(x => <button key={x} className="chip" aria-pressed={k === x} onClick={() => setK(x)}>{x === "all" ? "全部" : x}</button>)}</div></div></div>
-      <div className="wrap cols-news">
-        <ul className="ul big">{news.filter(n => k === "all" || n["分類"] === k).map((n, i) => <li key={i}><time>{n["日期"]}</time><div>{n["分類"] && <span className="k">{n["分類"]}</span>}<b>{n["連結"] ? <a href={n["連結"]} target="_blank" rel="noopener">{n["標題"]}</a> : n["標題"]}</b>{n["內容"] && <p className="muted">{n["內容"]}</p>}</div></li>)}</ul>
-        <aside><h2 className="h3">交流活動</h2>{events.map((e, i) => <div className="ev" key={i}><div className="d">{e["日期"].slice(5).replace("-", "/").replace(/^0/, "")}</div><div><b>{e["名稱"]}</b>{e["說明"] && <p className="muted small">{e["說明"]}</p>}</div></div>)}</aside>
-      </div>
+      <Stage eyebrow="最新消息" doc="最新消息" title="最新消息" lead="研習公告與計畫活動。" cap="亮起的是消息與活動的日期。" focus={[...news.slice(0, 6), ...events].map(n => dd(n["日期"]))}>
+        <Link className="sh-back" to="/">← 回首頁</Link>
+      </Stage>
+      {kinds.length > 0 && <div className="pg-chips" role="group" aria-label="分類">{["all", ...kinds].map(x => <button key={x} type="button" className="pg-chip" aria-pressed={k === x} onClick={() => setK(x)}>{x === "all" ? "全部" : x}</button>)}</div>}
+      <ul className="pg-news">{news.filter(n => k === "all" || n["分類"] === k).map((n, i) => <li key={i}><time>{dd(n["日期"])}</time><div>
+        {n["分類"] && <span className="kd">{n["分類"]}</span>}<b>{n["連結"] ? <a href={n["連結"]} target="_blank" rel="noopener">{n["標題"]}</a> : n["標題"]}</b>{n["內容"] && <p>{n["內容"]}</p>}</div></li>)}</ul>
+      {events.length > 0 && <><h2 className="pg-sec">交流活動</h2>
+        <ul className="pg-news">{events.map((e, i) => <li key={i}><time>{dd(e["日期"])}</time><div><b>{e["名稱"]}</b>{e["說明"] && <p>{e["說明"]}</p>}</div></li>)}</ul></>}
     </>
   );
 }
@@ -26,16 +30,30 @@ export function News() {
 /* ---------- 關於計畫 ---------- */
 export function About() {
   const { settings } = useContent();
+  const { setRow } = useSea();
+  const figs = [["22", "縣市＋國教署參與"], ["59", "項資料素養能力指標"], ["14", "場講師培訓"], ["10", "場縣市行政研習"]];
   return (
     <>
-      <div className="phead"><div className="wrap"><div className="crumb"><Link to="/">首頁</Link>›<span>關於計畫</span></div><h1>關於計畫</h1>
-        <p className="sub">給縣市行政人員、校長主任與老師的資料素養研習。學會看懂教育數據、用數據討論問題，再搭配 AI 輔助分析平台實際操作。</p></div></div>
-      <div className="wrap about">
-        <section><h2 className="h3">計畫目標</h2><ul className="pts"><li><Icon n="check" />建立教育現場看懂、使用數據的共同基礎</li><li><Icon n="check" />依縣市行政、學校行政、教師的工作，用真實資料練習分析與判讀</li><li><Icon n="check" />培育各縣市的種子講師，讓研習能在地延續</li><li><Icon n="check" />提供 AI 輔助分析平台，降低使用數據的門檻</li></ul></section>
-        <section><div className="stats">{([["22", "縣市＋國教署", "#1B5FA6"], ["14", "場講師培訓", "#2185B5"], ["10", "場縣市行政研習", "#0E6E7A"], ["59", "項能力指標", "#A9520B"]] as const).map(([n, t, c]) => <div key={t}><b style={{ color: c }}>{n}</b><span>{t}</span></div>)}</div></section>
-        <section className="two"><div><h2 className="h3">執行團隊</h2><dl className="kv"><dt>補助單位</dt><dd>教育部</dd><dt>執行單位</dt><dd>國立高雄師範大學</dd><dt>計畫主持人</dt><dd>李文廷 教授</dd></dl></div>
-          <div><h2 className="h3">聯絡我們</h2><dl className="kv">{settings["聯絡窗口"] && <><dt>聯絡窗口</dt><dd>{settings["聯絡窗口"]}</dd></>}<dt>電子信箱</dt><dd>{settings["聯絡信箱"] || "（待公告）"}</dd>{settings["聯絡電話"] && <><dt>聯絡電話</dt><dd>{settings["聯絡電話"]}</dd></>}</dl></div></section>
-      </div>
+      <Stage eyebrow="關於計畫" doc="關於計畫" title="讓教育現場看懂、用好數據" lead="給縣市行政人員、校長主任與老師的資料素養研習。"
+        cap="亮起的是計畫的四個關鍵數字。指到右邊的數字，左邊對應的數字會放大。" focus={figs.map(f => f[0])}>
+        <Link className="sh-back" to="/">← 回首頁</Link>
+      </Stage>
+      <h2 className="pg-sec">計畫目標</h2>
+      <ul className="pg-goals">
+        <li>建立教育現場看懂、使用數據的共同基礎</li>
+        <li>依縣市行政、學校行政、教師的工作，用真實資料練習分析與判讀</li>
+        <li>培育各縣市的種子講師，讓研習能在地延續</li>
+        <li>提供 AI 輔助分析平台，降低使用數據的門檻</li>
+      </ul>
+      <h2 className="pg-sec">計畫數字</h2>
+      <div className="pg-figs">{figs.map(([n, t]) => <button type="button" key={n} onPointerEnter={() => setRow([n])} onPointerLeave={() => setRow(null)} onFocus={() => setRow([n])} onBlur={() => setRow(null)}><b>{n}</b><span>{t}</span></button>)}</div>
+      <h2 className="pg-sec">執行團隊與聯絡</h2>
+      <dl className="pg-kv">
+        <dt>補助單位</dt><dd>教育部</dd><dt>執行單位</dt><dd>國立高雄師範大學</dd><dt>計畫主持人</dt><dd>李文廷 教授</dd>
+        {settings["聯絡窗口"] && <><dt>聯絡窗口</dt><dd>{settings["聯絡窗口"]}</dd></>}
+        <dt>電子信箱</dt><dd>{settings["聯絡信箱"] || "（待公告）"}</dd>
+        {settings["聯絡電話"] && <><dt>聯絡電話</dt><dd>{settings["聯絡電話"]}</dd></>}
+      </dl>
     </>
   );
 }

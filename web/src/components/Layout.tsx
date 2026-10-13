@@ -5,6 +5,7 @@ import { has, isAdmin } from "../demo/logic";
 import { useContent } from "../lib/content";
 import { Icon, Modal } from "./ui";
 import type { State } from "../demo/types";
+import { canVT, vt } from "../shell/vt";
 
 /* ---------- 示範列：切換身分、示範信箱、重設（正式版不會有） ---------- */
 function bindInvite(d: State, inviteId: string, userId: string) {
@@ -131,8 +132,25 @@ function Footer() {
 
 export function Layout() {
   const { toastMsg } = useDemo();
-  const loc = useLocation();
+  const loc = useLocation(), navigate = useNavigate();
   useEffect(() => { window.scrollTo(0, 0); }, [loc.pathname]);
+  /* 站內連結換頁時包進轉場：左欄舞台留在原地，場次的日期與標題會飛到新頁 */
+  useEffect(() => {
+    if (canVT()) document.documentElement.classList.add("vt-on");
+    const h = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || !canVT()) return;
+      const a = (e.target as Element).closest("a");
+      const href = a?.getAttribute("href");
+      if (!a || !href || a.getAttribute("target") || a.hasAttribute("download") || href.startsWith("#")) return;
+      const url = new URL(href, location.href);
+      if (url.origin !== location.origin) return;
+      if (url.pathname === location.pathname && url.search === location.search) return;
+      e.preventDefault(); e.stopPropagation();
+      vt(() => { navigate(url.pathname + url.search + url.hash); window.scrollTo(0, 0); }, a);
+    };
+    document.addEventListener("click", h, true);
+    return () => document.removeEventListener("click", h, true);
+  }, [navigate]);
   return (
     <>
       <DemoBar />

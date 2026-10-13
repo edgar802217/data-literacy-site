@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>研習網站 C 方向全站原型</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC:wght@500;700;800&family=Noto+Sans+TC:wght@400;500;700;900&family=IBM+Plex+Mono:wght@500;600&display=swap">
+</head>
+<body>
+<style>
+/* C 方向・全站原型：「兩個世界」。
+   研習世界＝藍＋圓形、分析平台世界＝橘＋長條、共用區＝白與青綠。整站都是大圓角色塊（bento），沒有傳統的選單列與頁尾。
+   導覽有兩種可比較：桌機的「世界切換器」或「浮動 dock」；手機一律是底部 dock。
+   背景的三個形狀會隨世界變形（圓 ⇄ 長條），點場次卡片時用 View Transitions 放大成詳情頁。 */
+:root{
+  color-scheme:light;
+  --tool:#17222B; --tool-2:#26343F; --tool-tx:#E9EEF2; --canvas:#DDE3E8;
+  --ink:#17232D; --ink-2:#3B4955; --soft:#62707C; --line:#DCE3E9; --tile:#FFFFFF;
+  --blue:#1B5FA6; --blue-2:#2E77C2; --blue-l:#8BC3EC; --blue-w:#E4EEF8;
+  --orange:#EE7A1D; --orange-2:#F6A35E; --orange-d:#B4560C; --orange-w:#FFEFE1;
+  --teal:#1E97A3; --teal-d:#0E6E7A; --teal-w:#DDF3F5; --sky:#2185B5;
+  --ok:#1F7A4D; --ok-w:#E3F3E9; --wait:#94570A; --wait-w:#FCEFDB;
+  --f-head:"Chiron GoRound TC","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --r:28px; --r-s:18px;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;color:var(--ink);font:16px/1.7 var(--f-body);-webkit-font-smoothing:antialiased}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid #4C8BD6;outline-offset:3px;border-radius:10px}
+
+/* ---------- 工具列與外框 ---------- */
+.tool{position:sticky;top:env(safe-area-inset-top,0px);z-index:60;background:var(--tool);color:var(--tool-tx)}
+.tool .in{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding:10px 16px;max-width:1600px;margin:auto}
+.tool h1{font:800 1rem/1.2 var(--f-head);margin:0;white-space:nowrap}
+.tool h1 small{font:500 .75rem var(--f-body);color:#9FB0BF;margin-left:6px}
+.seg{display:inline-flex;background:var(--tool-2);border-radius:9px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{background:none;border:0;color:#C4D0DA;padding:6px 11px;border-radius:7px;cursor:pointer;font-size:.86rem;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:#fff;color:var(--ink);font-weight:700}
+.tool .grp{display:flex;align-items:center;gap:8px}
+.tool .lb{font-size:.75rem;color:#9FB0BF;letter-spacing:.06em}
+.tool .sp{flex:1}
+.tbtn{background:none;border:1px solid #4A5A68;color:var(--tool-tx);border-radius:8px;padding:6px 11px;cursor:pointer;font-size:.86rem;white-space:nowrap}
+.tbtn:hover{background:var(--tool-2)}
+.work{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;max-width:1600px;margin:auto;padding:24px 16px 64px;align-items:start}
+.work.nonotes{grid-template-columns:minmax(0,1fr)}
+@media (max-width:1100px){.work{grid-template-columns:minmax(0,1fr)}}
+.stage{display:flex;justify-content:center;min-width:0}
+.browser{width:100%;max-width:1240px;border-radius:14px;box-shadow:0 30px 60px -36px rgba(23,34,43,.6);background:#fff}
+.browser.phone{max-width:390px;border-radius:32px;border:9px solid #17222B}
+.chrome{display:flex;align-items:center;gap:6px;height:30px;padding:0 12px;background:#EEF2F5;border-bottom:1px solid #DDE4EA;font-size:.74rem;color:#8C98A3;border-radius:14px 14px 0 0}
+.phone .chrome{justify-content:center;border-radius:22px 22px 0 0}
+.chrome i{width:9px;height:9px;border-radius:50%;background:#D4DBE1}
+.phone .chrome i{display:none}
+.chrome span{margin-left:8px}
+.frame{container-type:inline-size;position:relative;overflow-x:clip;border-radius:0 0 14px 14px}
+.phone .frame{border-radius:0 0 22px 22px}
+.notes{position:sticky;top:76px;background:#fff;border-radius:14px;padding:18px;box-shadow:0 1px 0 #D4DBE1;font-size:.9rem;line-height:1.65}
+.notes h2{font:800 1.1rem/1.3 var(--f-head);margin:0}
+.notes .tag{display:inline-block;font:700 .72rem/1 var(--f-body);letter-spacing:.06em;color:#fff;background:var(--c);padding:4px 8px;border-radius:5px;margin-bottom:8px}
+.notes ol{margin:10px 0 0;padding-left:1.2em}
+.notes li+li{margin-top:6px}
+.notes .tip{margin-top:14px;padding:10px 12px;background:#F3F6F8;border-radius:10px}
+@media (max-width:1100px){.notes{position:static}}
+
+/* ====== 網站本體 ====== */
+.site{position:relative;min-height:760px;background:var(--wbg);transition:background-color .8s ease;--wbg:#EEF2F5;--wc:var(--teal);--ww:var(--teal-w)}
+.site.w-train{--wbg:#E6EEF7;--wc:var(--blue);--ww:var(--blue-w)}
+.site.w-data{--wbg:#FBEEE2;--wc:var(--orange);--ww:var(--orange-w)}
+.site h1,.site h2,.site h3,.site h4{margin:0;font-family:var(--f-head);font-weight:800;line-height:1.18;text-wrap:balance}
+.site p{margin:0}
+.wrap{max-width:1160px;margin:auto;padding-inline:28px;position:relative;z-index:1}
+.ic{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* 背景形狀：隨世界變形 */
+.bgs{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0;border-radius:inherit}
+.bgs i{position:absolute;display:block;transition:all .9s cubic-bezier(.65,0,.25,1)}
+.site .bgs i:nth-child(1){width:460px;height:460px;border-radius:50%;right:-120px;top:-140px;background:var(--blue);opacity:.08}
+.site .bgs i:nth-child(2){width:120px;height:360px;border-radius:60px;left:-40px;top:300px;background:var(--orange);opacity:.09}
+.site .bgs i:nth-child(3){width:180px;height:180px;border-radius:50%;right:12%;top:620px;background:var(--teal);opacity:.1}
+.site.w-train .bgs i:nth-child(1){width:600px;height:600px;right:-200px;top:-220px;opacity:.1;background:var(--blue)}
+.site.w-train .bgs i:nth-child(2){width:300px;height:300px;border-radius:50%;left:-120px;top:420px;background:var(--blue-l);opacity:.22}
+.site.w-train .bgs i:nth-child(3){width:120px;height:120px;right:30%;top:700px;background:var(--blue);opacity:.12}
+.site.w-data .bgs i:nth-child(1){width:150px;height:520px;border-radius:44px;right:60px;top:-80px;background:var(--orange);opacity:.13}
+.site.w-data .bgs i:nth-child(2){width:120px;height:360px;border-radius:44px;right:240px;top:80px;background:var(--orange-2);opacity:.16}
+.site.w-data .bgs i:nth-child(3){width:100px;height:220px;border-radius:40px;right:390px;top:220px;background:var(--orange);opacity:.1}
+
+/* ---------- 導覽：頂部（世界切換器版） ---------- */
+.top{display:flex;align-items:center;gap:14px;padding-block:18px 8px}
+.brand{display:flex;align-items:center;gap:10px;background:var(--tile);border:0;border-radius:20px;padding:10px 16px 10px 12px;cursor:pointer;font:800 .98rem/1.2 var(--f-head);text-align:left;box-shadow:0 1px 0 rgba(0,0,0,.04)}
+.brand svg{width:32px;height:28px;flex:none}
+.brand small{display:block;font:500 .7rem var(--f-body);color:var(--soft)}
+.switch{position:relative;display:flex;margin-inline:auto;background:var(--tile);border-radius:999px;padding:6px;box-shadow:0 10px 30px -18px rgba(23,35,45,.5)}
+.switch .ind{position:absolute;top:6px;bottom:6px;left:6px;width:calc(50% - 6px);border-radius:999px;background:var(--wc);transition:transform .55s cubic-bezier(.65,0,.25,1),background-color .55s,opacity .3s}
+.switch.at-data .ind{transform:translateX(100%)}
+.switch.at-none .ind{opacity:0}
+.switch button{position:relative;z-index:1;display:flex;align-items:center;gap:10px;border:0;background:none;border-radius:999px;padding:12px 26px;font:800 1.08rem var(--f-head);cursor:pointer;white-space:nowrap;transition:color .4s;min-width:170px;justify-content:center}
+.switch button[aria-current="true"]{color:#fff}
+.switch .sh{width:16px;height:16px;flex:none;background:currentColor}
+.switch .sh.c{border-radius:50%}
+.switch .sh.b{width:8px;height:18px;border-radius:3px;box-shadow:-11px 5px 0 -1px currentColor}
+.round{width:52px;height:52px;border-radius:50%;border:0;background:var(--tile);display:grid;place-items:center;cursor:pointer;flex:none;box-shadow:0 1px 0 rgba(0,0,0,.04)}
+.round .ic{width:22px;height:22px}
+.me{display:flex;align-items:center;gap:8px;border:0;background:var(--tile);border-radius:999px;padding:5px 16px 5px 5px;cursor:pointer;font-weight:800;white-space:nowrap}
+.me i{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font:800 1rem var(--f-head);font-style:normal;color:#fff;background:var(--wc);transition:background .6s}
+.loginb{border:0;background:var(--ink);color:#fff;border-radius:999px;padding:0 22px;height:52px;font-weight:800;cursor:pointer;white-space:nowrap}
+.top.dockmode .switch{visibility:hidden}
+
+/* ---------- 浮動 dock（dock 版，以及所有手機） ---------- */
+.dock{position:sticky;bottom:14px;z-index:20;display:none;justify-content:center;pointer-events:none;padding-top:20px}
+.dock nav{pointer-events:auto;display:flex;gap:4px;background:rgba(23,35,45,.92);backdrop-filter:blur(10px);border-radius:26px;padding:7px;box-shadow:0 20px 40px -20px rgba(0,0,0,.6)}
+.dock button{display:flex;flex-direction:column;align-items:center;gap:3px;border:0;background:none;color:#C9D4DD;border-radius:20px;padding:9px 16px;cursor:pointer;font-size:.78rem;font-weight:700;min-width:72px;transition:background .4s,color .4s}
+.dock button .dsh{width:20px;height:20px;display:grid;place-items:center}
+.dock button .dsh i{display:block;background:currentColor}
+.dock button[aria-current="true"]{background:var(--dc,#fff);color:#fff}
+.dock button[aria-current="true"].home{--dc:var(--teal)}
+.dock button[aria-current="true"].train{--dc:var(--blue)}
+.dock button[aria-current="true"].data{--dc:var(--orange)}
+.dock button[aria-current="true"].mine{--dc:var(--blue)}
+.site.navdock .dock{display:flex}
+
+/* 更多面板 */
+.more{position:absolute;inset:0;z-index:40;background:rgba(23,35,45,.35);backdrop-filter:blur(3px);padding:90px 28px 28px;animation:fade .3s both}
+.more .grid{max-width:900px;margin:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.more .t{animation:pop .45s cubic-bezier(.2,.9,.3,1.2) both}
+.more .t:nth-child(2){animation-delay:.04s}.more .t:nth-child(3){animation-delay:.08s}.more .t:nth-child(4){animation-delay:.12s}.more .t:nth-child(5){animation-delay:.16s}.more .t:nth-child(6){animation-delay:.2s}
+@keyframes fade{from{opacity:0}}
+@keyframes pop{from{opacity:0;transform:translateY(16px) scale(.96)}}
+@keyframes rise{from{opacity:0;transform:translateY(22px)}}
+@keyframes grow{from{transform:scaleY(0)}}
+@keyframes ring{from{stroke-dashoffset:var(--full)}}
+
+/* ---------- 色塊 ---------- */
+.bento{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;padding-block:14px 40px}
+.t{position:relative;overflow:hidden;border-radius:var(--r);background:var(--tile);padding:26px;min-width:0;animation:rise .55s cubic-bezier(.2,.8,.2,1) both}
+.bento>.t:nth-child(2){animation-delay:.04s}.bento>.t:nth-child(3){animation-delay:.08s}.bento>.t:nth-child(4){animation-delay:.12s}.bento>.t:nth-child(5){animation-delay:.16s}.bento>.t:nth-child(6){animation-delay:.2s}.bento>.t:nth-child(n+7){animation-delay:.24s}
+.t.click{cursor:pointer;transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
+.t.click:hover{transform:translateY(-5px);box-shadow:0 26px 40px -28px rgba(23,35,45,.55)}
+.c1{grid-column:span 1}.c2{grid-column:span 2}.c3{grid-column:span 3}.c4{grid-column:span 4}.c6{grid-column:1/-1}
+.r2{grid-row:span 2}.r3{grid-row:span 3}
+.k{font:700 .78rem var(--f-body);letter-spacing:.08em;color:var(--soft);display:block}
+.on-color .k,.on-color p{color:inherit;opacity:.9}
+.huge{font:800 clamp(2.4rem,1.2rem + 4.4vw,4.6rem)/1.05 var(--f-head)}
+.go{display:inline-flex;align-items:center;gap:10px;background:#fff;color:var(--ink);border-radius:999px;padding:12px 20px;font-weight:800;border:0;cursor:pointer;white-space:nowrap}
+.go .ic{width:16px;height:16px;transition:transform .3s}
+.t.click:hover .go .ic{transform:translateX(5px)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:0 24px;border-radius:999px;font-weight:800;border:0;cursor:pointer;white-space:nowrap}
+.btn.dark{background:var(--ink);color:#fff}
+.btn.world{background:var(--wc);color:#fff}
+.btn.line{background:none;border:2px solid currentColor}
+.btn:disabled{background:#E5EAEE;color:#9AA6B1;cursor:not-allowed}
+.pillk{display:inline-flex;align-items:center;gap:6px;font:800 .78rem/1 var(--f-body);padding:7px 11px;border-radius:999px;white-space:nowrap}
+.pillk::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.pillk.can{background:var(--blue-w);color:var(--blue)}
+.pillk.ok{background:var(--ok-w);color:var(--ok)}
+.pillk.wait{background:var(--wait-w);color:var(--wait)}
+.pillk.no{background:#EDF1F4;color:var(--soft)}
+.lvd{display:inline-flex;align-items:center;gap:7px;font:800 .8rem var(--f-body);color:var(--c)}
+.lvd::before{content:"";width:12px;height:12px;border-radius:50%;background:var(--c)}
+.lvd.bar::before{width:7px;height:14px;border-radius:2px}
+
+/* 首頁 */
+.intro{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 32px;padding:34px 34px 30px}
+.intro p{color:var(--ink-2);max-width:25em;font-size:1.05rem}
+.way{color:#fff;display:flex;flex-direction:column;gap:12px;min-height:380px;border:0;text-align:left;font:inherit}
+.way.train{background:var(--blue)}
+.way.data{background:var(--orange)}
+.way h2{font-size:clamp(2.1rem,1.2rem + 3vw,3.6rem);position:relative;z-index:1}
+.way p{font-size:1.05rem;max-width:17em;position:relative;z-index:1}
+.way .go{margin-top:auto;position:relative;z-index:1;align-self:flex-start}
+.shp{position:absolute;transition:transform .7s cubic-bezier(.2,.8,.2,1)}
+.way.train .s1{width:280px;height:280px;border-radius:50%;background:var(--blue-2);right:-70px;bottom:-80px}
+.way.train .s2{width:130px;height:130px;border-radius:50%;border:24px solid var(--blue-l);right:150px;top:-36px}
+.way.train .s3{width:64px;height:64px;border-radius:50%;background:var(--orange);right:52px;top:42%}
+.way.train:hover .s1{transform:scale(1.14)}
+.way.train:hover .s2{transform:translate(-26px,26px)}
+.way.train:hover .s3{transform:translate(-30px,-24px) scale(1.2)}
+.way.data .bars{right:26px;bottom:0;display:flex;align-items:flex-end;gap:10px}
+.way.data .bars i{display:block;width:36px;border-radius:14px 14px 0 0;background:#fff;opacity:.26;transition:height .7s cubic-bezier(.2,.8,.2,1)}
+.way.data .s2{width:210px;height:105px;border-radius:210px 210px 0 0;background:var(--orange-2);right:-40px;top:-30px;transform:rotate(180deg)}
+.way.data:hover .bars i:nth-child(1){height:160px!important}
+.way.data:hover .bars i:nth-child(2){height:110px!important}
+.way.data:hover .bars i:nth-child(3){height:230px!important}
+.way.data:hover .s2{transform:rotate(205deg)}
+.mini{display:flex;flex-direction:column;gap:6px}
+.mini b{font:800 1.3rem/1.35 var(--f-head)}
+.mini .lnk{margin-top:auto;align-self:flex-start;background:none;border:0;padding:0;font-weight:800;color:inherit;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.mini.teal{background:var(--teal);color:#fff}
+.mini.sky{background:#D9ECF7}
+.mini .num{font:800 3.2rem/1 var(--f-head)}
+.next{background:var(--ink);color:#fff;display:flex;flex-wrap:wrap;align-items:center;gap:14px 24px;padding:22px 28px}
+.next .av{width:54px;height:54px;border-radius:50%;background:var(--teal);display:grid;place-items:center;font:800 1.3rem var(--f-head)}
+.next b{font:800 1.25rem var(--f-head)}
+.next .go{margin-left:auto}
+.foot{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;padding-bottom:28px}
+.foot .t{padding:20px 22px;animation:none}
+.foot a,.foot button.l{color:inherit;background:none;border:0;padding:0;font-weight:700;cursor:pointer;text-align:left}
+
+/* 研習世界 */
+.whead{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;background:var(--wc);color:#fff;padding:30px 32px}
+.whead .huge{font-size:clamp(2.6rem,1.4rem + 4vw,4.4rem)}
+.whead p{opacity:.92;max-width:28em;margin-top:6px}
+.whead .deco{position:absolute;right:-60px;top:-80px;width:260px;height:260px;border-radius:50%;border:34px solid rgba(255,255,255,.14)}
+.w-data .whead .deco{border:0;width:auto;height:auto;border-radius:0;right:40px;top:auto;bottom:0;display:flex;gap:12px;align-items:flex-end}
+.w-data .whead .deco i{display:block;width:34px;background:rgba(255,255,255,.18);border-radius:12px 12px 0 0}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;position:relative;z-index:1}
+.tabs button{border:0;background:rgba(255,255,255,.16);color:#fff;border-radius:999px;padding:10px 18px;font-weight:800;cursor:pointer}
+.tabs button[aria-current="true"]{background:#fff;color:var(--wc)}
+.regions{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.rc{width:96px;height:96px;border-radius:50%;border:0;background:var(--blue-w);color:var(--blue);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font:800 1.15rem/1.1 var(--f-head);transition:transform .3s,background .3s,color .3s}
+.rc small{font:700 .72rem var(--f-body);opacity:.8;margin-top:3px}
+.rc:hover{transform:scale(1.06)}
+.rc[aria-pressed="true"]{background:var(--blue);color:#fff;transform:scale(1.1)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:2px solid var(--line);background:var(--tile);border-radius:999px;padding:8px 16px;font-weight:700;cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:#fff}
+.sess{display:flex;flex-direction:column;gap:8px}
+.sess .day{display:flex;align-items:flex-end;gap:10px}
+.sess .day b{font:800 4.4rem/.85 var(--f-head);letter-spacing:-.02em;color:var(--blue)}
+.sess .day span{font:700 .9rem/1.3 var(--f-body);color:var(--soft);padding-bottom:4px}
+.sess h3{font-size:1.2rem;margin-top:6px}
+.sess .m{font-size:.9rem;color:var(--soft)}
+.sess .row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;padding-top:10px}
+.sess.feat{background:var(--blue);color:#fff}
+.sess.feat .day b{color:#fff;font-size:6.4rem}
+.sess.feat .day span,.sess.feat .m{color:rgba(255,255,255,.85)}
+.sess.feat .lvd{--c:#fff!important}
+.sess.feat{min-height:260px}
+.sess.feat .ring{position:absolute;right:-50px;bottom:-60px;width:220px;height:220px;border-radius:50%;border:30px solid rgba(255,255,255,.12)}
+.sess.full{opacity:.62}
+.empty{text-align:center;color:var(--soft)}
+
+/* 場次詳情 */
+.dday{background:var(--blue);color:#fff;display:flex;flex-direction:column;justify-content:space-between;gap:10px;min-height:300px}
+.dday .big{font:800 clamp(5rem,2rem + 9vw,9rem)/.85 var(--f-head);letter-spacing:-.03em}
+.dday .big small{font-size:.32em;letter-spacing:0;opacity:.85;margin-left:6px}
+.dday .ring{position:absolute;right:-70px;top:-70px;width:260px;height:260px;border-radius:50%;border:34px solid rgba(255,255,255,.12)}
+.dtitle h1{font-size:clamp(1.8rem,1.2rem + 2vw,2.7rem);margin-top:10px}
+.dtitle p{color:var(--ink-2);margin-top:10px;font-size:1.05rem}
+.facts{display:grid;grid-template-columns:repeat(2,1fr);gap:14px 20px;margin-top:20px}
+.facts dt{font-size:.8rem;color:var(--soft)}
+.facts dd{margin:0;font-weight:800}
+.reg{display:flex;flex-direction:column;gap:14px;border:3px solid var(--blue)}
+.capring{display:flex;align-items:center;gap:16px}
+.capring svg{width:92px;height:92px;flex:none}
+.capring circle.v{stroke:var(--blue);stroke-linecap:round;animation:ring 1.1s cubic-bezier(.2,.8,.2,1) .2s both}
+.capring b{font:800 1.5rem var(--f-head)}
+.capring span{font-size:.88rem;color:var(--soft);display:block}
+.okline{display:flex;gap:8px;align-items:center;background:var(--ok-w);color:var(--ok);border-radius:14px;padding:12px 14px;font-weight:700;font-size:.92rem}
+.why{background:#EEF2F5;border-radius:14px;padding:12px 14px;font-size:.92rem;color:var(--ink-2)}
+.fld{display:flex;flex-direction:column;gap:6px}
+.fld label,.fld .lb{font-weight:800;font-size:.9rem}
+.fld input,.fld textarea{border:2px solid var(--line);border-radius:14px;padding:12px 14px;font:inherit;background:#fff}
+.fld input:focus,.fld textarea:focus{border-color:var(--blue);outline:0}
+.fld .help{font-size:.8rem;color:var(--soft)}
+.seg2{display:flex;gap:8px}
+.seg2 button{flex:1;border:2px solid var(--line);background:#fff;border-radius:14px;padding:10px;font-weight:700;cursor:pointer}
+.seg2 button[aria-pressed="true"]{border-color:var(--blue);background:var(--blue-w);color:var(--blue)}
+.tl{list-style:none;margin:0;padding:0}
+.tl li{display:grid;grid-template-columns:26px 1fr;gap:10px;padding-bottom:14px;position:relative;color:var(--soft);font-size:.95rem}
+.tl li::before{content:"";width:16px;height:16px;border-radius:50%;border:3px solid var(--line);background:#fff;margin:4px 0 0 2px;z-index:1}
+.tl li:not(:last-child)::after{content:"";position:absolute;left:11px;top:22px;bottom:0;width:3px;background:var(--line)}
+.tl li.done{color:var(--ink)}.tl li.done::before{background:var(--ok);border-color:var(--ok)}
+.tl li.now{color:var(--ink);font-weight:800}.tl li.now::before{background:var(--wait);border-color:var(--wait);box-shadow:0 0 0 5px var(--wait-w)}
+.place{padding:0;display:grid;grid-template-rows:150px auto}
+.place .map{background:repeating-linear-gradient(0deg,transparent 0 24px,#D7E5EE 24px 25px),repeating-linear-gradient(90deg,transparent 0 24px,#D7E5EE 24px 25px),#EAF3F8;position:relative}
+.place .map i{position:absolute;left:50%;top:50%;width:34px;height:34px;margin:-34px 0 0 -17px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--blue);box-shadow:0 0 0 10px rgba(27,95,166,.15)}
+.place .tx{padding:18px 24px 22px}
+.lst{margin:12px 0 0;padding-left:1.2em}
+.lst li+li{margin-top:6px}
+.mbar{display:none}
+
+/* 我的研習 */
+.journey{display:flex;align-items:center;gap:0;margin-top:18px}
+.jn{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;flex:1;position:relative}
+.jn .c{width:118px;height:118px;border-radius:50%;display:grid;place-items:center;font:800 2.2rem var(--f-head);background:#EDF1F4;color:#A8B3BC;transition:all .6s;position:relative;z-index:1}
+.jn.done .c{background:var(--ok);color:#fff}
+.jn.now .c{background:var(--blue);color:#fff;box-shadow:0 0 0 10px var(--blue-w);animation:pulse 2.2s ease-in-out infinite}
+.jn b{font:800 1.05rem var(--f-head)}
+.jn span{font-size:.85rem;color:var(--soft)}
+.jn:not(:last-child)::after{content:"";position:absolute;top:59px;left:calc(50% + 59px);right:calc(-50% + 59px);height:6px;border-radius:3px;background:#E3E9EE}
+.jn.done:not(:last-child)::after{background:var(--ok)}
+@keyframes pulse{50%{box-shadow:0 0 0 18px rgba(27,95,166,.08)}}
+.flip{text-align:left;perspective:1200px;cursor:pointer;min-height:230px;padding:0;background:none;animation:rise .55s both}
+.flip .in{position:relative;width:100%;height:100%;min-height:230px;transition:transform .8s cubic-bezier(.4,.2,.2,1);transform-style:preserve-3d}
+.flip.on .in{transform:rotateY(180deg)}
+.flip .f,.flip .b{position:absolute;inset:0;border-radius:var(--r);padding:24px;backface-visibility:hidden;display:flex;flex-direction:column;gap:6px}
+.flip .f{background:var(--teal);color:#fff}
+.flip .f .ring{position:absolute;right:-40px;bottom:-50px;width:170px;height:170px;border-radius:50%;border:26px solid rgba(255,255,255,.15)}
+.flip .b{background:#fff;transform:rotateY(180deg);flex-direction:row;align-items:center;gap:18px}
+.qr{width:96px;height:96px;flex:none;background:conic-gradient(var(--ink) 25%,#fff 0 50%,var(--ink) 0 75%,#fff 0) 0 0/24px 24px;border:6px solid #fff;outline:3px solid var(--ink);border-radius:6px}
+.code{font:600 1.05rem var(--f-mono);letter-spacing:.04em}
+.gate{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px}
+
+/* 分析平台世界 */
+.try{display:grid;grid-template-columns:.9fr 1.2fr;gap:24px;align-items:stretch}
+.try .steps{list-style:none;margin:16px 0;padding:0;display:flex;flex-direction:column;gap:10px}
+.try .steps li{display:flex;gap:12px;align-items:center;opacity:.45;font-weight:700}
+.try .steps li.on{opacity:1}
+.try .steps li b{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:.85rem;background:var(--orange-w);color:var(--orange-d);flex:none}
+.try .steps li.done b{background:var(--orange);color:#fff}
+.try .screen{border-radius:22px;background:var(--orange-w);padding:18px;min-height:270px;display:flex;flex-direction:column;gap:12px;color:#5E3207}
+.try .chipf{display:inline-flex;align-items:center;gap:10px;align-self:flex-start;padding:12px 16px;border-radius:14px;background:#fff;border:0;font-weight:800;cursor:grab;color:var(--ink);box-shadow:0 8px 18px -12px rgba(0,0,0,.4)}
+.try .drop{flex:1;border:3px dashed var(--orange-2);border-radius:18px;display:grid;place-items:center;text-align:center;background:none;cursor:pointer;color:#8A4A0E;font-weight:700;min-height:150px}
+.try .drop.over{background:#fff}
+.try table{width:100%;border-collapse:collapse;font-size:.9rem}
+.try td,.try th{padding:7px 8px;text-align:left;border-bottom:1px solid rgba(180,86,12,.18)}
+.try .masked{animation:flipin .5s ease-out both;font-weight:800}
+@keyframes flipin{from{transform:rotateX(90deg);opacity:.2}}
+.try .bars{display:flex;align-items:flex-end;gap:16px;height:150px;border-bottom:3px solid #5E3207;padding:0 6px}
+.try .bars div{flex:1;border-radius:14px 14px 0 0;background:var(--orange);position:relative;transform-origin:bottom;animation:grow .8s cubic-bezier(.2,.8,.2,1) both}
+.try .bars div.hi{background:var(--blue)}
+.try .bars div span{position:absolute;left:0;right:0;top:-24px;text-align:center;font:600 .85rem var(--f-mono)}
+.try .bars div i{position:absolute;left:0;right:0;bottom:-26px;text-align:center;font-style:normal;font-size:.8rem}
+.try .ai{margin-top:24px;background:#fff;border-radius:16px;padding:12px 14px;color:var(--ink);animation:reveal 1.4s steps(28) .7s both}
+.try .ai b{display:block;font-size:.74rem;letter-spacing:.06em;color:var(--orange-d)}
+@keyframes reveal{from{clip-path:inset(0 100% 0 0)}}
+.unl{display:flex;align-items:flex-end;gap:14px;height:230px;margin-top:14px}
+.unl .ub{flex:1;border-radius:22px 22px 0 0;padding:16px;color:#fff;display:flex;flex-direction:column;justify-content:flex-start;gap:4px;transform-origin:bottom;animation:grow .9s cubic-bezier(.2,.8,.2,1) both;position:relative}
+.unl .ub b{font:800 1.1rem var(--f-head)}
+.unl .ub span{font-size:.85rem;opacity:.92}
+.unl .ub .st{position:absolute;left:16px;bottom:14px;font:800 .8rem var(--f-body);background:rgba(255,255,255,.22);border-radius:999px;padding:5px 10px}
+.priv{display:flex;gap:14px;align-items:flex-start}
+.priv .sh{width:46px;height:46px;border-radius:14px;background:var(--ok-w);color:var(--ok);display:grid;place-items:center;flex:none}
+.toast{position:absolute;left:50%;top:96px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 18px;border-radius:14px;font-size:.92rem;z-index:50;max-width:calc(100% - 32px);animation:pop .3s both}
+
+/* 共享元素轉場 */
+::view-transition-old(root),::view-transition-new(root){animation-duration:.35s}
+::view-transition-group(sess){animation-duration:.55s;animation-timing-function:cubic-bezier(.2,.8,.2,1)}
+
+/* ====== 手機（依框寬） ====== */
+@container (max-width:760px){
+  .wrap{padding-inline:14px}
+  .top{padding-block:12px 4px}
+  .brand span{display:none}.brand{padding:10px}
+  .switch{display:none}
+  .top .round{display:none}
+  .me span{display:none}.me{padding:4px}
+  .me i{width:44px;height:44px}
+  .loginb{height:46px;padding:0 18px;margin-left:auto}
+  .me{margin-left:auto}
+  .site .dock{display:flex}
+  .dock button{min-width:0;padding:8px 12px}
+  .bento,.foot{grid-template-columns:1fr 1fr;gap:10px}
+  .bento>.t,.foot>.t{grid-column:1/-1;grid-row:auto}
+  .bento>.half,.foot>.half{grid-column:span 1}
+  .t{padding:20px;border-radius:22px}
+  .intro{padding:22px}
+  .way{min-height:240px}
+  .whead{padding:22px}
+  .rc{width:72px;height:72px;font-size:1rem}
+  .sess.feat .day b{font-size:5rem}
+  .facts{grid-template-columns:1fr}
+  .reg .primary{display:none}
+  .mbar{display:flex;position:sticky;bottom:96px;z-index:15;margin:0 14px;gap:12px;align-items:center;justify-content:space-between;padding:12px 14px;background:#fff;border-radius:20px;box-shadow:0 14px 30px -16px rgba(0,0,0,.45)}
+  .mbar small{display:block;color:var(--soft);font-size:.78rem}
+  .journey{flex-direction:column;align-items:stretch;gap:14px}
+  .jn{flex-direction:row;text-align:left;gap:14px}
+  .jn .c{width:64px;height:64px;font-size:1.3rem}
+  .jn:not(:last-child)::after{display:none}
+  .try{grid-template-columns:1fr}
+  .unl{height:200px}
+  .more{padding:70px 14px 14px}
+  .more .grid{grid-template-columns:1fr 1fr}
+  .next .go{margin-left:0}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+
+<div class="tool"><div class="in">
+  <h1>C 方向・全站原型<small>兩個世界</small></h1>
+  <div class="grp"><span class="lb">頁面</span><div class="seg" id="t-page"></div></div>
+  <div class="grp"><span class="lb">導覽</span><div class="seg" id="t-nav"></div></div>
+  <div class="grp"><span class="lb">身分</span><div class="seg" id="t-who"></div></div>
+  <div class="grp"><span class="lb">裝置</span><div class="seg" id="t-vp"></div></div>
+  <span class="sp"></span>
+  <button type="button" class="tbtn" id="t-notes"></button>
+</div></div>
+<div class="work" id="work">
+  <div class="stage"><div class="browser" id="browser"><div class="chrome"><i></i><i></i><i></i><span id="url"></span></div><div class="frame" id="frame"></div></div></div>
+  <aside class="notes" id="notes"></aside>
+</div>
+
+<script>
+'use strict';
+const SESS = [
+  {id:'A2',d:'10/17',w:'六',r:'北',c:'A',v:'國立臺北教育大學',n:32,cap:60,dl:'10/7'},
+  {id:'A3',d:'10/24',w:'六',r:'南',c:'A',v:'國立高雄師範大學',n:41,cap:60,dl:'10/14'},
+  {id:'A4',d:'10/25',w:'日',r:'中',c:'A',v:'國立臺中教育大學',n:12,cap:60,dl:'10/15'},
+  {id:'TC',d:'10/31',w:'六',r:'中',c:'T',v:'國立臺中教育大學',n:9,cap:30,dl:'10/21'},
+  {id:'TN',d:'11/1',w:'日',r:'北',c:'T',v:'國立臺北教育大學',n:11,cap:30,dl:'10/22'},
+  {id:'B1',d:'11/7',w:'六',r:'中',c:'B',t:'學校行政軌',j:'admin',v:'國立臺中教育大學',n:18,cap:40,dl:'10/28'},
+  {id:'TS',d:'11/7',w:'六',r:'南',c:'T',v:'國立高雄師範大學',n:14,cap:30,dl:'10/28'},
+  {id:'TE',d:'11/8',w:'日',r:'東',c:'T',v:'福容大飯店花蓮店',n:6,cap:30,dl:'10/29'},
+  {id:'B2',d:'11/14',w:'六',r:'南',c:'B',t:'學校教師軌',j:'teacher',v:'國立高雄師範大學',n:22,cap:40,dl:'11/4'},
+  {id:'B3',d:'11/21',w:'六',r:'北',c:'B',t:'縣市行政軌',j:'county',v:'國立臺北教育大學',n:9,cap:30,dl:'11/11'}
+];
+const LV = {A:['初階','資料素養基礎與解讀','#2185B5','3 小時','09:00–12:00'],B:['進階','教育數據分析與應用','#1E97A3','6 小時','09:00–16:00'],T:['講師培訓','學校行政講師培訓工作坊','#EE7A1D','12 小時・兩天','兩天 09:00–16:00']};
+const RN = {'北':'北區','中':'中區','南':'南區','東':'東區'};
+const I = {arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',close:'<path d="M6 6l12 12M18 6 6 18"/>',file:'<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/>',lock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',shield:'<path d="M12 3 5 6v5c0 4.4 3 8.3 7 10 4-1.7 7-5.6 7-10V6z"/><path d="m9 12 2 2 4-4"/>',home:'<path d="M4 11 12 4l8 7v9H4z"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.4-6 8-6s7 2 8 6"/>'};
+const ic = n => '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">'+I[n]+'</svg>';
+const LOGO = '<svg viewBox="0 0 34 30" aria-hidden="true"><rect x="1" y="18" width="6" height="11" rx="1.5" fill="#1B5FA6"/><rect x="9.5" y="13" width="6" height="16" rx="1.5" fill="#2185B5"/><rect x="18" y="9" width="6" height="20" rx="1.5" fill="#1E97A3"/><rect x="26.5" y="3" width="6" height="26" rx="1.5" fill="#EE7A1D"/></svg>';
+
+const init = () => ({page:'home', nav:'switch', logged:false, vp:'desk', notes:true, sid:'B2', region:null, course:'all', applied:false, form:false, meal:'葷', flip:false, more:false, step:0, toast:''});
+let S = init();
+const $ = id => document.getElementById(id);
+const WORLD = {home:'home', find:'train', detail:'train', mine:'train', platform:'data'};
+const sess = id => SESS.find(s=>s.id===id);
+const lname = s => LV[s.c][0]+(s.t?'・'+s.t:'');
+
+function elig(s){
+  if(!S.logged) return s.c==='T'?['no','縣市推薦制','受推薦者點邀請信報名']:s.c==='B'?['no','需完成初階','並選擇與職務相符的分流']:['can','不限資格','登入後即可報名'];
+  if(s.c==='A') return ['ok','已結業','你已完成初階'];
+  if(s.c==='T') return ['no','縣市推薦制','沒有收到推薦邀請'];
+  if(s.id==='B2'&&S.applied) return ['wait','待審核',''];
+  if(s.j!=='teacher') return ['no','無法報名','此分流限'+s.t.replace('軌','')];
+  return ['can','可報名',''];
+}
+
+/* ---------- 導覽 ---------- */
+function topNav(){
+  const w = WORLD[S.page];
+  const sw = '<nav class="switch '+(w==='data'?'at-data':w==='train'?'':'at-none')+'" aria-label="主要導覽"><span class="ind"></span>'
+    +'<button data-go="find" aria-current="'+(w==='train')+'"><span class="sh c"></span>研習</button>'
+    +'<button data-go="platform" aria-current="'+(w==='data')+'"><span class="sh b"></span>分析平台</button></nav>';
+  return '<header class="wrap top'+(S.nav==='dock'?' dockmode':'')+'"><button class="brand" data-go="home">'+LOGO+'<span>教育資料素養提升計畫<small>教育部補助｜高師大執行</small></span></button>'
+    +sw+'<button class="round" data-a="more" aria-label="更多">'+ic('menu')+'</button>'
+    +(S.logged?'<button class="me" data-go="mine"><i>王</i><span>王小明</span></button>':'<button class="loginb" data-a="login">登入</button>')+'</header>';
+}
+function dock(){
+  const w = WORLD[S.page];
+  const item = (cls,go,label,shape) => '<button class="'+cls+'" data-'+(go==='more'?'a':'go')+'="'+go+'" aria-current="'+(cls==='home'?S.page==='home':cls==='train'?(w==='train'&&S.page!=='mine'):cls==='data'?w==='data':cls==='mine'?S.page==='mine':false)+'"><span class="dsh">'+shape+'</span>'+label+'</button>';
+  return '<div class="dock"><nav aria-label="主要導覽">'
+    +item('home','home','首頁',ic('home'))
+    +item('train','find','研習','<i style="width:16px;height:16px;border-radius:50%"></i>')
+    +item('data','platform','平台','<i style="width:7px;height:17px;border-radius:2px;box-shadow:-10px 5px 0 -1px currentColor"></i>')
+    +item('mine','mine','我的',ic('user'))
+    +item('dmore','more','更多',ic('menu'))+'</nav></div>';
+}
+function morePanel(){
+  if(!S.more) return '';
+  const t = (cls,style,k,b,go) => '<div class="t click '+cls+'" style="'+style+'" data-'+(go.startsWith('!')?'a':'go')+'="'+go.replace('!','')+'"><span class="k" style="color:inherit;opacity:.8">'+k+'</span><b style="font:800 1.3rem/1.3 var(--f-head);display:block;margin-top:4px">'+b+'</b></div>';
+  return '<div class="more" data-a="closemore"><div class="grid">'
+    +t('','background:var(--teal);color:#fff','最新消息','115 年講師培訓四區場次公布','!toast:最新消息頁')
+    +t('','background:#fff','關於計畫','計畫目標、團隊與聯絡方式','!toast:關於計畫頁')
+    +t('','background:var(--blue);color:#fff','研習','證書查驗','!toast:研習 › 證書查驗')
+    +t('','background:#D9ECF7','研習','常見問題','!toast:研習 › 常見問題')
+    +t('','background:var(--ink);color:#fff','承辦／講師','進入後台','!toast:後台')
+    +t('','background:var(--orange);color:#fff','分析平台','完整試玩','platform')
+    +'</div></div>';
+}
+function foot(){
+  return '<div class="wrap foot"><div class="t c2 half" style="background:var(--ink);color:#fff"><span class="k" style="color:#9FB0BF">教育資料素養提升計畫</span><p style="margin-top:6px">補助單位：教育部<br>執行單位：國立高雄師範大學</p></div>'
+    +'<div class="t c2 half"><span class="k">研習</span><p style="margin-top:6px;display:flex;flex-direction:column;align-items:flex-start;gap:4px"><button class="l" data-go="find">找場次</button><button class="l" data-a="toast" data-t="證書查驗">研習證明查驗</button></p></div>'
+    +'<div class="t c2" style="background:#fff"><span class="k">聯絡我們</span><p style="margin-top:6px">教育資料素養提升計畫辦公室<br><span style="color:var(--soft)">網站導覽・無障礙聲明</span></p></div></div>';
+}
+
+/* ---------- 頁面 ---------- */
+const P = {};
+P.home = () => {
+  const next = S.logged
+    ? '<div class="t next c6"><span class="av">王</span><div><span class="k" style="color:#9FB0BF">王小明，你的下一步</span><b>'+(S.applied?'進階研習（學校教師軌）審核中・11/14 南區':'你已完成初階，可以報名進階研習（學校教師軌）')+'</b></div><button class="go" data-'+(S.applied?'go="mine"':'sid="B2"')+'>'+(S.applied?'看我的研習':'看 11/14 場次')+' '+ic('arrow')+'</button></div>' : '';
+  return '<div class="wrap bento">'
+    +(S.logged?next:'<div class="t intro c6"><h1 class="huge">你今天想<br>做什麼？</h1><p>給縣市行政、校長主任與老師：上研習學會看數據，再用 AI 分析平台處理自己學校的資料。</p></div>')
+    +'<button class="t click way train c3 r3" data-go="find"><span class="shp s1"></span><span class="shp s2"></span><span class="shp s3"></span><span class="k" style="color:#fff">研習</span><h2>我要參加研習</h2><p>找離你最近的場次、報名、拿研習證明</p><span class="go">走進研習 '+ic('arrow')+'</span></button>'
+    +'<button class="t click way data c3 r3" data-go="platform"><span class="shp s2"></span><span class="shp bars"><i style="height:96px"></i><i style="height:60px"></i><i style="height:140px"></i></span><span class="k" style="color:#fff">分析平台</span><h2>我想分析數據</h2><p>30 秒試玩，看平台怎麼幫你讀懂學校資料</p><span class="go">走進平台 '+ic('arrow')+'</span></button>'
+    +'<div class="t click mini teal c2" data-sid="A2"><span class="k" style="color:#DDF3F5">最近一場</span><b>10/17（六）北區<br>初階研習</b><button class="lnk">看場次 '+ic('arrow')+'</button></div>'
+    +'<div class="t click mini c2" data-a="toast" data-t="最新消息頁"><span class="k">最新消息</span><b>115 年學校行政講師培訓四區場次公布</b><button class="lnk">看全部消息 '+ic('arrow')+'</button></div>'
+    +'<div class="t click mini sky c2" data-a="toast" data-t="關於計畫頁"><span class="k">關於計畫</span><span class="num">22</span><span>縣市＋國教署一起參與</span><button class="lnk">了解計畫 '+ic('arrow')+'</button></div>'
+    +'</div>';
+};
+function whead(title, sub, tab){
+  const tabs = WORLD[S.page]==='train' ? '<div class="tabs" role="tablist">'+[['find','找場次'],['mine','我的研習'],['verify','證書查驗']].map(([k,t])=>'<button '+(k==='verify'?'data-a="toast" data-t="證書查驗頁"':'data-go="'+k+'"')+' aria-current="'+(tab===k)+'">'+t+'</button>').join('')+'</div>' : '';
+  const deco = WORLD[S.page]==='data' ? '<span class="deco" aria-hidden="true"><i style="height:90px"></i><i style="height:140px"></i><i style="height:200px"></i></span>' : '<span class="deco" aria-hidden="true"></span>';
+  return '<div class="t whead c6">'+deco+'<div style="position:relative;z-index:1"><h1 class="huge">'+title+'</h1><p>'+sub+'</p></div>'+tabs+'</div>';
+}
+P.find = () => {
+  const list = SESS.filter(s=>(!S.region||s.r===S.region)&&(S.course==='all'||s.c===S.course));
+  const cnt = r => SESS.filter(s=>s.r===r).length;
+  let h = '<div class="wrap bento">'+whead('研習','先選你的區域，再挑一場適合你的研習。','find')
+    +'<div class="t c4"><span class="k">你在哪一區？</span><div class="regions" style="margin-top:12px">'+Object.keys(RN).map(r=>'<button class="rc" data-a="region" data-v="'+r+'" aria-pressed="'+(S.region===r)+'">'+RN[r]+'<small>'+cnt(r)+' 場</small></button>').join('')+'</div></div>'
+    +'<div class="t c2"><span class="k">課程</span><div class="chips" style="margin-top:12px">'+[['all','全部'],['A','初階'],['B','進階'],['T','講師培訓']].map(([k,t])=>'<button class="chip" data-a="course" data-v="'+k+'" aria-pressed="'+(S.course===k)+'">'+t+'</button>').join('')+'</div></div>';
+  if(!list.length) h += '<div class="t c6 empty">沒有符合的場次。<button class="chip" data-a="clear" style="margin-left:8px">清除篩選</button></div>';
+  list.forEach((s,i)=>{
+    const e = elig(s), feat = i===0;
+    const [m,d] = s.d.split('/');
+    h += '<div class="t click sess '+(feat?'feat c4':'c2')+'" data-sid="'+s.id+'" style="view-transition-name:s-'+s.id+'">'+(feat?'<span class="ring"></span>':'')
+      +'<div class="day"><b>'+d+'</b><span>'+m+' 月<br>週'+s.w+'</span></div><span class="lvd" style="--c:'+LV[s.c][2]+'">'+lname(s)+'</span><h3>'+LV[s.c][1]+'</h3><p class="m">'+RN[s.r]+'・'+s.v+'</p>'
+      +'<div class="row"><span class="pillk '+e[0]+'">'+e[1]+'</span><span class="m">名額 '+s.n+'/'+s.cap+'</span></div></div>';
+  });
+  return h+'</div>';
+};
+P.detail = () => {
+  const s = sess(S.sid), e = elig(s), [m,d] = s.d.split('/');
+  const pct = s.n/s.cap, C = 2*Math.PI*38;
+  let box, bar;
+  const cap = '<div class="capring"><svg viewBox="0 0 92 92" aria-hidden="true"><circle cx="46" cy="46" r="38" fill="none" stroke="#E4EEF8" stroke-width="10"/><circle class="v" cx="46" cy="46" r="38" fill="none" stroke-width="10" stroke-dasharray="'+C+'" stroke-dashoffset="'+(C*(1-pct))+'" transform="rotate(-90 46 46)" style="--full:'+C+'"/></svg><div><b>'+s.n+' / '+s.cap+'</b><span>已錄取・'+s.dl+' 截止</span></div></div>';
+  if(S.logged && S.applied && s.id==='B2'){
+    box = '<span class="k">你的報名</span><span class="pillk wait" style="align-self:flex-start">待審核</span><ol class="tl"><li class="done">已送出報名</li><li class="now">承辦審核中，結果會寄信通知</li><li>出席研習・'+s.d+'</li><li>結業與研習證明</li><li>登錄全教網時數</li></ol><button class="btn line" data-go="mine">看我的研習</button>';
+    bar = '<div><b>待審核</b><small>結果會寄信通知</small></div><button class="btn line" data-go="mine">我的研習</button>';
+  } else if(S.logged && e[0]==='can' && S.form){
+    box = '<span class="k">報名資料</span><div class="fld"><label for="idno">身分證字號</label><input id="idno" placeholder="A123456789"><span class="help">只用於登錄全教網研習時數，加密保存，登錄後 90 天刪除。</span></div>'
+      +'<div class="fld"><span class="lb">午餐</span><div class="seg2">'+['葷','素','不用餐'].map(x=>'<button data-a="meal" data-v="'+x+'" aria-pressed="'+(S.meal===x)+'">'+x+'</button>').join('')+'</div></div>'
+      +'<div class="fld"><label for="note">想解決的資料問題（選填）</label><textarea id="note" rows="2" placeholder="例如：學習扶助測驗各班的落差"></textarea></div>'
+      +'<button class="btn world primary" data-a="apply">送出報名</button><button class="btn" style="background:none" data-a="form">取消</button>';
+    bar = '<div><b>填寫報名資料</b><small>約 1 分鐘</small></div><button class="btn world" data-a="apply">送出</button>';
+  } else if(S.logged && e[0]==='can'){
+    box = cap+'<div class="okline">'+ic('check')+'你符合報名資格</div><button class="btn world primary" data-a="form">我要報名</button>';
+    bar = '<div><b>名額 '+s.n+'/'+s.cap+'</b><small>'+s.dl+' 截止</small></div><button class="btn world" data-a="form">我要報名</button>';
+  } else if(!S.logged && s.c!=='T'){
+    box = cap+'<button class="btn world primary" data-a="login">登入後報名</button><p style="font-size:.88rem;color:var(--soft)">'+(s.c==='A'?'不限資格。':'需先完成初階，且職務為「'+s.t.replace('軌','')+'」。')+'</p>';
+    bar = '<div><b>名額 '+s.n+'/'+s.cap+'</b><small>'+s.dl+' 截止</small></div><button class="btn world" data-a="login">登入後報名</button>';
+  } else {
+    box = cap+'<span class="pillk '+e[0]+'" style="align-self:flex-start">'+e[1]+'</span>'+(e[2]?'<p class="why">'+e[2]+'。</p>':'')+(s.c==='B'?'<button class="btn line" data-a="course" data-v="B" data-go2="find">看其他進階分流</button>':'');
+    bar = '<div><b>'+e[1]+'</b><small>'+(e[2]||'')+'</small></div>';
+  }
+  return '<div class="wrap bento">'
+    +'<div class="t dday c2" style="view-transition-name:s-'+s.id+'"><span class="ring"></span><span class="k" style="color:#CFE2F5">'+RN[s.r]+'・週'+s.w+'</span><div class="big">'+d+'<small>'+m+' 月</small></div><span style="font-weight:700">'+LV[s.c][4]+'</span></div>'
+    +'<div class="t dtitle c4"><button class="chip" data-go="find" style="padding:6px 14px">← 所有場次</button><div style="margin-top:14px"><span class="lvd" style="--c:'+LV[s.c][2]+'">'+lname(s)+'</span></div><h1>'+LV[s.c][1]+'</h1><p>'+(s.c==='A'?'教育數據從哪裡來、圖表怎麼看、常見的誤讀，以及使用學生資料的倫理。':s.c==='B'?'依職務分組，用自己單位的資料實際整理、分析與判讀，並規劃接下來的做法。':'由縣市推薦。兩天 12 小時，結訓後試教審查，取得講師資格。')+'</p>'
+    +'<dl class="facts"><div><dt>研習時數</dt><dd>'+LV[s.c][3]+'</dd></div><div><dt>對象</dt><dd>'+(s.c==='A'?'不限資格':s.c==='T'?'縣市推薦':s.t.replace('軌',''))+'</dd></div></dl></div>'
+    +'<div class="t reg c2 r2">'+box+'</div>'
+    +'<div class="t c4"><span class="k">課程內容</span><ul class="lst">'+(s.c==='B'?'<li>上午：資料整理與去識別化實作</li><li>下午：用分析平台做落差分析並判讀</li><li>請攜帶筆電</li>':s.c==='A'?'<li>教育數據的來源與限制</li><li>看懂常見統計圖表與誤讀</li><li>學生資料的倫理與個資保護</li>':'<li>第一天：初階＋講師培訓前置</li><li>第二天：進階 6 小時</li><li>結訓後繳交試教影片</li>')+'</ul></div>'
+    +'<div class="t place c4"><div class="map" aria-hidden="true"><i></i></div><div class="tx"><b style="font:800 1.15rem var(--f-head)">'+s.v+'</b><p style="color:var(--soft)">'+RN[s.r]+'・報到時間請提早 15 分鐘</p></div></div>'
+    +'</div><div class="mbar">'+bar+'</div>';
+};
+P.mine = () => {
+  let h = '<div class="wrap bento">'+whead('我的研習', S.logged?'王小明・高雄市立前鎮國中・學校教師':'報名進度與研習證明都在這裡。','mine');
+  if(!S.logged) return h+'<div class="t gate c6"><div><h2 style="font-size:1.6rem">登入後，這裡會列出你的報名進度與研習證明</h2><p style="color:var(--soft);margin-top:6px">從報名、審核、出席、結業到登錄全教網，每一步都看得到。</p></div><button class="btn dark" data-a="login">登入</button></div></div>';
+  h += '<div class="t c6"><span class="k">你的研習路徑</span><div class="journey">'
+    +'<div class="jn done"><span class="c">✓</span><div><b>初階研習</b><br><span>9/12 已結業</span></div></div>'
+    +'<div class="jn '+(S.applied?'now':'')+'"><span class="c">'+(S.applied?'2':'2')+'</span><div><b>進階研習</b><br><span>'+(S.applied?'11/14 待審核':'下一步・可報名')+'</span></div></div>'
+    +'<div class="jn"><span class="c">'+ic('lock').replace('class="ic"','class="ic" style="width:34px;height:34px"')+'</span><div><b>分析平台</b><br><span>進階結業後開通</span></div></div></div></div>';
+  h += S.applied
+    ? '<div class="t c3"><span class="k">進行中</span><h3 style="font-size:1.25rem;margin:8px 0 12px">進階研習（學校教師軌）<br><span style="font-size:.95rem;color:var(--soft);font-family:var(--f-body);font-weight:500">11/14（六）南區・國立高雄師範大學</span></h3><ol class="tl"><li class="done">已送出報名</li><li class="now">承辦審核中</li><li>出席研習</li><li>結業與研習證明</li></ol></div>'
+    : '<div class="t c3 click" data-sid="B2"><span class="k">下一步</span><h3 style="font-size:1.3rem;margin-top:8px">報名進階研習（學校教師軌）</h3><p style="color:var(--soft);margin-top:4px">最近一場 11/14（六）南區</p><span class="go" style="background:var(--blue);color:#fff;margin-top:16px">看這個場次 '+ic('arrow')+'</span></div>';
+  h += '<button class="t flip c3'+(S.flip?' on':'')+'" data-a="flip" aria-label="研習證明，點一下翻面"><div class="in"><div class="f"><span class="ring"></span><span class="k" style="color:#DDF3F5">研習證明・點一下翻面</span><b style="font:800 1.5rem/1.3 var(--f-head);margin-top:6px">初階研習<br>資料素養基礎與解讀</b><span style="margin-top:auto">2026-09-12・3 小時・已登錄全教網</span></div>'
+    +'<div class="b"><span class="qr" aria-hidden="true"></span><div><span class="k">查驗碼</span><div class="code">DL115-E7JAA</div><p style="color:var(--soft);font-size:.88rem;margin-top:6px">學校或縣市可以掃 QR code，或到「證書查驗」輸入查驗碼核對。</p></div></div></div></button>';
+  return h+'</div>';
+};
+function tryBox(){
+  const st=S.step, names=[['王小明','王○明'],['陳怡君','陳○君'],['林家豪','林○豪'],['張雅婷','張○婷']];
+  let sc;
+  if(st===0) sc='<button class="chipf" draggable="true" id="chipf" data-a="trynext">'+ic('file')+'七年級段考.xlsx</button><button class="drop" id="drop" data-a="trynext">把檔案拖到這裡<br><small>或點一下</small></button>';
+  else if(st===1) sc='<table><thead><tr><th>姓名</th><th>班級</th><th>段考</th></tr></thead><tbody>'+names.map((n,i)=>'<tr><td class="masked" style="animation-delay:'+(i*.12)+'s">'+n[1]+'</td><td>70'+(i+1)+'</td><td>'+[78,74,66,72][i]+'</td></tr>').join('')+'</tbody></table><p style="font-size:.85rem">'+ic('lock')+' 姓名在你的電腦上就換成代碼，原始資料不會上傳。</p>';
+  else sc='<div class="bars">'+[[73,'701'],[70,'702'],[64,'703'],[71,'705']].map(([v,k],i)=>'<div class="'+(i===2?'hi':'')+'" style="height:'+(v-40)*2.9+'px;animation-delay:'+(i*.1)+'s"><span>'+v+'</span><i>'+k+'</i></div>').join('')+'</div><div class="ai"><b>AI 解讀草稿・需你確認</b>703 班平均比其他班低約 7 分，建議先確認是否有缺考或特殊狀況。</div>';
+  return '<div class="try"><div><span class="k">30 秒試玩</span><h3 style="font-size:1.5rem;margin-top:6px">看平台怎麼處理一份段考成績</h3><ol class="steps">'+['把資料放進平台','在你的電腦上去識別','看分析與 AI 解讀'].map((t,i)=>'<li class="'+(i<st?'done on':i===st?'on':'')+'"><b>'+(i<st?'✓':i+1)+'</b>'+t+'</li>').join('')+'</ol>'
+    +(st===1?'<button class="btn world" data-a="trynext">下一步：分析 '+ic('arrow')+'</button>':st===2?'<div style="display:flex;flex-wrap:wrap;gap:10px"><button class="btn world" data-a="toast" data-t="完整五步驟試玩">玩完整試玩</button><button class="btn line" data-a="tryreset">再玩一次</button></div>':'')+'</div><div class="screen" aria-live="polite">'+sc+'</div></div>';
+}
+P.platform = () => {
+  const unlocked = false;
+  return '<div class="wrap bento">'+whead('分析平台','不用寫程式。上傳資料、說出想了解的問題，平台完成分析並附上說明，最後由你確認結果。','')
+    +'<div class="t c6">'+tryBox()+'</div>'
+    +'<div class="t c4"><span class="k">怎麼開始用</span><div class="unl">'
+    +'<div class="ub" style="background:var(--sky);height:46%"><b>完成初階</b><span>3 小時，不限資格</span>'+(S.logged?'<span class="st">✓ 已完成</span>':'')+'</div>'
+    +'<div class="ub" style="background:var(--teal);height:72%;animation-delay:.12s"><b>完成進階</b><span>結業當下自動開通</span>'+(S.logged?'<span class="st">'+(S.applied?'審核中':'下一步')+'</span>':'')+'</div>'
+    +'<div class="ub" style="background:var(--orange);height:100%;animation-delay:.24s"><b>同一組帳號進入</b><span>不用再註冊</span>'+(S.logged?'<span class="st">'+ic('lock').replace('class="ic"','class="ic" style="width:14px;height:14px"')+' 未開通</span>':'')+'</div></div></div>'
+    +'<div class="t c2" style="display:flex;flex-direction:column;gap:14px"><div class="priv"><span class="sh">'+ic('shield')+'</span><p>真實資料在你的電腦上去識別，AI 只看統計摘要；數字一律由平台計算。</p></div>'
+    +(S.logged?(unlocked?'<button class="btn world">進入分析平台</button>':'<button class="btn" disabled>進入平台（尚未開通）</button><button class="btn line" data-sid="B2" style="color:var(--blue)">去報名進階 →</button>'):'<button class="btn dark" data-a="login">登入分析平台</button>')+'</div>'
+    +'</div>';
+};
+
+/* ---------- 說明 ---------- */
+const NOTES = {
+  home:['#1E97A3','首頁',['一進來只問一件事：「你今天想做什麼？」兩大色塊就是兩條路。','滑鼠移到藍色塊，圓形會散開；移到橘色塊，長條會長高：形狀在預告你要進入哪個世界。','登入後，最上方換成「你的下一步」深色條，直接告訴你下一件事。','最近一場、最新消息、關於計畫用小色塊收在下面，不搶兩條主路。'],'點「我要參加研習」，看背景從混合形狀變成圓形；再按上方切換器的「分析平台」，看圓形變成長條。'],
+  find:['#1B5FA6','研習世界・找場次',['整個研習世界都是藍色＋圓形：背景、區域按鈕、場次卡片的裝飾都是圓的。','區域用四顆大圓形按鈕，比地圖更好按，也延續圓形語言。','場次卡片以超大日期數字當主視覺，最近一場放大成主角卡。','每張卡只有一個狀態標籤（可報名、待審核、無法報名），不用點進去就知道能不能報。'],'點一顆區域圓形篩選；點任一張場次卡，看卡片放大變成詳情頁的日期色塊（Chrome 支援）。'],
+  detail:['#1B5FA6','研習世界・場次詳情',['整頁拆成色塊：巨大日期、課程說明、報名、課程內容、地點。','報名區用藍框強調，是全頁唯一的主要動作；名額用圓環表示（延續圓形）。','登入後直接告訴你「你符合報名資格」，報名表就展開在同一塊裡。','手機上，報名按鈕變成浮在底部的白色膠囊，在 dock 上方。'],'切到「登入後」，按「我要報名」→「送出報名」，看同一塊變成進度線。'],
+  mine:['#1B5FA6','研習世界・我的研習',['研習路徑是三顆大圓：完成的變綠、進行中的會呼吸、還沒開通的上鎖。','研習證明做成可以翻面的卡片：正面是課程，背面是查驗碼和 QR code。','沒登入時是一段說明＋登入按鈕，不是空白頁。'],'切到「登入後」，點證明卡片翻面。先去場次詳情報名，再回來看路徑變化。'],
+  platform:['#EE7A1D','分析平台世界',['整個平台世界是橘色＋長條：背景形狀、標題裝飾、開通步驟都是長條。','30 秒試玩直接放在最上面，先讓人看到價值，再談開通條件。','開通條件是三根依序長高的長條，登入後每根標出你的狀態。','「進入平台」對還沒開通的人會停用，旁邊直接給「去報名進階」。'],'把檔案拖到虛線框（或點一下），走完三步。']
+};
+const NAVNOTE = {switch:'桌機導覽：置中的「世界切換器」只有兩個選項，選中的那一邊會滑動填色（研習藍、平台橘）。其他頁面收在右上角「≡」的色塊面板裡。',dock:'桌機導覽：跟手機一樣，用浮在底部的深色 dock；頂部只留 LOGO 和帳號。'};
+
+/* ---------- 繪製 ---------- */
+function render(){
+  $('t-page').innerHTML=[['home','首頁'],['find','找場次'],['detail','場次詳情'],['mine','我的研習'],['platform','分析平台']].map(([k,t])=>'<button data-tool="page" data-v="'+k+'" aria-pressed="'+(S.page===k)+'">'+t+'</button>').join('');
+  $('t-nav').innerHTML=[['switch','世界切換器'],['dock','浮動 dock']].map(([k,t])=>'<button data-tool="nav" data-v="'+k+'" aria-pressed="'+(S.nav===k)+'">'+t+'</button>').join('');
+  $('t-who').innerHTML=[['0','訪客'],['1','王小明']].map(([k,t])=>'<button data-tool="who" data-v="'+k+'" aria-pressed="'+(String(+S.logged)===k)+'">'+t+'</button>').join('');
+  $('t-vp').innerHTML=[['desk','桌機'],['phone','手機']].map(([k,t])=>'<button data-tool="vp" data-v="'+k+'" aria-pressed="'+(S.vp===k)+'">'+t+'</button>').join('');
+  $('t-notes').textContent=S.notes?'隱藏說明':'顯示說明';
+  $('browser').className='browser'+(S.vp==='phone'?' phone':'');
+  $('work').className='work'+(S.notes?'':' nonotes');
+  $('url').textContent='datalit.vercel.app'+({home:'/',find:'/trainings',detail:'/trainings/'+S.sid,mine:'/trainings/mine',platform:'/platform'})[S.page];
+  let site = $('frame').querySelector('.site');
+  if(!site){ $('frame').innerHTML='<div class="site"><div class="bgs" aria-hidden="true"><i></i><i></i><i></i></div><div id="body"></div></div>'; site=$('frame').querySelector('.site'); }
+  site.className='site w-'+WORLD[S.page]+(S.nav==='dock'?' navdock':'');
+  $('body').innerHTML=topNav()+P[S.page]()+foot()+dock()+morePanel()+(S.toast?'<div class="toast" role="status">'+S.toast+'</div>':'');
+  const n=NOTES[S.page];
+  $('notes').hidden=!S.notes;
+  $('notes').innerHTML='<span class="tag" style="--c:'+n[0]+'">'+({home:'共用區',train:'研習世界',data:'分析平台世界'})[WORLD[S.page]]+'</span><h2>'+n[1]+'</h2><ol>'+n[2].map(t=>'<li>'+t+'</li>').join('')+'</ol><p style="margin-top:12px;color:var(--soft)">'+NAVNOTE[S.nav]+(S.vp==='phone'?'手機一律用底部 dock。':'')+'</p><div class="tip"><b>試試看：</b>'+n[3]+'</div>';
+  const chip=$('chipf'),zone=$('drop');
+  if(chip&&zone){chip.addEventListener('dragstart',e=>e.dataTransfer.setData('text/plain','f'));zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('over')});zone.addEventListener('dragleave',()=>zone.classList.remove('over'));zone.addEventListener('drop',e=>{e.preventDefault();S.step=1;render()});}
+}
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function nav(fn){ if(document.startViewTransition && !reduce) document.startViewTransition(()=>{fn();render()}); else {fn();render()} }
+let tt;
+function toast(t){S.toast=t;render();clearTimeout(tt);tt=setTimeout(()=>{S.toast='';render()},2400)}
+const ACT={
+  more:()=>{S.more=true;render()},
+  closemore:(d,el,ev)=>{if(ev.target===el){S.more=false;render()}},
+  login:()=>{S.logged=true;toast('已登入：王小明（示意）')},
+  region:d=>{S.region=S.region===d.v?null:d.v;render()},
+  course:(d)=>{S.course=d.v;if(d.go2)S.page=d.go2;render()},
+  clear:()=>{S.region=null;S.course='all';render()},
+  form:()=>{S.form=!S.form;render()},
+  meal:d=>{S.meal=d.v;render()},
+  apply:()=>{S.applied=true;S.form=false;toast('報名已送出，審核結果會寄信通知')},
+  flip:()=>{S.flip=!S.flip;render()},
+  trynext:()=>{S.step=Math.min(2,S.step+1);render()},
+  tryreset:()=>{S.step=0;render()},
+  toast:d=>{S.more=false;toast('示意：'+(d.t||''))}
+};
+document.addEventListener('click',ev=>{
+  const t=ev.target.closest('[data-tool]');
+  if(t){const v=t.dataset.v;if(t.dataset.tool==='page')nav(()=>{S.page=v;S.more=false});else{if(t.dataset.tool==='nav')S.nav=v;else if(t.dataset.tool==='who'){S.logged=v==='1';S.form=false}else S.vp=v;render()}return}
+  const sid=ev.target.closest('[data-sid]');
+  if(sid&&!ev.target.closest('[data-a]:not([data-sid])')){const id=sid.dataset.sid;nav(()=>{S.sid=id;S.page='detail';S.form=false;S.more=false});window.scrollTo({top:0});return}
+  const g=ev.target.closest('[data-go]');
+  if(g){const v=g.dataset.go;nav(()=>{S.page=v;S.more=false});window.scrollTo({top:0});return}
+  const a=ev.target.closest('[data-a]');
+  if(a){let name=a.dataset.a,d=a.dataset;if(name.startsWith('toast:')){d={t:name.slice(6)};name='toast'}if(ACT[name])ACT[name](d,a,ev)}
+});
+$('t-notes').addEventListener('click',()=>{S.notes=!S.notes;render()});
+render();
+</script>
+</body>
+</html>

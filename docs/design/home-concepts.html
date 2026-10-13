@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>首頁三種方向</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC:wght@500;700;800&family=Noto+Sans+TC:wght@400;500;700;900&family=IBM+Plex+Mono:wght@500;600&display=swap">
+</head>
+<body>
+<style>
+/* 首頁三種方向的比較原型。三個方向共用同一份內容與「分岔口」流程，只換視覺語言：
+   A 長條就是介面（明亮、LOGO 長條當骨架）、B 數據編輯風（深色、超大字、方格紙）、C 色塊拼貼（明亮、大色塊與幾何形狀）。
+   版面：上方工具列、中間瀏覽器框（container query 依框寬切手機版）、右側說明。 */
+:root{
+  color-scheme:light;
+  --tool:#17222B; --tool-2:#26343F; --tool-tx:#E9EEF2; --canvas:#E4E9ED;
+  --blue:#1B5FA6; --sky:#2185B5; --teal:#1E97A3; --orange:#EE7A1D;
+  --ink:#1B2833; --ink-2:#3E4C58; --soft:#64717D; --line:#DCE4EA; --paper:#F5F8FA; --bg:#FFFFFF;
+  --f-head:"Chiron GoRound TC","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;color:var(--ink);font:16px/1.7 var(--f-body);-webkit-font-smoothing:antialiased}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid #4C8BD6;outline-offset:3px;border-radius:6px}
+
+/* ---------- 工具列與外框 ---------- */
+.tool{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;background:var(--tool);color:var(--tool-tx)}
+.tool .in{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding:10px 16px;max-width:1560px;margin:auto}
+.tool h1{font:800 1rem/1.2 var(--f-head);margin:0;white-space:nowrap}
+.tool h1 small{font:500 .75rem var(--f-body);color:#9FB0BF;margin-left:6px}
+.seg{display:inline-flex;background:var(--tool-2);border-radius:9px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{background:none;border:0;color:#C4D0DA;padding:6px 12px;border-radius:7px;cursor:pointer;font-size:.86rem;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:#fff;color:var(--ink);font-weight:700}
+.tool .grp{display:flex;align-items:center;gap:8px}
+.tool .lb{font-size:.75rem;color:#9FB0BF;letter-spacing:.06em}
+.tool .sp{flex:1}
+.tbtn{background:none;border:1px solid #4A5A68;color:var(--tool-tx);border-radius:8px;padding:6px 11px;cursor:pointer;font-size:.86rem;white-space:nowrap}
+.tbtn:hover{background:var(--tool-2)}
+.work{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;max-width:1560px;margin:auto;padding:24px 16px 64px;align-items:start}
+.work.nonotes{grid-template-columns:minmax(0,1fr)}
+@media (max-width:1100px){.work{grid-template-columns:minmax(0,1fr)}}
+.stage{display:flex;justify-content:center;min-width:0}
+.browser{width:100%;max-width:1200px;border-radius:12px;overflow:hidden;box-shadow:0 30px 60px -36px rgba(23,34,43,.6);background:#fff}
+.browser.phone{max-width:390px;border-radius:30px;border:9px solid #17222B}
+.chrome{display:flex;align-items:center;gap:6px;height:30px;padding:0 12px;background:#EEF2F5;border-bottom:1px solid #DDE4EA;font-size:.74rem;color:#8C98A3}
+.chrome i{width:9px;height:9px;border-radius:50%;background:#D4DBE1}
+.chrome span{margin-left:8px}
+.phone .chrome{justify-content:center}.phone .chrome i{display:none}
+.frame{container-type:inline-size;position:relative;overflow:hidden}
+.notes{position:sticky;top:76px;background:#fff;border-radius:12px;padding:18px;box-shadow:0 1px 0 #D4DBE1;font-size:.9rem;line-height:1.65}
+.notes h2{font:800 1.1rem/1.3 var(--f-head);margin:0}
+.notes .tag{display:inline-block;font:700 .72rem/1 var(--f-body);letter-spacing:.06em;color:#fff;background:var(--c);padding:4px 8px;border-radius:5px;margin-bottom:8px}
+.notes h3{font-size:.8rem;letter-spacing:.06em;color:var(--soft);margin:14px 0 4px}
+.notes ul{margin:0;padding-left:1.1em}
+.notes li+li{margin-top:4px}
+.notes .tip{margin-top:14px;padding:10px 12px;background:var(--paper);border-radius:10px}
+@media (max-width:1100px){.notes{position:static}}
+
+/* ---------- 共用：產品內元素 ---------- */
+.p{position:relative}
+.p h1,.p h2,.p h3,.p h4{margin:0;font-family:var(--f-head);font-weight:800;line-height:1.2;text-wrap:balance}
+.p p{margin:0}
+.p .wrap{max-width:1100px;margin:auto;padding-inline:40px}
+.ic{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.topbar{display:flex;align-items:center;gap:14px;height:68px}
+.topbar .logo{display:flex;align-items:center;gap:10px;font:800 1rem/1.2 var(--f-head);background:none;border:0;padding:0;cursor:pointer;text-align:left;color:inherit}
+.topbar .logo svg{width:34px;height:30px;flex:none}
+.topbar nav{display:flex;gap:4px;margin-left:auto}
+.topbar nav button{background:none;border:0;padding:8px 12px;border-radius:999px;cursor:pointer;color:inherit;opacity:.8;font-size:.95rem}
+.topbar nav button:hover{opacity:1}
+.topbar .login{border:2px solid currentColor;border-radius:999px;padding:7px 16px;font-weight:700;background:none;cursor:pointer;color:inherit;font-size:.92rem}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 24px;border-radius:999px;font-weight:700;font-size:1rem;border:2px solid transparent;cursor:pointer;white-space:nowrap;text-decoration:none}
+.btn .ic{width:16px;height:16px}
+.toast{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);background:#1B2833;color:#fff;padding:11px 16px;border-radius:12px;font-size:.9rem;z-index:30;max-width:calc(100% - 32px)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* 迷你試玩（三個方向共用骨架，配色各自覆寫） */
+.try{display:grid;grid-template-columns:1fr 1.2fr;gap:24px;align-items:stretch}
+.try .ctrl{display:flex;flex-direction:column;gap:12px}
+.try .steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.try .steps li{display:flex;gap:10px;align-items:center;font-size:.95rem;opacity:.5}
+.try .steps li.on{opacity:1;font-weight:700}
+.try .steps li b{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:.8rem;border:2px solid currentColor;flex:none}
+.try .steps li.done b{background:currentColor}
+.try .steps li.done b span{color:var(--try-bg,#fff)}
+.try .screen{border-radius:16px;padding:16px;min-height:240px;display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden}
+.try .chipfile{display:inline-flex;align-items:center;gap:10px;padding:12px 16px;border-radius:12px;cursor:grab;font-weight:700;border:2px solid currentColor;background:none;color:inherit}
+.try .drop{flex:1;border:2px dashed currentColor;border-radius:14px;display:grid;place-items:center;text-align:center;opacity:.75;padding:16px;cursor:pointer;background:none;color:inherit;min-height:150px}
+.try .drop.over{opacity:1;background:rgba(255,255,255,.12)}
+.try table{width:100%;border-collapse:collapse;font-size:.88rem}
+.try td,.try th{padding:6px 8px;text-align:left;border-bottom:1px solid rgba(127,127,127,.25)}
+.try .masked{animation:flipin .5s ease-out both}
+.try .bars{display:flex;align-items:flex-end;gap:14px;height:140px;padding:0 4px;border-bottom:2px solid currentColor}
+.try .bars div{flex:1;border-radius:8px 8px 0 0;position:relative;transform-origin:bottom;animation:growy .8s cubic-bezier(.2,.8,.2,1) both}
+.try .bars div span{position:absolute;left:0;right:0;top:-22px;text-align:center;font:700 .8rem var(--f-mono)}
+.try .bars div i{position:absolute;left:0;right:0;bottom:-24px;text-align:center;font-style:normal;font-size:.78rem;opacity:.8}
+.try .ainote{margin-top:22px;border-radius:12px;padding:12px 14px;font-size:.92rem;animation:reveal 1.4s steps(28) .7s both}
+.try .ainote b{display:block;font-size:.74rem;letter-spacing:.06em;margin-bottom:2px}
+@keyframes growy{from{transform:scaleY(0)}}
+@keyframes flipin{from{transform:rotateX(90deg);opacity:.2}}
+@keyframes reveal{from{clip-path:inset(0 100% 0 0)}}
+@keyframes rise{from{opacity:0;transform:translateY(24px)}}
+@keyframes ticker{to{transform:translateX(-50%)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes bob{50%{transform:translateY(-8px)}}
+
+/* 地圖 */
+.tmap{width:100%;height:auto;display:block;overflow:visible}
+.tmap .cty{stroke-width:1.1}
+.tmap .mk{cursor:pointer}
+.tmap .mk circle.ring{transform-box:fill-box;transform-origin:center;animation:breathe 2.4s ease-in-out infinite}
+.tmap .mk text{font:800 15px var(--f-head);paint-order:stroke;stroke-width:5px;stroke-linejoin:round}
+@keyframes breathe{50%{transform:scale(1.35);opacity:.25}}
+
+/* =========================================================
+   A：長條就是介面（明亮）
+   ========================================================= */
+.cA{background:#fff;color:var(--ink)}
+.cA .topbar{color:var(--ink)}
+.cA .hero{padding:28px 0 0;background:linear-gradient(180deg,#F2F8FA,#fff 70%)}
+.cA .eyebrow{font-size:.95rem;color:var(--soft);display:flex;align-items:center;gap:10px}
+.cA .eyebrow::before{content:"";width:28px;height:3px;background:var(--orange);border-radius:2px}
+.cA .q{font-size:clamp(2.6rem,1.4rem + 5vw,5.2rem);letter-spacing:.01em;margin-top:10px}
+.cA .q em{font-style:normal;background:linear-gradient(transparent 62%,#FBD9BC 62%)}
+.cA .sub{font-size:1.1rem;color:var(--ink-2);margin-top:10px;max-width:34em}
+.cA .fork{position:relative;display:flex;align-items:flex-end;gap:18px;height:420px;margin-top:28px;padding-bottom:0;border-bottom:3px solid var(--ink)}
+.cA .fork svg.lineover{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.cA .bar{position:relative;border:0;border-radius:18px 18px 0 0;color:#fff;cursor:pointer;text-align:left;padding:22px 22px 20px;display:flex;flex-direction:column;justify-content:flex-start;gap:6px;transition:height .55s cubic-bezier(.2,.8,.2,1),flex-grow .6s cubic-bezier(.2,.8,.2,1),opacity .35s,filter .3s;overflow:hidden;min-width:0}
+.cA .bar.big{flex:1 1 0;height:var(--h)}
+.cA .bar.small{flex:0 0 150px;height:var(--h);padding:16px}
+.cA .bar .k{font:600 .8rem var(--f-mono);letter-spacing:.08em;opacity:.85}
+.cA .bar h2{font-size:clamp(1.6rem,1rem + 2vw,2.5rem)}
+.cA .bar.small h2{font-size:1.1rem}
+.cA .bar p{font-size:.98rem;opacity:.92}
+.cA .bar .go{margin-top:auto;display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:1rem}
+.cA .bar .go .ic{transition:transform .3s}
+.cA .bar:hover .go .ic,.cA .bar:focus-visible .go .ic{transform:translateX(6px)}
+.cA .bar.train{background:var(--blue);--h:340px}
+.cA .bar.data{background:var(--orange);--h:390px}
+.cA .bar.about{background:var(--sky);--h:170px}
+.cA .bar.staff{background:var(--teal);--h:120px}
+.cA .fork:hover .bar.big:not(:hover){--h:290px;filter:saturate(.75)}
+.cA .fork .bar.big:hover{--h:410px}
+.cA .bar .deco{position:absolute;right:-20px;bottom:-20px;width:160px;height:160px;opacity:.16}
+.cA.chose .fork{height:auto;border-bottom:0;gap:0}
+.cA.chose .fork .bar{height:0;padding:0;flex:0 0 0;opacity:0}
+.cA.chose .fork .bar.sel{flex:1 1 100%;height:150px;padding:24px 28px;opacity:1;border-radius:18px;justify-content:center}
+.cA.chose .fork .bar.sel .go,.cA.chose .fork .bar.sel p{display:none}
+.cA.chose .fork svg.lineover{display:none}
+.cA .back{position:absolute;right:24px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.7);color:#fff;border-radius:999px;padding:8px 16px;font-weight:700;cursor:pointer}
+.cA .path{animation:rise .6s cubic-bezier(.2,.8,.2,1) .25s both;padding:32px 0 56px}
+.cA .path h3{font-size:1.5rem}
+.cA .path .lead{color:var(--ink-2);margin-top:6px}
+.cA .cols{display:grid;grid-template-columns:.9fr 1.1fr;gap:36px;margin-top:22px;align-items:start}
+.cA .maparea{background:#F2F8FA;border-radius:20px;padding:18px}
+.cA .tmap .cty{fill:#D6EAF0;stroke:#fff}
+.cA .tmap .mk circle.dot{fill:var(--blue);stroke:#fff;stroke-width:3}
+.cA .tmap .mk circle.ring{fill:var(--blue);opacity:.18}
+.cA .tmap .mk.on circle.dot{fill:var(--orange)}
+.cA .tmap .mk text{fill:var(--ink);stroke:#F2F8FA}
+.cA .slist{display:flex;flex-direction:column;gap:10px}
+.cA .sc{display:grid;grid-template-columns:74px 1fr auto;gap:4px 16px;align-items:center;padding:14px 16px;border-radius:16px;background:#fff;border:2px solid var(--line);animation:rise .45s both}
+.cA .sc .d{font:800 1.35rem/1 var(--f-head);text-align:center}
+.cA .sc .d small{display:block;font:500 .75rem var(--f-body);color:var(--soft);margin-top:4px}
+.cA .sc h4{font-size:1.05rem}
+.cA .sc .m{font-size:.85rem;color:var(--soft)}
+.cA .lvl{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;font-weight:700}
+.cA .lvl::before{content:"";width:10px;height:10px;border-radius:3px;background:var(--c)}
+.cA .sc .cta{font-weight:700;color:var(--blue);white-space:nowrap}
+.cA .stairs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:36px;align-items:end}
+.cA .stair{border-radius:16px 16px 0 0;padding:16px;color:#fff;display:flex;flex-direction:column;gap:4px;min-height:var(--sh)}
+.cA .stair b{font:800 1.15rem var(--f-head)}
+.cA .stair span{font-size:.88rem;opacity:.92}
+.cA .stairs-note{display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-between;align-items:center;margin-top:14px;font-size:.95rem;color:var(--ink-2)}
+.cA .stairs-note .tt{padding:10px 14px;border-radius:12px;background:#FDF0E4;color:#7A3E06}
+.cA .btn.p{background:var(--blue);color:#fff}
+.cA .btn.o{background:var(--orange);color:#fff}
+.cA .btn.s{background:#fff;color:var(--ink);border-color:var(--ink)}
+.cA .try .screen{background:#FFF5EC;color:#7A3E06;--try-bg:#FFF5EC}
+.cA .try .steps li{color:#7A3E06}
+.cA .try .bars div{background:var(--orange)}
+.cA .try .bars div.hi{background:var(--blue)}
+.cA .try .ainote{background:#fff;border:2px solid var(--orange);color:var(--ink)}
+.cA .try .ainote b{color:#B45309}
+.cA .after{background:var(--paper);padding:44px 0}
+.cA .after .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:3px solid var(--ink)}
+.cA .after .grid div{padding:18px 16px 0 0}
+.cA .after b{display:block;font:800 2.6rem/1 var(--f-head);color:var(--c)}
+.cA .after span{color:var(--soft);font-size:.9rem}
+.cA .news{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:32px}
+.cA .news a{display:block;padding:16px;background:#fff;border-radius:14px;color:var(--ink);text-decoration:none;font-weight:700;border-bottom:4px solid var(--c)}
+.cA .news a small{display:block;font:600 .78rem var(--f-mono);color:var(--soft);margin-bottom:6px}
+@container (max-width:760px){
+  .cA .wrap{padding-inline:18px}
+  .cA .topbar nav{display:none}
+  .cA .topbar .login{margin-left:auto}
+  .cA .fork{flex-wrap:wrap;height:auto;border-bottom:0;align-items:stretch;gap:12px}
+  .cA .fork svg.lineover{display:none}
+  .cA .bar.big{flex:1 1 100%;height:auto;min-height:170px;border-radius:18px}
+  .cA .bar.small{flex:1 1 calc(50% - 6px);height:auto;min-height:96px;border-radius:14px}
+  .cA .fork:hover .bar.big:not(:hover){filter:none}
+  .cA .cols{grid-template-columns:1fr}
+  .cA .maparea{max-width:300px;margin:auto}
+  .cA .sc{grid-template-columns:58px 1fr}
+  .cA .sc .cta{grid-column:2}
+  .cA .stairs{grid-template-columns:1fr}
+  .cA .stair{min-height:0;border-radius:14px}
+  .cA .after .grid{grid-template-columns:1fr 1fr}
+  .cA .news{grid-template-columns:1fr}
+  .cA.chose .fork .bar.sel{height:auto;min-height:110px}
+  .cA .back{position:static;transform:none;align-self:flex-start;margin-top:10px}
+}
+
+/* =========================================================
+   B：數據編輯風（深色）
+   ========================================================= */
+.cB{--bgB:#0D1A24;--panel:#13242F;--gridc:rgba(140,190,210,.08);--tx:#ECF3F6;--tx2:#A9BCC7;--hot:#FF9A45;--sky2:#5BB8E8;--teal2:#3CC5CF;
+  background:var(--bgB);color:var(--tx);
+  background-image:linear-gradient(var(--gridc) 1px,transparent 1px),linear-gradient(90deg,var(--gridc) 1px,transparent 1px);background-size:44px 44px}
+.cB .topbar{color:var(--tx)}
+.cB .mono{font-family:var(--f-mono);letter-spacing:.04em}
+.cB .ticker{border-block:1px solid rgba(255,255,255,.12);overflow:hidden;white-space:nowrap;font:500 .82rem var(--f-mono);color:var(--tx2)}
+.cB .ticker div{display:inline-flex;gap:40px;padding:9px 0;animation:ticker 38s linear infinite}
+.cB .ticker b{color:var(--hot);font-weight:600}
+.cB .hero{padding:44px 0 36px}
+.cB .kicker{font:600 .82rem var(--f-mono);color:var(--teal2);letter-spacing:.12em}
+.cB .big{font-size:clamp(3rem,1.4rem + 7vw,7rem);line-height:1.02;margin-top:14px;letter-spacing:-.01em}
+.cB .big span{color:var(--hot)}
+.cB .ask{margin-top:36px;font:800 clamp(1.4rem,1rem + 1.8vw,2.3rem)/1.5 var(--f-head);display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px}
+.cB .opt{font:inherit;background:none;border:0;color:var(--tx);cursor:pointer;padding:0 4px;position:relative;display:inline-flex;align-items:baseline;gap:10px}
+.cB .opt::after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:6px;border-radius:3px;background:var(--c);transform-origin:left;transition:transform .35s}
+.cB .opt:not(.sel)::after{transform:scaleX(.18)}
+.cB .opt:hover::after{transform:scaleX(1)}
+.cB .opt small{font:600 .9rem var(--f-mono);color:var(--tx2)}
+.cB .opt.sel{color:var(--c)}
+.cB .or{color:var(--tx2);font-weight:500}
+.cB .others{margin-top:22px;display:flex;flex-wrap:wrap;gap:8px 24px;font-size:.95rem;color:var(--tx2)}
+.cB .others button{background:none;border:0;color:var(--tx2);cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:4px}
+.cB .figs{display:grid;grid-template-columns:repeat(4,1fr);margin-top:44px;border-top:1px solid rgba(255,255,255,.18)}
+.cB .figs div{padding:16px 16px 0 0;border-right:1px solid rgba(255,255,255,.08)}
+.cB .figs b{display:block;font:800 3.2rem/1 var(--f-head);color:var(--c)}
+.cB .figs span{font:500 .78rem var(--f-mono);color:var(--tx2)}
+.cB .path{padding:8px 0 56px;animation:rise .6s cubic-bezier(.2,.8,.2,1) both}
+.cB .path .ph{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px;border-top:1px solid rgba(255,255,255,.18);padding-top:20px}
+.cB .path h3{font-size:clamp(1.6rem,1rem + 2vw,2.6rem)}
+.cB .panel{background:var(--panel);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:20px}
+.cB .chart{width:100%;height:auto;display:block;overflow:visible}
+.cB .chart text{fill:var(--tx2);font:500 11px var(--f-mono)}
+.cB .chart .lane{stroke:rgba(255,255,255,.1)}
+.cB .chart .pt{cursor:pointer;transition:r .2s}
+.cB .chart .pt:hover,.cB .chart .pt.on{stroke:#fff;stroke-width:3}
+.cB .chart .rl{fill:var(--tx);font:800 14px var(--f-head)}
+.cB .chart .today{stroke:var(--hot);stroke-dasharray:4 4}
+.cB .legend{display:flex;flex-wrap:wrap;gap:14px;font:500 .78rem var(--f-mono);color:var(--tx2);margin-top:10px}
+.cB .legend i{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--c);margin-right:6px}
+.cB .detail{display:grid;grid-template-columns:1.4fr 1fr;gap:20px;margin-top:20px}
+.cB .card{border-left:4px solid var(--c);padding:6px 0 6px 16px}
+.cB .card .d{font:800 2.4rem/1 var(--f-head)}
+.cB .card h4{font-size:1.2rem;margin-top:8px}
+.cB .card p{color:var(--tx2);font-size:.92rem;margin-top:4px}
+.cB .btn.p{background:var(--hot);color:#1B1206}
+.cB .btn.s{background:none;color:var(--tx);border-color:rgba(255,255,255,.6)}
+.cB .flow{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:24px;border:1px solid rgba(255,255,255,.14)}
+.cB .flow div{padding:16px;border-right:1px solid rgba(255,255,255,.14)}
+.cB .flow div:last-child{border-right:0}
+.cB .flow small{font:600 .75rem var(--f-mono);color:var(--teal2)}
+.cB .flow b{display:block;font:800 1.1rem var(--f-head);margin-top:4px}
+.cB .flow span{color:var(--tx2);font-size:.88rem}
+.cB .try .screen{background:#08131B;border:1px solid rgba(255,255,255,.14);border-radius:6px;color:var(--tx);--try-bg:#08131B;font-family:var(--f-mono)}
+.cB .try .steps li{color:var(--tx)}
+.cB .try .bars div{background:var(--sky2)}
+.cB .try .bars div.hi{background:var(--hot)}
+.cB .try .ainote{background:rgba(255,154,69,.12);border:1px solid var(--hot);color:var(--tx);font-family:var(--f-body)}
+.cB .try .ainote b{color:var(--hot)}
+.cB .try .chipfile{color:var(--sky2)}
+.cB .try .drop{color:var(--tx2)}
+@container (max-width:760px){
+  .cB .wrap{padding-inline:18px}
+  .cB .topbar nav{display:none}
+  .cB .topbar .login{margin-left:auto}
+  .cB .ask{flex-direction:column;gap:14px}
+  .cB .figs{grid-template-columns:1fr 1fr}
+  .cB .figs b{font-size:2.4rem}
+  .cB .detail,.cB .flow{grid-template-columns:1fr}
+  .cB .flow div{border-right:0;border-bottom:1px solid rgba(255,255,255,.14)}
+}
+
+/* =========================================================
+   C：色塊拼貼（明亮）
+   ========================================================= */
+.cC{background:#F3F6F8;color:var(--ink)}
+.cC .topbar{color:var(--ink)}
+.cC .bento{display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:minmax(120px,auto);gap:14px;padding:12px 0 18px}
+.cC .t{border-radius:28px;padding:24px;position:relative;overflow:hidden;min-width:0}
+.cC .intro{grid-column:span 6;background:#fff;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px;padding:28px 32px}
+.cC .intro h1{font-size:clamp(2.2rem,1.2rem + 4vw,4.2rem)}
+.cC .intro p{color:var(--ink-2);max-width:26em}
+.cC .way{grid-column:span 3;grid-row:span 3;color:#fff;border:0;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:10px;min-height:360px;transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
+.cC .way:hover{transform:translateY(-6px) rotate(-.6deg);box-shadow:0 30px 50px -30px rgba(27,40,51,.6)}
+.cC .way.data:hover{transform:translateY(-6px) rotate(.6deg)}
+.cC .way.train{background:var(--blue)}
+.cC .way.data{background:var(--orange)}
+.cC .way .k{font:700 .85rem var(--f-body);letter-spacing:.08em;opacity:.85}
+.cC .way h2{font-size:clamp(2rem,1.2rem + 3vw,3.4rem);position:relative;z-index:1}
+.cC .way p{font-size:1.02rem;max-width:18em;position:relative;z-index:1;opacity:.95}
+.cC .way .go{margin-top:auto;position:relative;z-index:1;display:inline-flex;align-items:center;gap:10px;align-self:flex-start;background:#fff;color:var(--ink);border-radius:999px;padding:12px 20px;font-weight:800}
+.cC .shape{position:absolute;transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+.cC .way.train .s1{width:260px;height:260px;border-radius:50%;background:#2E77C2;right:-60px;bottom:-70px}
+.cC .way.train .s2{width:120px;height:120px;border-radius:50%;border:22px solid #8BC3EC;right:140px;top:-30px}
+.cC .way.train .s3{width:70px;height:70px;border-radius:20px;background:var(--orange);right:46px;top:46%}
+.cC .way.train:hover .s1{transform:scale(1.12)}
+.cC .way.train:hover .s2{transform:translate(-20px,20px) rotate(40deg)}
+.cC .way.train:hover .s3{transform:rotate(45deg) translate(10px,-10px)}
+.cC .way.data .s1{right:24px;bottom:0;display:flex;align-items:flex-end;gap:10px}
+.cC .way.data .s1 i{width:34px;border-radius:12px 12px 0 0;background:#fff;opacity:.28;transition:height .6s cubic-bezier(.2,.8,.2,1)}
+.cC .way.data .s2{width:200px;height:100px;border-radius:200px 200px 0 0;background:#F6A35E;right:-40px;top:-20px;transform:rotate(180deg)}
+.cC .way.data:hover .s1 i:nth-child(1){height:150px!important}
+.cC .way.data:hover .s1 i:nth-child(3){height:210px!important}
+.cC .way.data:hover .s2{transform:rotate(200deg)}
+.cC .mini{grid-column:span 2;background:#fff;display:flex;flex-direction:column;gap:6px}
+.cC .mini .k{font-size:.8rem;font-weight:700;color:var(--soft);letter-spacing:.06em}
+.cC .mini b{font:800 1.3rem/1.3 var(--f-head)}
+.cC .mini.teal{background:var(--teal);color:#fff}.cC .mini.teal .k{color:#DDF6F8}
+.cC .mini.sky{background:#DCEFF8}
+.cC .mini button{margin-top:auto;align-self:flex-start;background:none;border:0;padding:0;font-weight:800;color:inherit;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.cC .mini .num{font:800 2.6rem/1 var(--f-head)}
+.cC.chose .way:not(.sel),.cC.chose .mini,.cC.chose .intro{display:none}
+.cC.chose .way.sel{grid-column:1/-1;grid-row:auto;min-height:0;cursor:default;transform:none;box-shadow:none;flex-direction:row;align-items:center;flex-wrap:wrap}
+.cC.chose .way.sel p,.cC.chose .way.sel .go{display:none}
+.cC .back{margin-left:auto;position:relative;z-index:1;background:rgba(255,255,255,.2);border:2px solid #fff;color:#fff;border-radius:999px;padding:8px 18px;font-weight:800;cursor:pointer}
+.cC .path{grid-column:1/-1;display:grid;grid-template-columns:repeat(6,1fr);gap:14px;animation:rise .55s cubic-bezier(.2,.8,.2,1) both}
+.cC .path .t{background:#fff}
+.cC .regions{grid-column:span 2;display:flex;flex-direction:column;gap:10px}
+.cC .pills{display:flex;flex-wrap:wrap;gap:8px}
+.cC .pill{border:0;border-radius:999px;padding:12px 18px;font:800 1.05rem var(--f-head);cursor:pointer;background:#EEF3F6;color:var(--ink)}
+.cC .pill[aria-pressed="true"]{background:var(--ink);color:#fff}
+.cC .list{grid-column:span 4;display:flex;flex-direction:column;gap:10px}
+.cC .row{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:12px;border-radius:18px;background:#F3F6F8;animation:rise .4s both}
+.cC .row .d{width:66px;height:66px;border-radius:18px;background:var(--c);color:#fff;display:grid;place-content:center;text-align:center;font:800 1.2rem/1 var(--f-head)}
+.cC .row .d small{font:500 .7rem var(--f-body);margin-top:3px}
+.cC .row h4{font-size:1rem}
+.cC .row p{font-size:.85rem;color:var(--soft)}
+.cC .row .go2{font-weight:800;color:var(--blue);white-space:nowrap}
+.cC .lv3{grid-column:span 2;color:#fff;display:flex;flex-direction:column;gap:6px}
+.cC .lv3 .n{font:800 3rem/1 var(--f-head);opacity:.35}
+.cC .lv3 b{font:800 1.3rem var(--f-head)}
+.cC .lv3 span{font-size:.92rem;opacity:.92}
+.cC .btn.p{background:var(--ink);color:#fff}
+.cC .btn.s{background:#fff;color:var(--ink);border-color:var(--ink)}
+.cC .tryt{grid-column:span 6}
+.cC .try .screen{background:#FFF1E4;color:#7A3E06;border-radius:22px;--try-bg:#FFF1E4}
+.cC .try .steps li{color:var(--ink)}
+.cC .try .bars div{background:var(--orange);border-radius:12px 12px 0 0}
+.cC .try .bars div.hi{background:var(--blue)}
+.cC .try .ainote{background:#fff;color:var(--ink)}
+.cC .try .ainote b{color:#B45309}
+@container (max-width:760px){
+  .cC .wrap{padding-inline:14px}
+  .cC .topbar nav{display:none}
+  .cC .topbar .login{margin-left:auto}
+  .cC .bento,.cC .path{grid-template-columns:1fr 1fr}
+  .cC .intro,.cC .way,.cC .tryt,.cC .regions,.cC .list{grid-column:1/-1}
+  .cC .way{grid-row:auto;min-height:230px}
+  .cC .mini{grid-column:span 1}
+  .cC .lv3{grid-column:1/-1}
+  .cC .row{grid-template-columns:auto 1fr}
+  .cC .row .go2{grid-column:2}
+  .cC .intro{padding:22px}
+}
+@container (max-width:760px){.try{grid-template-columns:1fr}.p .wrap{padding-inline:18px}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+
+<div class="tool"><div class="in">
+  <h1>首頁三種方向<small>比較用原型</small></h1>
+  <div class="grp"><span class="lb">方向</span><div class="seg" id="t-c"></div></div>
+  <div class="grp"><span class="lb">裝置</span><div class="seg" id="t-vp"></div></div>
+  <span class="sp"></span>
+  <button type="button" class="tbtn" id="t-notes"></button>
+  <button type="button" class="tbtn" id="t-reset">回到分岔口</button>
+</div></div>
+<div class="work" id="work">
+  <div class="stage"><div class="browser" id="browser"><div class="chrome"><i></i><i></i><i></i><span>datalit.vercel.app</span></div><div class="frame" id="frame"></div></div></div>
+  <aside class="notes" id="notes"></aside>
+</div>
+
+<script>
+// 由 tools/build_map.py 產生，資料來源：taiwan-atlas（內政部國土測繪中心縣市界線，政府資料開放授權）
+window.TAIWAN_MAP = {"w": 319, "h": 420, "counties": [{"id": "10002", "d": "M298.4,44.0L294.0,45.8L291.7,49.2L290.0,49.5L283.2,60.9L282.2,70.2L284.5,76.1L284.8,83.2L286.6,88.0L289.6,89.9L288.3,90.4L288.2,98.3L284.5,100.5L287.0,104.3L282.5,106.5L280.4,109.9L277.2,124.4L266.6,121.5L261.6,117.5L260.5,118.5L261.8,121.8L260.3,120.6L260.1,122.0L257.7,122.2L258.8,124.9L254.5,123.7L252.1,121.5L246.6,121.1L240.4,116.1L234.2,118.0L232.4,115.3L228.3,114.2L227.9,107.2L236.4,98.5L235.7,95.3L237.6,93.2L236.6,91.0L239.3,89.3L242.8,81.2L246.6,81.2L251.3,79.4L252.0,77.3L255.4,76.8L257.9,74.7L257.3,67.5L261.0,66.6L261.1,64.9L267.9,64.1L268.8,61.9L272.6,59.4L277.5,58.2L279.3,54.1L283.7,53.4L286.1,50.9L284.5,48.6L285.4,46.8L289.9,46.4L296.0,43.4Z"}, {"id": "10007", "d": "M132.6,137.1L137.8,139.1L142.3,148.0L149.7,149.7L151.1,158.4L153.3,158.9L153.5,157.9L157.0,160.3L152.5,161.1L153.8,164.0L153.0,167.0L151.4,167.2L152.2,174.2L150.0,181.1L153.9,184.5L156.7,183.7L157.6,185.8L155.4,186.9L153.0,187.7L138.6,186.0L130.0,182.4L116.3,183.6L110.4,181.9L106.6,178.1L110.5,174.7L113.5,167.5L119.2,160.1L119.7,154.8L124.6,151.5L128.4,141.2Z"}, {"id": "10008", "d": "M152.8,187.7L157.6,185.6L156.7,183.7L153.9,184.5L150.0,181.1L152.2,174.2L151.4,167.2L153.0,167.0L153.8,164.0L152.5,161.1L157.0,160.3L164.6,162.1L169.4,158.3L171.3,154.0L173.5,153.4L175.2,147.1L179.0,148.9L178.9,151.8L180.5,148.1L183.5,149.1L186.8,146.7L191.1,147.8L194.5,142.9L196.0,144.2L198.1,143.4L203.5,138.5L207.3,138.4L210.7,135.0L212.2,136.5L216.4,134.5L218.4,135.6L221.4,132.5L223.1,134.4L225.3,133.6L230.0,135.2L230.7,138.0L223.7,140.7L223.1,143.1L223.2,145.7L228.3,148.6L227.8,151.8L223.4,155.5L220.9,162.9L222.8,166.1L222.6,172.8L221.0,173.7L221.8,176.0L218.6,181.2L217.6,187.4L214.8,189.3L217.8,191.9L218.6,195.1L216.9,207.2L215.0,210.5L213.6,210.0L211.8,212.1L209.1,211.6L208.9,218.7L207.2,220.2L199.8,219.8L196.6,225.1L198.8,226.6L198.0,227.9L194.0,229.8L193.2,226.5L190.2,225.7L174.6,225.5L171.3,217.7L173.1,211.6L172.3,210.0L162.7,208.7L161.4,206.4L157.5,208.7L155.1,208.7L153.5,206.3L152.0,207.7L153.6,200.1L152.7,194.5L154.5,193.8Z"}, {"id": "10009", "d": "M91.3,219.1L92.9,220.7L88.3,222.9L89.3,224.3L88.2,223.4L87.1,224.8L87.6,222.6L85.0,226.9L83.5,226.2L84.5,229.6L82.4,225.2ZM106.6,178.1L110.4,181.9L116.3,183.6L130.0,182.4L138.2,185.9L152.8,187.7L154.5,193.8L152.7,194.5L153.6,200.1L151.7,207.4L154.2,206.5L154.0,208.1L155.9,208.9L161.4,206.4L162.7,207.8L163.3,213.5L153.9,213.3L153.3,210.8L146.2,212.1L141.0,210.4L137.7,205.8L131.2,206.4L129.2,207.8L126.9,205.9L121.8,210.6L119.2,210.8L118.3,213.1L114.3,214.5L112.3,218.3L109.2,216.8L108.7,221.1L98.8,219.7L97.6,205.8L96.2,207.4L95.0,205.9L100.6,193.0L99.6,187.9L105.0,181.9Z"}, {"id": "10017", "d": "M280.6,25.7L279.6,28.5L277.2,27.6L274.7,28.8L277.5,33.6L272.7,35.7L264.3,30.8L261.2,25.2L270.3,20.8L270.1,22.2L274.5,23.2L276.3,22.4L281.0,24.1Z"}, {"id": "63000", "d": "M255.0,18.3L256.4,18.6L255.7,22.0L259.1,26.4L257.9,28.9L261.1,30.5L260.3,36.8L265.5,38.4L257.9,40.2L258.2,44.8L260.4,45.7L258.3,46.7L254.0,46.2L249.1,39.5L246.4,40.9L245.5,37.5L247.7,36.0L247.9,33.1L246.0,30.4L242.5,29.1L247.5,21.2L249.4,21.7L253.6,16.8Z"}, {"id": "65000", "d": "M298.4,44.0L296.0,43.4L289.9,46.4L285.4,46.8L284.5,48.6L286.1,50.9L284.0,53.2L279.3,54.1L277.5,58.2L272.6,59.4L268.8,61.9L267.9,64.1L261.1,64.9L261.0,66.6L257.3,67.5L257.9,74.7L255.4,76.8L252.0,77.3L251.3,79.4L245.0,81.1L244.4,78.5L241.8,77.3L240.0,74.4L238.8,70.6L241.7,67.7L240.2,64.5L236.5,60.8L233.3,62.0L229.2,60.7L231.6,59.6L230.2,58.0L231.1,56.8L227.5,54.0L227.2,52.0L229.6,50.6L227.0,49.4L228.7,48.5L227.9,45.3L229.9,44.1L232.9,44.8L236.6,42.1L235.3,40.5L237.6,39.7L235.2,37.0L236.3,35.8L231.3,34.2L229.7,33.1L230.7,32.1L224.3,29.7L223.4,27.9L235.1,24.3L235.3,21.8L236.5,22.9L238.3,20.7L236.8,19.2L238.3,19.0L242.0,11.7L244.1,11.3L248.4,7.0L249.3,7.8L251.3,6.0L252.8,7.0L255.8,6.1L260.8,9.1L262.0,13.3L264.0,14.1L265.1,17.1L266.8,17.7L269.5,16.0L267.6,19.3L270.2,20.9L261.2,25.2L264.3,30.8L274.2,35.6L277.5,33.6L274.7,28.8L277.2,27.6L279.6,28.5L280.6,25.7L283.1,25.7L282.7,27.4L284.8,26.5L290.9,27.6L294.0,26.4L292.8,31.7L294.7,34.4L294.7,37.7L296.4,39.5L299.7,38.8L303.0,40.6Z"}, {"id": "66000", "d": "M227.2,109.0L228.3,109.9L228.2,114.0L232.4,115.3L233.3,117.8L240.0,116.0L242.0,118.2L238.8,125.0L236.8,125.0L234.1,128.5L234.6,131.4L231.0,132.7L230.0,135.2L225.3,133.6L223.1,134.4L221.4,132.5L218.4,135.6L216.4,134.5L212.2,136.5L210.7,135.0L207.3,138.4L203.5,138.5L198.1,143.4L196.0,144.2L194.5,142.9L191.1,147.8L186.8,146.7L183.5,149.1L180.3,148.1L178.9,151.8L179.0,148.9L175.2,147.1L173.5,153.4L171.3,154.0L169.4,158.3L164.4,162.2L162.8,160.9L158.8,161.1L153.5,157.9L153.3,158.9L151.1,158.4L149.7,149.7L142.3,148.0L137.8,139.1L132.6,137.1L140.0,124.1L150.7,109.2L158.6,118.0L175.7,127.4L182.6,126.7L183.8,125.6L183.2,121.7L185.2,120.9L192.8,122.2L194.5,124.9L197.7,126.5L200.3,123.3L202.4,123.8L205.6,122.3L207.8,118.8L210.7,118.7L214.0,114.4L215.4,114.5L216.0,116.5L217.7,116.0L220.7,109.4L221.9,110.7Z"}, {"id": "67000", "d": "M154.2,255.1L152.9,260.0L148.5,264.7L144.7,272.2L135.2,281.6L133.0,281.5L128.2,292.0L124.4,291.5L121.1,295.5L113.7,293.4L110.3,294.7L107.5,292.0L106.4,292.8L103.5,291.5L101.6,292.6L101.3,288.0L97.9,282.5L85.4,273.9L88.4,266.9L94.9,241.7L102.0,247.0L103.2,247.2L103.1,245.9L105.7,247.0L108.6,242.7L111.8,241.1L111.6,239.7L113.8,240.0L114.6,237.0L120.8,233.8L130.7,232.4L135.1,235.5L136.7,234.6L135.6,237.7L137.9,237.7L137.9,240.6L141.7,242.7L139.8,244.6L139.6,249.4L140.9,251.4L139.5,253.5L145.9,256.2L147.5,253.2L149.4,255.3Z"}, {"id": "68000", "d": "M245.0,81.1L241.7,82.5L238.9,89.6L235.3,91.6L233.2,90.7L231.1,81.9L229.5,82.0L227.2,78.2L225.2,78.5L225.4,70.4L220.9,68.2L219.0,65.0L216.6,66.1L216.4,64.6L214.8,65.1L208.8,60.7L210.0,58.8L209.4,56.3L205.1,56.2L204.3,54.3L198.6,53.3L198.7,49.6L197.4,48.8L190.3,49.2L195.4,39.5L202.2,34.4L218.6,27.2L223.4,27.9L224.3,29.7L230.7,32.1L229.7,33.1L231.3,34.2L235.3,34.6L234.5,35.7L236.3,35.8L235.2,37.0L237.6,39.7L235.5,40.1L236.6,42.1L232.9,44.8L228.3,44.6L228.7,48.5L227.0,49.4L229.6,50.6L227.2,52.0L227.5,54.0L231.1,56.8L230.2,58.0L231.6,59.6L229.2,60.7L233.3,62.0L236.5,60.8L240.2,64.5L241.7,67.7L238.8,70.6L240.0,74.4L241.8,77.3L244.4,78.5Z"}, {"id": "10005", "d": "M220.7,109.4L217.7,116.0L216.0,116.5L215.4,114.5L214.0,114.4L210.7,118.7L207.8,118.8L205.6,122.3L202.4,123.8L200.3,123.3L197.7,126.5L194.5,124.9L192.8,122.2L185.2,120.9L183.2,121.7L183.8,125.6L182.6,126.7L175.7,127.4L158.6,118.0L150.7,109.2L155.5,104.0L161.1,89.9L168.0,82.5L173.0,81.2L178.5,73.4L180.3,74.2L182.2,73.1L182.9,76.0L187.1,77.5L189.4,76.6L188.4,80.0L198.0,88.2L199.2,87.4L200.6,88.6L201.4,91.2L198.7,95.1L201.1,97.1L199.7,99.2L200.2,102.2L216.1,100.2L216.3,102.2L221.1,107.4Z"}, {"id": "10020", "d": "M131.6,219.8L133.6,222.2L135.5,221.4L138.4,225.3L136.8,227.7L133.9,226.6L130.7,229.3L129.6,226.7L125.7,226.5L125.2,222.2Z"}, {"id": "10010", "d": "M162.7,208.7L172.3,210.0L173.1,211.6L171.3,217.7L174.3,225.3L187.6,225.7L181.3,227.6L179.9,229.8L175.8,231.5L173.1,237.4L170.9,237.5L168.5,240.9L165.7,240.7L162.7,245.3L160.1,245.4L159.3,247.9L153.1,246.5L152.6,249.7L154.2,255.1L149.4,255.3L147.5,253.2L145.9,256.2L140.2,254.2L139.8,244.6L141.7,242.7L137.9,240.6L137.9,237.7L135.6,237.7L136.7,234.6L135.1,235.5L130.7,232.4L117.0,235.4L116.6,236.9L113.8,238.0L113.8,240.0L111.6,239.7L111.8,241.1L108.6,242.7L105.7,247.0L103.1,245.9L103.2,247.2L102.0,247.0L95.4,241.2L96.9,235.8L99.1,235.4L99.6,236.4L100.4,234.9L98.8,233.3L99.5,230.6L98.4,230.6L99.5,228.2L97.1,227.8L99.5,223.1L101.1,222.9L96.1,223.4L95.8,219.7L108.7,221.1L109.2,216.8L112.3,218.3L114.3,214.5L118.3,213.1L119.2,210.8L121.8,210.6L126.9,205.9L129.2,207.8L131.2,206.4L137.7,205.8L141.4,210.6L146.3,212.1L153.6,210.8L153.9,213.3L163.3,213.5Z"}, {"id": "64000", "d": "M187.6,225.7L193.9,227.4L195.4,233.5L192.6,234.6L193.1,235.8L190.9,239.0L194.5,240.0L197.6,244.2L194.9,246.8L189.3,248.1L185.5,252.6L183.0,253.5L182.5,260.1L178.7,263.8L180.1,268.7L177.9,274.8L179.1,277.7L177.1,278.3L177.0,281.0L172.6,286.5L173.5,293.5L174.7,296.1L177.5,297.3L177.4,300.8L173.0,298.0L168.0,301.8L162.1,296.3L159.8,296.3L156.3,299.2L153.3,295.8L149.0,297.2L143.3,302.5L134.7,301.4L130.3,322.6L130.1,327.9L131.5,331.7L128.9,339.8L129.0,345.8L121.8,341.9L119.0,338.5L118.2,339.2L118.6,337.9L116.7,340.2L114.1,336.7L117.8,338.7L110.6,327.9L111.4,326.9L109.9,323.8L111.5,321.0L111.2,317.8L106.1,305.5L103.3,304.4L105.2,303.3L101.6,292.6L103.5,291.5L106.4,292.8L107.5,292.0L110.3,294.7L113.7,293.4L121.0,295.5L124.4,291.5L128.2,292.0L133.0,281.5L135.2,281.6L143.6,273.4L148.5,264.7L152.9,260.0L154.5,255.9L152.6,249.7L153.1,246.5L159.3,247.9L160.1,245.4L162.7,245.3L165.7,240.7L168.5,240.9L170.9,237.5L173.1,237.4L175.8,231.5L179.9,229.8L181.3,227.6Z"}, {"id": "10014", "d": "M247.7,391.8L254.9,392.1L255.6,394.8L254.3,396.2L258.5,399.6L257.5,401.8L254.9,401.7L253.5,399.4L248.2,396.4ZM246.3,320.7L248.3,320.8L247.9,326.1L244.3,324.4L243.3,321.4ZM177.4,300.8L177.5,297.3L174.7,296.1L173.5,293.5L172.6,286.5L177.0,281.0L177.1,278.3L179.1,277.7L177.9,274.8L180.1,268.7L178.7,263.8L182.5,260.1L183.0,253.5L185.5,252.6L189.3,248.1L196.6,245.9L198.8,247.7L201.0,254.1L206.5,255.2L208.3,258.1L211.6,256.8L213.1,257.6L215.6,264.7L220.6,266.9L222.2,270.3L227.0,268.8L228.2,263.7L227.3,261.8L229.1,260.6L231.8,251.7L233.8,249.6L233.8,245.9L238.7,239.3L236.2,235.6L241.3,228.8L246.8,229.8L243.1,244.5L239.9,247.4L238.5,254.8L235.9,257.4L237.1,262.0L236.2,265.8L238.9,266.9L232.2,270.7L227.9,282.7L223.3,288.3L221.8,292.7L217.9,298.3L213.3,300.0L214.4,306.5L212.2,308.1L211.7,310.9L195.1,323.3L193.3,331.3L189.8,335.5L180.7,361.8L180.9,372.4L177.6,374.4L172.0,370.4L170.1,371.0L170.9,367.9L167.8,365.7L169.9,364.1L169.5,361.7L164.1,357.9L165.2,353.4L169.2,351.9L167.7,348.0L164.9,346.8L166.4,342.6L163.6,335.6L165.1,328.6L168.7,322.7L168.9,318.9L174.4,318.3L175.7,316.0L179.5,316.0L180.7,313.5L181.7,306.0L177.9,304.0Z"}, {"id": "10015", "d": "M242.0,118.2L247.0,121.3L252.1,121.5L254.5,123.7L258.8,124.9L257.7,122.2L260.1,122.0L260.3,120.6L261.8,121.8L260.5,118.5L261.6,117.5L266.6,121.5L277.3,124.5L274.0,130.8L265.2,138.7L265.2,145.9L260.3,151.3L260.3,155.6L263.5,160.9L261.3,165.7L260.7,164.7L259.1,166.8L258.0,179.2L255.2,185.9L255.2,191.2L252.7,196.0L250.1,212.8L247.6,219.6L248.8,223.5L246.8,229.8L241.3,228.8L238.4,231.7L236.2,235.8L238.7,239.3L233.8,245.9L233.8,249.6L231.8,251.7L229.1,260.6L227.3,261.8L227.7,267.9L222.2,270.3L220.6,266.9L215.6,264.7L213.1,257.6L211.6,256.8L208.3,258.1L206.5,255.2L201.0,254.1L198.5,247.2L195.4,246.3L197.7,243.0L190.8,238.1L193.1,235.8L192.6,234.6L195.4,233.5L195.5,231.3L193.7,230.0L198.7,226.8L196.6,225.1L199.8,219.8L207.2,220.2L208.9,218.7L209.1,211.6L211.8,212.1L213.6,210.0L215.7,210.0L218.8,196.9L217.8,191.9L214.8,189.3L217.6,187.4L218.6,181.2L221.8,176.0L221.0,173.7L222.6,172.8L222.8,166.1L220.9,162.9L223.4,155.5L227.8,151.8L228.3,148.6L223.2,145.7L223.7,140.7L230.7,138.0L231.0,132.7L234.6,131.4L234.1,128.5L236.8,125.0L238.8,125.0Z"}, {"id": "10016", "d": "M20.9,255.4L21.2,257.9L19.7,259.6L17.5,256.0ZM26.8,234.3L29.3,237.1L28.9,239.7L26.0,239.3ZM36.7,200.8L39.4,202.5L39.8,204.0L38.2,205.2L39.6,205.7L38.7,206.6L39.9,209.8L41.9,209.1L41.2,212.4L42.6,210.1L43.4,211.3L44.1,208.8L45.1,211.0L46.4,209.9L48.8,214.8L47.0,215.8L46.1,214.6L43.0,215.0L39.1,218.6L39.1,221.1L35.5,221.0L35.4,219.4L32.0,217.3L32.8,215.5L33.5,218.5L35.4,218.2L35.6,219.6L38.8,217.2L37.6,215.7L34.3,216.0L35.8,215.4L35.6,213.8L33.6,214.4L34.3,211.8L36.7,210.7L36.9,213.2L38.2,213.7L39.8,209.3L38.1,208.0L39.0,207.0L37.2,207.3L38.0,205.7L36.3,202.6L33.5,203.1L31.9,205.9L29.5,206.6L29.3,214.2L23.9,214.6L27.8,212.5L26.4,210.6L27.9,210.4L27.4,207.6L29.0,203.3L31.6,205.3L33.5,201.8ZM39.8,191.3L41.1,192.7L38.8,195.0L38.0,193.5Z"}, {"id": "10018", "d": "M185.2,76.5L182.8,75.9L182.2,73.1L180.3,74.2L178.5,73.4L181.1,70.2L180.4,67.0L182.7,59.5L192.8,63.7L195.1,66.1L196.0,70.3L194.6,71.2L193.2,69.1L190.7,68.8L191.0,69.8L186.2,72.7Z"}, {"id": "10004", "d": "M236.6,91.0L237.6,93.2L235.7,95.3L236.4,98.5L229.9,104.2L225.9,110.1L220.8,110.5L221.1,107.4L216.3,102.2L216.1,100.2L200.2,102.2L199.7,99.2L201.1,97.1L198.7,95.1L201.4,91.2L200.6,88.6L199.2,87.4L198.0,88.2L188.4,80.0L189.4,76.6L187.1,77.5L185.2,76.5L186.2,72.7L191.0,69.8L190.7,68.8L193.2,69.1L194.6,71.2L196.0,70.3L195.1,66.1L193.2,64.1L184.1,59.4L189.0,50.6L190.3,49.2L196.5,48.4L198.7,49.6L198.6,53.3L204.3,54.3L205.1,56.2L209.4,56.3L210.0,58.8L208.8,60.7L214.8,65.1L216.4,64.6L216.6,66.1L219.0,65.0L220.9,68.2L225.4,70.4L225.2,78.5L227.2,78.2L229.5,82.0L231.1,81.9L232.7,90.1L234.9,91.6Z"}, {"id": "10013", "d": "M124.1,359.3L125.0,360.9L121.4,363.2L122.1,360.4ZM129.0,345.8L128.9,339.8L131.5,331.7L130.1,327.9L130.3,322.6L134.5,301.6L143.1,302.6L149.8,296.9L153.3,295.8L156.3,299.2L161.6,296.2L165.4,298.3L168.0,301.8L173.0,298.0L176.2,299.1L177.9,304.0L181.4,305.5L181.7,308.9L179.5,316.0L175.7,316.0L174.4,318.3L171.3,319.4L168.9,318.9L168.8,322.4L165.4,328.0L163.6,335.6L166.4,342.6L165.0,347.0L167.7,348.0L169.2,351.9L165.2,353.4L164.1,357.9L169.5,361.7L170.0,363.8L167.9,366.2L170.9,367.9L170.1,371.0L172.0,370.4L177.6,374.4L180.9,372.4L181.2,373.9L181.0,384.7L179.8,386.6L181.5,389.3L180.5,393.8L181.4,398.0L178.6,402.1L175.4,403.5L174.9,406.8L177.4,414.2L175.9,414.4L172.8,409.9L166.4,406.9L164.6,408.1L163.7,411.7L160.5,409.9L160.9,404.5L157.7,398.9L161.1,389.4L157.7,376.8L153.9,371.8L153.0,365.8L146.8,357.7Z"}], "venues": {"北": [252.0, 39.2], "中": [156.2, 144.5], "南": [117.2, 327.0], "東": [259.0, 164.5]}};
+</script>
+<script>
+'use strict';
+const SESS = [
+  {d:'10/17',w:'六',r:'北',c:'A',v:'國立臺北教育大學',n:32,cap:60},
+  {d:'10/24',w:'六',r:'南',c:'A',v:'國立高雄師範大學',n:41,cap:60},
+  {d:'10/25',w:'日',r:'中',c:'A',v:'國立臺中教育大學',n:12,cap:60},
+  {d:'10/31',w:'六',r:'中',c:'T',v:'國立臺中教育大學',n:9,cap:30},
+  {d:'11/1',w:'日',r:'北',c:'T',v:'國立臺北教育大學',n:11,cap:30},
+  {d:'11/7',w:'六',r:'中',c:'B',t:'學校行政軌',v:'國立臺中教育大學',n:18,cap:40},
+  {d:'11/7',w:'六',r:'南',c:'T',v:'國立高雄師範大學',n:14,cap:30},
+  {d:'11/8',w:'日',r:'東',c:'T',v:'福容大飯店花蓮店',n:6,cap:30},
+  {d:'11/14',w:'六',r:'南',c:'B',t:'學校教師軌',v:'國立高雄師範大學',n:22,cap:40},
+  {d:'11/21',w:'六',r:'北',c:'B',t:'縣市行政軌',v:'國立臺北教育大學',n:9,cap:30}
+];
+const LV = {A:['初階','資料素養基礎與解讀','#2185B5','#5BB8E8'],B:['進階','教育數據分析與應用','#1E97A3','#3CC5CF'],T:['講師培訓','學校行政講師培訓工作坊','#EE7A1D','#FF9A45']};
+const RN = {'北':'北區','中':'中區','南':'南區','東':'東區'};
+const NEWS = [['09-30','研習','115 年學校行政講師培訓四區場次公布'],['09-28','計畫','初階與學校行政教材將進行專家審查'],['09-10','平台','AI 輔助分析平台改版：新增資料去識別化']];
+const I = {arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',file:'<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/>',lock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>'};
+const ic = n => '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">'+I[n]+'</svg>';
+const LOGO = '<svg viewBox="0 0 34 30" aria-hidden="true"><rect x="1" y="18" width="6" height="11" rx="1.5" fill="#1B5FA6"/><rect x="9.5" y="13" width="6" height="16" rx="1.5" fill="#2185B5"/><rect x="18" y="9" width="6" height="20" rx="1.5" fill="#1E97A3"/><rect x="26.5" y="3" width="6" height="26" rx="1.5" fill="#EE7A1D"/></svg>';
+
+const S = {c:'A', vp:'desk', notes:true, choice:null, region:'南', step:0, pick:5, toast:''};
+const $ = id => document.getElementById(id);
+
+/* ---------- 共用片段 ---------- */
+function topbar(){
+  return '<header class="wrap topbar"><button class="logo" data-a="home">'+LOGO+'<span>教育資料素養提升計畫</span></button><nav><button data-a="choose" data-v="train">研習</button><button data-a="choose" data-v="data">分析平台</button><button data-a="toast" data-t="最新消息頁">最新消息</button><button data-a="toast" data-t="關於計畫頁">關於計畫</button></nav><button class="login" data-a="toast" data-t="登入頁：登入後首頁會直接顯示你的研習狀態，不用再選一次">登入</button></header>';
+}
+function tmap(){
+  const M = window.TAIWAN_MAP;
+  const cnt = r => SESS.filter(s=>s.r===r).length;
+  return '<svg class="tmap" viewBox="0 0 '+M.w+' '+M.h+'" role="group" aria-label="選擇區域">'
+    +M.counties.map(c=>'<path class="cty" d="'+c.d+'"/>').join('')
+    +Object.entries(M.venues).map(([k,[x,y]])=>'<g class="mk'+(S.region===k?' on':'')+'" data-a="region" data-v="'+k+'" tabindex="0" role="button" aria-pressed="'+(S.region===k)+'" aria-label="'+RN[k]+'，'+cnt(k)+' 個場次"><circle class="ring" cx="'+x+'" cy="'+y+'" r="20"/><circle class="dot" cx="'+x+'" cy="'+y+'" r="'+(S.region===k?12:9)+'"/><text x="'+(x+(k==='東'?-62:16))+'" y="'+(y+5)+'">'+RN[k]+' '+cnt(k)+'</text></g>').join('')+'</svg>';
+}
+function tryBox(){
+  const st = S.step;
+  const steps = ['把資料放進平台','在你的電腦上去識別','看分析與 AI 解讀'];
+  const names = [['王小明','王○明'],['陳怡君','陳○君'],['林家豪','林○豪'],['張雅婷','張○婷']];
+  let screen;
+  if(st===0) screen = '<button class="chipfile" draggable="true" data-a="trynext" id="chipfile">'+ic('file')+'七年級段考.xlsx</button><button class="drop" data-a="trynext" id="dropzone">把檔案拖到這裡<br><small>或點一下</small></button>';
+  else if(st===1) screen = '<table><thead><tr><th>姓名</th><th>班級</th><th>段考</th></tr></thead><tbody>'+names.map((n,i)=>'<tr><td class="masked" style="animation-delay:'+(i*.12)+'s">'+n[1]+'</td><td>70'+(i+1)+'</td><td>'+[78,74,66,72][i]+'</td></tr>').join('')+'</tbody></table><p style="font-size:.85rem;opacity:.85">'+ic('lock')+' 姓名在你的電腦上就換成代碼，原始資料不會上傳。</p>';
+  else screen = '<div class="bars">'+[[73,'701'],[70,'702'],[64,'703'],[71,'705']].map(([v,k],i)=>'<div class="'+(i===2?'hi':'')+'" style="height:'+(v-40)*2.6+'px;animation-delay:'+(i*.1)+'s"><span>'+v+'</span><i>'+k+'</i></div>').join('')+'</div><div class="ainote"><b>AI 解讀草稿・需你確認</b>703 班平均比其他班低約 7 分，建議先確認是否有缺考或特殊狀況，再討論補救方式。</div>';
+  return '<div class="try"><div class="ctrl"><ol class="steps">'+steps.map((t,i)=>'<li class="'+(i<st?'done on':i===st?'on':'')+'"><b><span>'+(i<st?'✓':i+1)+'</span></b>'+t+'</li>').join('')+'</ol>'
+    +(st===1?'<button class="btn p" data-a="trynext">下一步：分析 '+ic('arrow')+'</button>':st===2?'<div style="display:flex;flex-wrap:wrap;gap:10px"><button class="btn p" data-a="toast" data-t="分析平台頁：完整五步驟試玩">玩完整試玩</button><button class="btn s" data-a="tryreset">再玩一次</button></div>':'<p style="font-size:.92rem;opacity:.8">30 秒看懂平台在做什麼。資料是虛構的。</p>')
+    +'</div><div class="screen" aria-live="polite">'+screen+'</div></div>';
+}
+const lvlName = s => LV[s.c][0]+(s.t?'・'+s.t:'');
+const inRegion = () => SESS.filter(s=>s.r===S.region).slice(0,3);
+
+/* =========================================================
+   A：長條就是介面
+   ========================================================= */
+function A(){
+  const ch = S.choice;
+  const deco = '<svg class="deco" viewBox="0 0 100 100" aria-hidden="true"><rect x="5" y="55" width="18" height="45" rx="4" fill="#fff"/><rect x="30" y="35" width="18" height="65" rx="4" fill="#fff"/><rect x="55" y="20" width="18" height="80" rx="4" fill="#fff"/><rect x="80" y="5" width="18" height="95" rx="4" fill="#fff"/></svg>';
+  let h = topbar()+'<section class="hero"><div class="wrap">';
+  if(!ch) h += '<p class="eyebrow">教育資料素養提升計畫・教育部補助</p><h1 class="q">你今天想<em>做什麼</em>？</h1><p class="sub">給縣市行政、校長主任與老師：先上研習學會看數據，再用 AI 分析平台處理自己學校的資料。</p>';
+  h += '<div class="fork" role="group" aria-label="選擇你要做的事">'
+    +'<svg class="lineover" aria-hidden="true" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>'
+    +'<button class="bar big train'+(ch==='train'?' sel':'')+'" data-a="choose" data-v="train"><span class="k">01 / 研習</span><h2>參加研習</h2><p>找離你最近的場次、報名、拿研習證明</p><span class="go">開始 '+ic('arrow')+'</span>'+deco+(ch==='train'?'<span class="back" data-a="home">換一條路</span>':'')+'</button>'
+    +'<button class="bar big data'+(ch==='data'?' sel':'')+'" data-a="choose" data-v="data"><span class="k">02 / 分析平台</span><h2>用數據分析</h2><p>30 秒試玩，看平台怎麼幫你讀懂學校資料</p><span class="go">開始 '+ic('arrow')+'</span>'+deco+(ch==='data'?'<span class="back" data-a="home">換一條路</span>':'')+'</button>'
+    +'<button class="bar small about" data-a="toast" data-t="關於計畫頁"><span class="k">03</span><h2>了解計畫</h2></button>'
+    +'<button class="bar small staff" data-a="toast" data-t="登入後台（承辦、講師）"><span class="k">04</span><h2>承辦／講師</h2></button>'
+    +'</div></div></section>';
+  if(ch==='train'){
+    h += '<section class="wrap path"><h3>先選你的區域</h3><p class="lead">點地圖上的區域，看最近的場次。</p><div class="cols"><div class="maparea">'+tmap()+'</div><div><div class="slist">'
+      +inRegion().map((s,i)=>'<div class="sc" style="animation-delay:'+(i*.08)+'s"><div class="d">'+s.d+'<small>週'+s.w+'</small></div><div><span class="lvl" style="--c:'+LV[s.c][2]+'">'+lvlName(s)+'</span><h4>'+LV[s.c][1]+'</h4><p class="m">'+s.v+'・名額 '+s.n+'/'+s.cap+'</p></div><span class="cta">'+(s.c==='T'?'縣市推薦':'看場次 →')+'</span></div>').join('')
+      +'</div><div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:16px"><button class="btn p" data-a="toast" data-t="研習 › 找場次">看全部場次</button><button class="btn s" data-a="toast" data-t="研習 › 我的研習">我已經報名了</button></div></div></div>'
+      +'<h3 style="margin-top:44px">研習路徑：一步一步往上</h3><div class="stairs">'
+      +'<div class="stair" style="background:var(--sky);--sh:110px"><b>初階・3 小時</b><span>不限資格，先打基礎</span></div>'
+      +'<div class="stair" style="background:var(--teal);--sh:160px"><b>進階・6 小時</b><span>依職務分流，用真實資料練習</span></div>'
+      +'<div class="stair" style="background:var(--blue);--sh:210px"><b>開通分析平台</b><span>結業當下自動開通</span></div></div>'
+      +'<div class="stairs-note"><span>研習證明與全教網時數，結業後在「我的研習」查看。</span><span class="tt">講師培訓是另一條路：由縣市推薦，兩天 12 小時。</span></div></section>';
+  } else if(ch==='data'){
+    h += '<section class="wrap path"><h3>30 秒試玩</h3><p class="lead">跟著三個步驟，看平台怎麼處理一份段考成績。</p><div style="margin-top:20px">'+tryBox()+'</div>'
+      +'<h3 style="margin-top:44px">怎麼開始用</h3><div class="stairs">'
+      +'<div class="stair" style="background:var(--sky);--sh:110px"><b>完成初階研習</b><span>3 小時，不限資格</span></div>'
+      +'<div class="stair" style="background:var(--teal);--sh:160px"><b>完成進階研習</b><span>結業當下自動開通</span></div>'
+      +'<div class="stair" style="background:var(--orange);--sh:210px"><b>用同一組帳號進入</b><span>不用再註冊</span></div></div>'
+      +'<div class="stairs-note"><span>'+ic('lock')+' 真實資料在你的電腦上去識別，AI 只看統計摘要。</span><button class="btn o" data-a="choose" data-v="train">我還沒上研習 → 找場次</button></div></section>';
+  }
+  h += '<section class="after"><div class="wrap"><div class="grid">'
+    +[['22','縣市＋國教署','var(--blue)'],['14','場講師培訓','var(--sky)'],['10','場縣市行政研習','var(--teal)'],['59','項能力指標','var(--orange)']].map(([n,t,c])=>'<div style="--c:'+c+'"><b>'+n+'</b><span>'+t+'</span></div>').join('')
+    +'</div><div class="news">'+NEWS.map((n,i)=>'<a href="#" data-a="toast" data-t="消息內頁" style="--c:'+['var(--blue)','var(--teal)','var(--orange)'][i]+'"><small>2026-'+n[0]+'・'+n[1]+'</small>'+n[2]+'</a>').join('')+'</div></div></section>';
+  return '<div class="p cA'+(ch?' chose':'')+'">'+h+'</div>';
+}
+function drawALine(){
+  const f = $('frame').querySelector('.cA .fork'); if(!f) return;
+  const svg = f.querySelector('svg.lineover'); if(!svg||S.choice) return;
+  const fb = f.getBoundingClientRect(); if(!fb.width) return;
+  const pts = [...f.querySelectorAll('.bar')].map(b=>{const r=b.getBoundingClientRect();return [ (r.left+r.width/2-fb.left)/fb.width*100, (r.top-fb.top)/fb.height*100 ]});
+  svg.innerHTML = '<polyline points="'+pts.map(p=>p.join(',')).join(' ')+'" fill="none" stroke="#1B2833" stroke-width="2" stroke-dasharray="4 5" vector-effect="non-scaling-stroke"/>';
+}
+
+/* =========================================================
+   B：數據編輯風
+   ========================================================= */
+function B(){
+  const ch = S.choice;
+  const tick = SESS.map(s=>'<span><b>'+s.d+'</b> '+RN[s.r]+'・'+lvlName(s)+'・'+s.v+'・'+s.n+'/'+s.cap+'</span>').join('');
+  let h = topbar()+'<div class="ticker" aria-label="近期場次"><div>'+tick+tick+'</div></div><section class="wrap hero">'
+    +'<p class="kicker">EDUCATION DATA LITERACY / 115</p><h1 class="big">數據治理，<br><span>決策有理。</span></h1>'
+    +'<div class="ask"><span>我想</span><button class="opt'+(ch==='train'?' sel':'')+'" data-a="choose" data-v="train" style="--c:#5BB8E8">參加研習 <small>→ 場次 10</small></button><span class="or">或</span><button class="opt'+(ch==='data'?' sel':'')+'" data-a="choose" data-v="data" style="--c:#FF9A45">分析學校的數據 <small>→ 試玩 30s</small></button></div>'
+    +'<div class="others"><button data-a="toast" data-t="關於計畫頁">先了解這個計畫</button><button data-a="toast" data-t="登入後台（承辦、講師）">我是承辦／講師</button></div>';
+  if(!ch) h += '<div class="figs">'+[['22','COUNTIES + K-12 ADMIN','#5BB8E8'],['14','TRAINER WORKSHOPS','#3CC5CF'],['10','COUNTY SESSIONS','#ECF3F6'],['59','COMPETENCIES','#FF9A45']].map(([n,t,c])=>'<div style="--c:'+c+'"><b>'+n+'</b><span>'+t+'</span></div>').join('')+'</div>';
+  h += '</section>';
+  if(ch==='train'){
+    const s = SESS[S.pick]||SESS[0];
+    const W=720,H=230,L=70,R=20,T=24,B0=40;
+    const months=[['10/1',0],['11/1',31],['12/1',61],['12/15',75]];
+    const day = d => {const [m,dd]=d.split('/').map(Number);return (m===10?dd-1:m===11?30+dd:60+dd)};
+    const x = d => L+(W-L-R)*day(d)/75;
+    const rows=['北','中','南','東'], y = r => T+(H-T-B0)*rows.indexOf(r)/3;
+    const svg = '<svg class="chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="各區場次時間軸">'
+      +rows.map(r=>'<line class="lane" x1="'+L+'" x2="'+(W-R)+'" y1="'+y(r)+'" y2="'+y(r)+'"/><text class="rl" x="0" y="'+(y(r)+5)+'">'+RN[r]+'</text>').join('')
+      +months.slice(0,3).map(([m])=>'<text x="'+x(m)+'" y="'+(H-12)+'">'+m+'</text>').join('')
+      +'<line class="today" x1="'+x('10/13')+'" x2="'+x('10/13')+'" y1="10" y2="'+(H-B0+8)+'"/><text x="'+(x('10/13')+6)+'" y="16" style="fill:#FF9A45">今天</text>'
+      +SESS.map((q,i)=>'<circle class="pt'+(i===S.pick?' on':'')+'" data-a="pick" data-v="'+i+'" tabindex="0" role="button" aria-label="'+q.d+' '+RN[q.r]+' '+lvlName(q)+'" cx="'+x(q.d)+'" cy="'+y(q.r)+'" r="'+(q.c==='T'?11:9)+'" fill="'+LV[q.c][3]+'"/>').join('')+'</svg>';
+    h += '<section class="wrap path"><div class="ph"><div><p class="kicker">01 / 參加研習</p><h3>未來兩個月，10 個場次</h3></div><button class="btn s" data-a="home">換一條路</button></div>'
+      +'<div class="panel" style="margin-top:20px">'+svg+'<div class="legend">'+Object.values(LV).map(v=>'<span><i style="--c:'+v[3]+'"></i>'+v[0]+'</span>').join('')+'<span>點圓點看場次</span></div></div>'
+      +'<div class="detail"><div class="card" style="--c:'+LV[s.c][3]+'"><p class="mono" style="color:'+LV[s.c][3]+'">'+lvlName(s)+'・'+RN[s.r]+'</p><div class="d">'+s.d+'<small style="font-size:1rem;font-weight:500">（週'+s.w+'）</small></div><h4>'+LV[s.c][1]+'</h4><p>'+s.v+'・名額 '+s.n+'/'+s.cap+'</p><div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:14px">'+(s.c==='T'?'<span class="mono" style="color:#A9BCC7">縣市推薦制，受推薦者點邀請信報名</span>':'<button class="btn p" data-a="toast" data-t="場次詳情與報名">看場次與報名</button>')+'</div></div>'
+      +'<div class="flow" style="margin-top:0;grid-template-columns:1fr">'+[['STEP 01','初階・3 小時','不限資格'],['STEP 02','進階・6 小時','依職務分流'],['UNLOCK','分析平台','結業當下開通']].map(f=>'<div><small>'+f[0]+'</small><b>'+f[1]+'</b><span>'+f[2]+'</span></div>').join('')+'</div></div></section>';
+  } else if(ch==='data'){
+    h += '<section class="wrap path"><div class="ph"><div><p class="kicker">02 / 分析數據</p><h3>30 秒試玩：一份段考成績</h3></div><button class="btn s" data-a="home">換一條路</button></div><div style="margin-top:20px">'+tryBox()+'</div>'
+      +'<div class="flow">'+[['STEP 01','完成初階研習','3 小時，不限資格'],['STEP 02','完成進階研習','結業當下自動開通'],['STEP 03','同一組帳號進入','不用再註冊']].map(f=>'<div><small>'+f[0]+'</small><b>'+f[1]+'</b><span>'+f[2]+'</span></div>').join('')+'</div>'
+      +'<p class="mono" style="margin-top:16px;color:#A9BCC7;font-size:.82rem">// 資料在你的電腦上去識別，AI 只看統計摘要，數字一律由平台計算</p></section>';
+  }
+  return '<div class="p cB">'+h+'</div>';
+}
+
+/* =========================================================
+   C：色塊拼貼
+   ========================================================= */
+function C(){
+  const ch = S.choice;
+  const train = '<button class="t way train'+(ch==='train'?' sel':'')+'" data-a="choose" data-v="train"><span class="shape s1"></span><span class="shape s2"></span><span class="shape s3"></span><span class="k">研習</span><h2>我要參加研習</h2><p>找離你最近的場次、報名、拿研習證明</p><span class="go">從這裡開始 '+ic('arrow')+'</span>'+(ch==='train'?'<span class="back" data-a="home">換一條路</span>':'')+'</button>';
+  const data = '<button class="t way data'+(ch==='data'?' sel':'')+'" data-a="choose" data-v="data"><span class="shape s2"></span><span class="shape s1"><i style="height:90px"></i><i style="height:60px"></i><i style="height:130px"></i></span><span class="k">分析平台</span><h2>我想分析數據</h2><p>30 秒試玩，看平台怎麼幫你讀懂學校資料</p><span class="go">先玩玩看 '+ic('arrow')+'</span>'+(ch==='data'?'<span class="back" data-a="home">換一條路</span>':'')+'</button>';
+  let h = topbar()+'<div class="wrap"><div class="bento">'
+    +'<div class="t intro"><h1>你今天想做什麼？</h1><p>教育資料素養提升計畫：給縣市行政、校長主任與老師的研習，以及 AI 輔助教育數據分析平台。</p></div>'
+    +train+data
+    +'<div class="t mini teal"><span class="k">最近一場</span><b>10/17（六）北區<br>初階研習</b><button data-a="choose" data-v="train">看場次 '+ic('arrow')+'</button></div>'
+    +'<div class="t mini"><span class="k">最新消息</span><b>115 年學校行政講師培訓四區場次公布</b><button data-a="toast" data-t="最新消息頁">看全部 '+ic('arrow')+'</button></div>'
+    +'<div class="t mini sky"><span class="k">計畫規模</span><span class="num">22</span><span>縣市＋國教署參與</span><button data-a="toast" data-t="關於計畫頁">了解計畫 '+ic('arrow')+'</button></div>';
+  if(ch==='train'){
+    h += '<div class="path"><div class="t regions"><span class="k" style="font-weight:800">你在哪一區？</span><div class="pills">'+Object.keys(RN).map(k=>'<button class="pill" data-a="region" data-v="'+k+'" aria-pressed="'+(S.region===k)+'">'+RN[k]+'</button>').join('')+'</div><p style="font-size:.9rem;color:var(--soft)">選了區域，右邊會列出最近的場次。</p></div>'
+      +'<div class="t list">'+inRegion().map((s,i)=>'<div class="row" style="animation-delay:'+(i*.07)+'s"><div class="d" style="--c:'+LV[s.c][2]+'">'+s.d+'<small>週'+s.w+'</small></div><div><h4>'+lvlName(s)+'｜'+LV[s.c][1]+'</h4><p>'+s.v+'・名額 '+s.n+'/'+s.cap+'</p></div><span class="go2">'+(s.c==='T'?'縣市推薦':'看場次 →')+'</span></div>').join('')+'</div>'
+      +'<div class="t lv3" style="background:var(--sky)"><span class="n">01</span><b>初階・3 小時</b><span>不限資格，先打基礎</span></div>'
+      +'<div class="t lv3" style="background:var(--teal)"><span class="n">02</span><b>進階・6 小時</b><span>依職務分流，用真實資料練習</span></div>'
+      +'<div class="t lv3" style="background:var(--blue)"><span class="n">03</span><b>開通分析平台</b><span>結業當下自動開通</span></div>'
+      +'<div class="t" style="grid-column:1/-1;background:#FDF0E4;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between"><span><b>講師培訓</b>是另一條路：由縣市推薦，兩天 12 小時。</span><button class="btn p" data-a="toast" data-t="研習 › 找場次">看全部場次</button></div></div>';
+  } else if(ch==='data'){
+    h += '<div class="path"><div class="t tryt">'+tryBox()+'</div>'
+      +'<div class="t lv3" style="background:var(--sky)"><span class="n">01</span><b>完成初階研習</b><span>3 小時，不限資格</span></div>'
+      +'<div class="t lv3" style="background:var(--teal)"><span class="n">02</span><b>完成進階研習</b><span>結業當下自動開通</span></div>'
+      +'<div class="t lv3" style="background:var(--orange)"><span class="n">03</span><b>同一組帳號進入</b><span>不用再註冊</span></div>'
+      +'<div class="t" style="grid-column:1/-1;background:#fff;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between"><span>'+ic('lock')+' 資料在你的電腦上去識別，AI 只看統計摘要。</span><button class="btn s" data-a="choose" data-v="train">我還沒上研習 → 找場次</button></div></div>';
+  }
+  h += '</div></div>';
+  return '<div class="p cC'+(ch?' chose':'')+'">'+h+'</div>';
+}
+
+/* ---------- 說明 ---------- */
+const NOTES = {
+  A:['#1B5FA6','A・長條就是介面','LOGO 的四根長條直接變成入口：兩根大的是「參加研習」「用數據分析」，兩根小的是「了解計畫」「承辦／講師」，上面用虛線連成 LOGO 的折線。',
+    ['識別度最高，跟計畫 LOGO 一脈相承','動態有意義：選了的那根長條撐滿版面，變成那條路的標題','研習路徑做成「往上走的階梯」，延續長條的意象'],
+    ['四根長條高低不同，需要靠文字說明哪個是主要入口','手機上長條改成卡片，長條的意象會變弱'],
+    '把滑鼠移到長條上看它長高；點「參加研習」，再點地圖上的區域。'],
+  B:['#0D1A24','B・數據編輯風','深色方格紙背景、超大標題、等寬字體的數據標籤，像數據新聞報導。分岔口是一句話：「我想 參加研習 或 分析學校的數據」。',
+    ['最有專業感和衝擊力，適合對外展示、長官簡報','場次用「時間軸點陣圖」呈現：一眼看出哪一區、哪個月有課','上方跑馬燈持續露出近期場次'],
+    ['深色版面要特別注意文字對比，才能通過無障礙檢測','對部分老師來說可能偏冷、偏硬'],
+    '點「參加研習」，再點時間軸上的圓點；或點「分析學校的數據」玩 30 秒試玩。'],
+  C:['#EE7A1D','C・色塊拼貼','大圓角色塊（bento 格狀）：兩大塊是兩條路，旁邊的小塊放最近一場、最新消息和計畫規模。滑鼠移上去，色塊裡的幾何形狀會動。',
+    ['最親切活潑，符合老師族群','一屏同時看到兩條路和最新資訊，資訊密度最高','選了之後格子重組，只留下那條路的內容'],
+    ['色塊多，日後內容一多容易變雜','風格較休閒，正式感比 A、B 弱'],
+    '把滑鼠移到藍色和橘色大塊上看形狀變化；點進去後選區域。']
+};
+
+/* ---------- 繪製 ---------- */
+function render(){
+  $('t-c').innerHTML=[['A','A 長條就是介面'],['B','B 數據編輯風'],['C','C 色塊拼貼']].map(([k,t])=>'<button data-tool="c" data-v="'+k+'" aria-pressed="'+(S.c===k)+'">'+t+'</button>').join('');
+  $('t-vp').innerHTML=[['desk','桌機'],['phone','手機']].map(([k,t])=>'<button data-tool="vp" data-v="'+k+'" aria-pressed="'+(S.vp===k)+'">'+t+'</button>').join('');
+  $('t-notes').textContent=S.notes?'隱藏說明':'顯示說明';
+  $('browser').className='browser'+(S.vp==='phone'?' phone':'');
+  $('work').className='work'+(S.notes?'':' nonotes');
+  $('frame').innerHTML=({A,B,C})[S.c]()+(S.toast?'<div class="toast" role="status">'+S.toast+'</div>':'');
+  const n=NOTES[S.c];
+  $('notes').hidden=!S.notes;
+  $('notes').innerHTML='<span class="tag" style="--c:'+n[0]+'">方向 '+S.c+'</span><h2>'+n[1]+'</h2><p style="margin-top:8px">'+n[2]+'</p><h3>優點</h3><ul>'+n[3].map(t=>'<li>'+t+'</li>').join('')+'</ul><h3>要注意</h3><ul>'+n[4].map(t=>'<li>'+t+'</li>').join('')+'</ul><div class="tip"><b>試試看：</b>'+n[5]+'</div>';
+  requestAnimationFrame(drawALine);
+  const fk=$('frame').querySelector('.cA .fork'); if(fk) fk.addEventListener('transitionend',drawALine);
+  bindDrag();
+}
+function bindDrag(){
+  const chip=$('chipfile'),zone=$('dropzone'); if(!chip||!zone) return;
+  chip.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain','file')});
+  zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('over')});
+  zone.addEventListener('dragleave',()=>zone.classList.remove('over'));
+  zone.addEventListener('drop',e=>{e.preventDefault();S.step=1;render()});
+}
+let tt;
+function toast(t){S.toast=t;render();clearTimeout(tt);tt=setTimeout(()=>{S.toast='';render()},2600)}
+const ACT={
+  choose:d=>{S.choice=d.v;S.step=0;render();$('frame').scrollIntoView({block:'start'});window.scrollTo({top:0})},
+  home:()=>{S.choice=null;render()},
+  region:d=>{S.region=d.v;render()},
+  pick:d=>{S.pick=+d.v;render()},
+  trynext:()=>{S.step=Math.min(2,S.step+1);render()},
+  tryreset:()=>{S.step=0;render()},
+  toast:d=>toast('示意：'+d.t)
+};
+document.addEventListener('click',ev=>{
+  const t=ev.target.closest('[data-tool]');
+  if(t){if(t.dataset.tool==='c'){S.c=t.dataset.v}else{S.vp=t.dataset.v}render();return}
+  const a=ev.target.closest('[data-a]');
+  if(a&&ACT[a.dataset.a]){ev.preventDefault();ev.stopPropagation();ACT[a.dataset.a](a.dataset)}
+});
+document.addEventListener('keydown',ev=>{if((ev.key==='Enter'||ev.key===' ')&&ev.target.matches&&ev.target.matches('g[data-a],circle[data-a]')){ev.preventDefault();ACT[ev.target.dataset.a](ev.target.dataset)}});
+$('t-notes').addEventListener('click',()=>{S.notes=!S.notes;render()});
+$('t-reset').addEventListener('click',()=>{S.choice=null;S.step=0;render()});
+addEventListener('resize',()=>requestAnimationFrame(drawALine));
+render();
+</script>
+</body>
+</html>

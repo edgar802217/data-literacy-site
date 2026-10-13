@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>首頁三種組合</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC:wght@500;700;800&family=Noto+Sans+TC:wght@400;500;700;900&family=LXGW+WenKai+TC:wght@400;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+</head>
+<body>
+<style>
+/* 首頁三種「不用方塊」的組合：
+   I 路線圖 × 海報（大色面、直排標題、網點地圖、捷運路線圖與時刻表）
+   II 資料故事 × 路線圖（捲動時 LOGO 折線長成學習路線）
+   III 筆記本 × 路線圖（方格紙、手繪路線、便利貼、紅筆與螢光筆）
+   都沿用 LOGO 四色；研習＝藍、分析平台＝橘、講師培訓＝青綠。 */
+:root{
+  color-scheme:light;
+  --tool:#17222B; --tool-2:#26343F; --tool-tx:#E9EEF2; --canvas:#DDE3E8;
+  --ink:#16222C; --ink-2:#3A4853; --soft:#63707B;
+  --blue:#1B5FA6; --sky:#2185B5; --teal:#1E97A3; --orange:#EE7A1D; --orange-d:#B4560C;
+  --f-head:"Chiron GoRound TC","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --f-hand:"LXGW WenKai TC","Kaiti TC","DFKai-SB","BiauKai",serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{background:var(--canvas)}
+body{margin:0;color:var(--ink);font:16px/1.7 var(--f-body);-webkit-font-smoothing:antialiased}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid #4C8BD6;outline-offset:3px;border-radius:6px}
+
+/* 工具列與外框 */
+.tool{position:sticky;top:0;z-index:60;background:var(--tool);color:var(--tool-tx);height:56px}
+.tool .in{display:flex;align-items:center;gap:10px 18px;padding:0 16px;height:56px;max-width:1600px;margin:auto;overflow-x:auto}
+.tool h1{font:800 1rem/1.2 var(--f-head);margin:0;white-space:nowrap}
+.seg{display:inline-flex;background:var(--tool-2);border-radius:9px;padding:3px;gap:2px;flex:none}
+.seg button{background:none;border:0;color:#C4D0DA;padding:6px 11px;border-radius:7px;cursor:pointer;font-size:.86rem;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:#fff;color:var(--ink);font-weight:700}
+.tool .lb{font-size:.75rem;color:#9FB0BF;letter-spacing:.06em;white-space:nowrap}
+.tool .sp{flex:1}
+.tbtn{background:none;border:1px solid #4A5A68;color:var(--tool-tx);border-radius:8px;padding:6px 11px;cursor:pointer;font-size:.86rem;white-space:nowrap;flex:none}
+.work{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;max-width:1600px;margin:auto;padding:24px 16px 64px;align-items:start}
+.work.nonotes{grid-template-columns:minmax(0,1fr)}
+@media (max-width:1100px){.work{grid-template-columns:minmax(0,1fr)}}
+.stage{display:flex;justify-content:center;min-width:0}
+.browser{width:100%;max-width:1240px;border-radius:14px;box-shadow:0 30px 60px -36px rgba(23,34,43,.6);background:#fff}
+.browser.phone{max-width:390px;border-radius:32px;border:9px solid #17222B}
+.chrome{display:flex;align-items:center;gap:6px;height:30px;padding:0 12px;background:#EEF2F5;border-bottom:1px solid #DDE4EA;font-size:.74rem;color:#8C98A3;border-radius:14px 14px 0 0}
+.phone .chrome{justify-content:center;border-radius:22px 22px 0 0}
+.chrome i{width:9px;height:9px;border-radius:50%;background:#D4DBE1}
+.phone .chrome i{display:none}
+.frame{container-type:inline-size;position:relative;overflow-x:clip;border-radius:0 0 14px 14px}
+.phone .frame{border-radius:0 0 22px 22px}
+.notes{position:sticky;top:76px;background:#fff;border-radius:14px;padding:18px;box-shadow:0 1px 0 #D4DBE1;font-size:.9rem;line-height:1.65}
+.notes h2{font:800 1.1rem/1.3 var(--f-head);margin:0}
+.notes .tag{display:inline-block;font:700 .72rem/1 var(--f-body);color:#fff;background:var(--ink);padding:4px 8px;border-radius:5px;margin-bottom:8px}
+.notes h3{font-size:.8rem;letter-spacing:.06em;color:var(--soft);margin:14px 0 4px}
+.notes ul{margin:0;padding-left:1.1em}
+.notes li+li{margin-top:4px}
+.notes .tip{margin-top:14px;padding:10px 12px;background:#F3F6F8;border-radius:10px}
+@media (max-width:1100px){.notes{position:static}}
+
+.pg{position:relative}
+.pg h1,.pg h2,.pg h3{margin:0;line-height:1.15;text-wrap:balance}
+.pg p{margin:0}
+.ic{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.toast{position:absolute;left:50%;top:80px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 16px;border-radius:12px;font-size:.9rem;z-index:40;max-width:calc(100% - 32px)}
+.only-phone{display:none}
+@container (max-width:760px){.only-desk{display:none}.only-phone{display:block}}
+@keyframes draw{from{stroke-dashoffset:var(--len,2000)}}
+@keyframes popin{from{opacity:0;transform:scale(.4)}}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}}
+@keyframes flap{0%{transform:rotateX(-90deg);opacity:0}100%{transform:none;opacity:1}}
+@keyframes swipe{from{background-size:0 100%}}
+@keyframes blink{50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+/* =========================================================
+   I 路線圖 × 海報
+   ========================================================= */
+.mI{background:#F3F5F6;color:var(--ink);
+  background-image:radial-gradient(rgba(22,34,44,.07) 1px,transparent 1.2px);background-size:7px 7px}
+.mI .bar{display:flex;align-items:center;gap:18px;padding:18px 36px}
+.mI .bar .mark{display:flex;align-items:center;gap:10px;font:800 1rem var(--f-head)}
+.mI .bar nav{margin-left:auto;display:flex;gap:22px;font-weight:700;font-size:.95rem}
+.mI .bar nav button{background:none;border:0;padding:0;cursor:pointer}
+.mI .bar nav button.line{display:inline-flex;align-items:center;gap:8px}
+.mI .bar nav button.line i{width:22px;height:6px;border-radius:3px;background:var(--c)}
+.mI .login{border:2px solid var(--ink);border-radius:999px;padding:6px 16px;background:none;font-weight:800;cursor:pointer}
+.mI .poster{position:relative;display:grid;grid-template-columns:96px 1fr;gap:0;padding:8px 36px 0}
+.mI .vt{writing-mode:vertical-rl;font:800 2.4rem/1 var(--f-head);color:var(--blue);letter-spacing:.12em;border-right:6px solid var(--blue);padding-right:14px;align-self:start;height:max-content}
+.mI .vt small{display:block;font:700 .9rem var(--f-body);letter-spacing:.3em;color:var(--soft);margin-top:14px}
+.mI .head{padding-left:28px}
+.mI .head h1{font:900 clamp(2.8rem,1.2rem + 5.4cqw,6rem)/1 var(--f-body);letter-spacing:-.02em}
+.mI .head h1 em{font-style:normal;color:var(--orange)}
+.mI .head p{font-size:1.15rem;color:var(--ink-2);margin-top:14px;max-width:30em}
+.mI .tw{position:absolute;right:20px;top:-10px;width:330px;opacity:.9;pointer-events:none}
+.mI .tw path{fill:url(#dots);stroke:none}
+.mI .mapwrap{padding:14px 36px 8px 36px;position:relative}
+.mI svg.metro{width:100%;height:auto;display:block;overflow:visible}
+.mI .metro .ln{fill:none;stroke-width:14;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:var(--len);animation:draw 1.6s cubic-bezier(.6,0,.3,1) both}
+.mI .metro .st{cursor:pointer}
+.mI .metro .st circle{fill:#fff;stroke-width:6;transition:r .25s}
+.mI .metro .st:hover circle,.mI .metro .st.on circle{r:19}
+.mI .metro .st text{font:800 22px var(--f-head);fill:var(--ink)}
+.mI .metro .st text.en{font:600 12px var(--f-mono);fill:var(--soft);letter-spacing:.08em}
+.mI .metro .xg rect{fill:#fff;stroke:var(--ink);stroke-width:6}
+.mI .metro .st{animation:popin .4s cubic-bezier(.3,1.6,.5,1) both}
+.mI .metro .legend text{font:700 14px var(--f-body);fill:var(--ink-2)}
+.mI .metro .you{animation:blink 1.4s steps(2) infinite}
+.mI .sign{margin:6px 36px 0;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:18px;background:var(--ink);color:#fff;padding:16px 22px;border-left:14px solid var(--c);animation:rise .4s both}
+.mI .sign .n{font:800 2rem var(--f-head)}
+.mI .sign .n small{display:block;font:600 .72rem var(--f-mono);letter-spacing:.12em;color:#9FB0BF}
+.mI .sign p{color:#D6DEE5}
+.mI .sign button{background:var(--c);color:#fff;border:0;border-radius:999px;padding:12px 22px;font-weight:800;cursor:pointer;white-space:nowrap}
+.mI .board{margin-top:44px;background:var(--blue);color:#fff;padding:40px 36px 46px;clip-path:polygon(0 36px,100% 0,100% 100%,0 100%)}
+.mI .board h2{font:900 clamp(2rem,1.2rem + 2.6cqw,3.2rem)/1.1 var(--f-body);display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-top:24px}
+.mI .board h2 small{font:600 .9rem var(--f-mono);letter-spacing:.14em;color:#BFD6EE}
+.mI .tt{margin-top:22px;background:#0F1A22;border-radius:6px;padding:8px 0;font-size:.98rem}
+.mI .tt .r{display:grid;grid-template-columns:110px 1.4fr 90px 1.2fr 120px;gap:12px;align-items:center;padding:10px 20px;border-bottom:1px solid rgba(255,255,255,.08);animation:flap .5s both;transform-origin:top;cursor:pointer}
+.mI .tt .r:hover{background:rgba(255,255,255,.05)}
+.mI .tt .r:last-child{border-bottom:0}
+.mI .tt .h{color:#7F95A6;font:600 .72rem var(--f-mono);letter-spacing:.12em;cursor:default;animation:none}
+.mI .tt .h:hover{background:none}
+.mI .tt .d{font:600 1.15rem var(--f-mono);color:#FFB21E}
+.mI .tt .c{display:flex;align-items:center;gap:8px;font-weight:700}
+.mI .tt .c i{width:8px;height:22px;border-radius:2px;background:var(--lc)}
+.mI .tt .p{font:600 .95rem var(--f-mono);color:#fff;background:rgba(255,255,255,.1);border-radius:4px;padding:2px 8px;justify-self:start}
+.mI .tt .s{font-weight:800;justify-self:end}
+.mI .tt .s.ok{color:#7CE0A3}.mI .tt .s.no{color:#9FB0BF}
+.mI .tt .v{color:#B9C6D0;font-size:.9rem}
+@container (max-width:760px){
+  .mI .bar{padding:14px 18px}.mI .bar nav{display:none}.mI .login{margin-left:auto}
+  .mI .poster{grid-template-columns:56px 1fr;padding:4px 18px 0}
+  .mI .vt{font-size:1.5rem;padding-right:8px;border-right-width:4px}
+  .mI .head{padding-left:14px}
+  .mI .head p{font-size:1rem}
+  .mI .tw{width:150px;right:0;top:120px;opacity:.6}
+  .mI .mapwrap{padding:14px 12px 0}
+  .mI .sign{margin:6px 14px 0;grid-template-columns:1fr;gap:8px}
+  .mI .board{padding:36px 14px 36px}
+  .mI .tt .r{grid-template-columns:70px 1fr auto;gap:8px;padding:10px 12px}
+  .mI .tt .v,.mI .tt .p{display:none}
+  .mI .tt .h{display:none}
+}
+
+/* =========================================================
+   II 資料故事 × 路線圖
+   ========================================================= */
+.mII{background:#FAFBFC;color:var(--ink)}
+.mII .quick{position:sticky;top:56px;z-index:10;display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:10px 32px;background:rgba(250,251,252,.92);backdrop-filter:blur(8px);border-bottom:1px solid #E3E8EC;font-size:.92rem}
+.mII .quick .mark{display:flex;align-items:center;gap:8px;font:800 .95rem var(--f-head);margin-right:auto}
+.mII .quick span{color:var(--soft)}
+.mII .quick button{border:0;border-radius:999px;padding:7px 14px;font-weight:800;cursor:pointer;color:#fff;background:var(--c)}
+.mII .open{min-height:560px;display:flex;flex-direction:column;justify-content:center;padding:40px 32px 60px;position:relative}
+.mII .open h1{font:900 clamp(2.8rem,1.2rem + 5.6cqw,6.2rem)/1.04 var(--f-body);letter-spacing:-.02em;max-width:9em}
+.mII .open h1 span{background:linear-gradient(transparent 70%,#FFD2A8 70%)}
+.mII .open p{font-size:1.15rem;color:var(--ink-2);margin-top:18px;max-width:28em}
+.mII .scrollcue{margin-top:40px;display:flex;align-items:center;gap:12px;font-weight:700;color:var(--soft)}
+.mII .scrollcue i{width:2px;height:54px;background:linear-gradient(var(--ink),transparent);animation:cue 1.6s ease-in-out infinite}
+@keyframes cue{0%{transform:scaleY(.2);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}100%{transform:scaleY(.2);transform-origin:bottom}}
+.mII .story{position:relative;height:2600px}
+.mII .stick{position:sticky;top:110px;height:560px;display:grid;grid-template-columns:.9fr 1.4fr;gap:24px;align-items:center;padding:0 32px}
+.mII .caps{position:relative;height:300px}
+.mII .cap{position:absolute;inset:0;opacity:0;transform:translateY(20px);transition:opacity .5s,transform .5s;display:flex;flex-direction:column;justify-content:center}
+.mII .cap.on{opacity:1;transform:none}
+.mII .cap .k{font:600 .8rem var(--f-mono);letter-spacing:.14em;color:var(--c)}
+.mII .cap h2{font:900 clamp(1.8rem,1rem + 2.6cqw,3rem)/1.15 var(--f-body);margin-top:8px}
+.mII .cap p{font-size:1.08rem;color:var(--ink-2);margin-top:10px;max-width:22em}
+.mII .cap .big{font:800 clamp(4rem,2rem + 6cqw,7rem)/1 var(--f-head);color:var(--blue)}
+.mII svg.chart{width:100%;height:auto;overflow:visible}
+.mII .chart .base{stroke:#D5DDE3;stroke-width:3}
+.mII .chart .b{transform-box:fill-box;transform-origin:bottom;transition:transform .7s cubic-bezier(.2,.8,.2,1)}
+.mII .chart .path{fill:none;stroke-width:9;stroke-linecap:round;stroke-linejoin:round}
+.mII .chart .node{transition:r .4s cubic-bezier(.3,1.6,.5,1)}
+.mII .chart .lbl{font:800 20px var(--f-head);fill:var(--ink);opacity:0;transition:opacity .4s}
+.mII .chart .lbl.on{opacity:1}
+.mII .chart .tline{stroke:var(--teal);stroke-width:6;stroke-dasharray:2 12;stroke-linecap:round;fill:none;opacity:0;transition:opacity .5s}
+.mII .chart .tline.on{opacity:1}
+.mII .fork{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px}
+.mII .fork button{border:0;border-radius:999px;padding:14px 24px;font:800 1.05rem var(--f-head);cursor:pointer;color:#fff;background:var(--c);display:inline-flex;gap:10px;align-items:center}
+.mII .prog{position:absolute;left:32px;right:32px;bottom:0;height:4px;background:#E6EBEF;border-radius:2px}
+.mII .prog i{display:block;height:100%;width:0;background:var(--ink);border-radius:2px}
+.mII .after{padding:40px 32px 70px;display:grid;grid-template-columns:repeat(3,1fr);gap:32px;border-top:1px solid #E3E8EC}
+.mII .after h3{font:800 1.1rem var(--f-head)}
+.mII .after p{color:var(--soft);margin-top:4px}
+.mII .after .d{font:800 3rem/1 var(--f-head);color:var(--c)}
+@container (max-width:760px){
+  .mII .quick{padding:8px 14px}.mII .quick span{display:none}
+  .mII .quick .mark b{display:none}
+  .mII .open{padding:28px 18px 40px;min-height:480px}
+  .mII .stick{grid-template-columns:1fr;grid-template-rows:auto auto;top:104px;height:auto;padding:0 18px;gap:8px}
+  .mII .caps{height:220px;order:2}
+  .mII .story{height:2400px}
+  .mII .after{grid-template-columns:1fr;padding:32px 18px 60px}
+}
+
+/* =========================================================
+   III 筆記本 × 路線圖
+   ========================================================= */
+.mIII{--grid:#D7E6F2;background:#FDFEFE;color:#22303A;
+  background-image:linear-gradient(90deg,transparent 70px,#F2A7A7 70px,#F2A7A7 72px,transparent 72px),linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:100% 100%,26px 26px,26px 26px;font-family:var(--f-body)}
+.mIII .hand{font-family:var(--f-hand)}
+.mIII .bar{display:flex;align-items:center;gap:16px;padding:16px 32px 16px 96px}
+.mIII .bar .mark{display:flex;align-items:center;gap:10px;font:700 1.15rem var(--f-hand)}
+.mIII .bar nav{margin-left:auto;display:flex;gap:20px}
+.mIII .bar nav button{background:none;border:0;padding:0 2px;cursor:pointer;font:700 1.08rem var(--f-hand);background-image:linear-gradient(#FFE16B,#FFE16B);background-size:0 40%;background-position:0 85%;background-repeat:no-repeat;transition:background-size .3s}
+.mIII .bar nav button:hover{background-size:100% 40%}
+.mIII .login{border:2px solid #22303A;border-radius:10px 14px 9px 13px;padding:4px 14px;background:#fff;font:700 1rem var(--f-hand);cursor:pointer}
+.mIII .page{padding:10px 32px 0 96px;position:relative}
+.mIII .date{font:600 .85rem var(--f-mono);color:#8A97A2}
+.mIII h1{font:700 clamp(2.4rem,1.2rem + 4.6cqw,5.2rem)/1.15 var(--f-hand);margin-top:6px}
+.mIII .hl{background-image:linear-gradient(104deg,rgba(255,225,107,0) 1%,rgba(255,225,107,.95) 3%,rgba(255,215,80,.9) 96%,rgba(255,225,107,0));background-size:100% 46%;background-position:0 88%;background-repeat:no-repeat;animation:swipe .9s .4s cubic-bezier(.6,0,.3,1) both}
+.mIII .lead{font-size:1.12rem;color:#46545F;margin-top:12px;max-width:30em}
+.mIII .route{position:relative;margin-top:16px}
+.mIII svg.rt{width:100%;height:auto;overflow:visible;display:block}
+.mIII .rt .pen{fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:var(--len);animation:draw 1.8s .3s cubic-bezier(.6,0,.3,1) both}
+.mIII .rt .stp{cursor:pointer}
+.mIII .rt .stp path.o{fill:#fff;stroke-width:4.5}
+.mIII .rt .stp:hover path.o{fill:#FFF6C9}
+.mIII .rt text{font:700 24px var(--f-hand);fill:#22303A}
+.mIII .rt text.s{font:400 16px var(--f-hand);fill:#5E6B75}
+.mIII .rt .note{font:700 19px var(--f-hand);fill:#C8352B}
+.mIII .sticky{position:absolute;width:230px;padding:20px 18px 18px;background:#FFE88F;box-shadow:0 14px 20px -14px rgba(0,0,0,.45),0 2px 0 rgba(0,0,0,.04);transform:rotate(-3deg);font-family:var(--f-hand);animation:rise .5s .9s both;cursor:pointer}
+.mIII .sticky::before{content:"";position:absolute;left:50%;top:-12px;width:90px;height:24px;margin-left:-45px;background:rgba(210,225,235,.75);transform:rotate(2deg)}
+.mIII .sticky b{display:block;font-size:1.05rem;color:#7A5A00}
+.mIII .sticky .big{font-size:1.9rem;line-height:1.1;position:relative;display:inline-block;margin:6px 0}
+.mIII .sticky .big svg{position:absolute;left:-12px;top:-10px;width:calc(100% + 24px);height:calc(100% + 20px);overflow:visible}
+.mIII .sticky .big svg path{fill:none;stroke:#D9372B;stroke-width:3;stroke-linecap:round;stroke-dasharray:420;animation:draw 1s 1.5s ease-out both;--len:420}
+.mIII .sticky p{font-size:1.02rem;line-height:1.5}
+.mIII .choose{display:flex;flex-wrap:wrap;gap:20px 56px;margin-top:6px;padding-bottom:10px}
+.mIII .choose button{background:none;border:0;padding:0;cursor:pointer;text-align:left;font-family:var(--f-hand);position:relative}
+.mIII .choose b{font-size:2rem;display:inline-flex;align-items:center;gap:10px}
+.mIII .choose span{display:block;font-size:1.05rem;color:#5E6B75}
+.mIII .choose svg.ul{position:absolute;left:0;bottom:30px;width:100%;height:16px;overflow:visible}
+.mIII .choose svg.ul path{fill:none;stroke-width:5;stroke-linecap:round;stroke-dasharray:400;stroke-dashoffset:400;transition:stroke-dashoffset .5s}
+.mIII .choose button:hover svg.ul path,.mIII .choose button:focus-visible svg.ul path{stroke-dashoffset:0}
+.mIII .lower{display:grid;grid-template-columns:1.2fr 1fr;gap:40px;padding:34px 32px 64px 96px}
+.mIII .lower h2{font:700 1.7rem var(--f-hand);display:flex;align-items:center;gap:10px}
+.mIII .todo{list-style:none;margin:12px 0 0;padding:0}
+.mIII .todo li{display:grid;grid-template-columns:30px 82px 1fr;gap:10px;align-items:baseline;padding:6px 0;font-size:1.02rem;line-height:26px;cursor:pointer}
+.mIII .todo .box{width:22px;height:22px;border:2.5px solid #22303A;border-radius:4px 6px 5px 3px;position:relative;top:4px}
+.mIII .todo li.done .box::after{content:"";position:absolute;left:3px;top:-6px;width:10px;height:18px;border-right:4px solid #D9372B;border-bottom:4px solid #D9372B;transform:rotate(40deg)}
+.mIII .todo .d{font:700 1.15rem var(--f-hand)}
+.mIII .todo .tag{font:700 .95rem var(--f-hand);color:var(--c)}
+.mIII .todo .x{color:#7B8893;font-size:.9rem}
+.mIII .sketch{position:relative}
+.mIII .sketch svg{width:100%;height:auto;overflow:visible}
+.mIII .sketch .bars rect{stroke:#22303A;stroke-width:2.5}
+.mIII .sketch text{font:700 18px var(--f-hand);fill:#22303A}
+.mIII .sketch .red{fill:none;stroke:#D9372B;stroke-width:3;stroke-linecap:round}
+.mIII .sketch .redt{fill:#C8352B;font-size:19px}
+.mIII .sketch button{margin-top:6px;background:#22303A;color:#fff;border:0;border-radius:12px 9px 13px 10px;padding:10px 18px;font:700 1.05rem var(--f-hand);cursor:pointer}
+@container (max-width:760px){
+  .mIII{background-image:linear-gradient(90deg,transparent 30px,#F2A7A7 30px,#F2A7A7 32px,transparent 32px),linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px)}
+  .mIII .bar{padding:12px 14px 12px 44px}.mIII .bar nav{display:none}.mIII .login{margin-left:auto}
+  .mIII .page{padding:6px 14px 0 44px}
+  .mIII .sticky{position:relative;left:auto!important;top:auto!important;right:auto!important;width:auto;max-width:280px;margin:10px 0 0 10px}
+  .mIII .choose b{font-size:1.6rem}
+  .mIII .lower{grid-template-columns:1fr;padding:28px 14px 60px 44px}
+  .mIII .route{overflow-x:auto;margin-right:-14px;padding-bottom:6px}
+  .mIII svg.rt{min-width:720px}
+}
+</style>
+
+<div class="tool"><div class="in">
+  <h1>首頁三種組合</h1>
+  <span class="lb">組合</span><div class="seg" id="t-m"></div>
+  <span class="lb">裝置</span><div class="seg" id="t-vp"></div>
+  <span class="sp"></span>
+  <button type="button" class="tbtn" id="t-replay">重播動畫</button>
+  <button type="button" class="tbtn" id="t-notes"></button>
+</div></div>
+<div class="work" id="work">
+  <div class="stage"><div class="browser" id="browser"><div class="chrome"><i></i><i></i><i></i><span>datalit.vercel.app</span></div><div class="frame" id="frame"></div></div></div>
+  <aside class="notes" id="notes"></aside>
+</div>
+
+<script>
+// 由 tools/build_map.py 產生，資料來源：taiwan-atlas（內政部國土測繪中心縣市界線，政府資料開放授權）
+window.TAIWAN_MAP = {"w": 319, "h": 420, "counties": [{"id": "10002", "d": "M298.4,44.0L294.0,45.8L291.7,49.2L290.0,49.5L283.2,60.9L282.2,70.2L284.5,76.1L284.8,83.2L286.6,88.0L289.6,89.9L288.3,90.4L288.2,98.3L284.5,100.5L287.0,104.3L282.5,106.5L280.4,109.9L277.2,124.4L266.6,121.5L261.6,117.5L260.5,118.5L261.8,121.8L260.3,120.6L260.1,122.0L257.7,122.2L258.8,124.9L254.5,123.7L252.1,121.5L246.6,121.1L240.4,116.1L234.2,118.0L232.4,115.3L228.3,114.2L227.9,107.2L236.4,98.5L235.7,95.3L237.6,93.2L236.6,91.0L239.3,89.3L242.8,81.2L246.6,81.2L251.3,79.4L252.0,77.3L255.4,76.8L257.9,74.7L257.3,67.5L261.0,66.6L261.1,64.9L267.9,64.1L268.8,61.9L272.6,59.4L277.5,58.2L279.3,54.1L283.7,53.4L286.1,50.9L284.5,48.6L285.4,46.8L289.9,46.4L296.0,43.4Z"}, {"id": "10007", "d": "M132.6,137.1L137.8,139.1L142.3,148.0L149.7,149.7L151.1,158.4L153.3,158.9L153.5,157.9L157.0,160.3L152.5,161.1L153.8,164.0L153.0,167.0L151.4,167.2L152.2,174.2L150.0,181.1L153.9,184.5L156.7,183.7L157.6,185.8L155.4,186.9L153.0,187.7L138.6,186.0L130.0,182.4L116.3,183.6L110.4,181.9L106.6,178.1L110.5,174.7L113.5,167.5L119.2,160.1L119.7,154.8L124.6,151.5L128.4,141.2Z"}, {"id": "10008", "d": "M152.8,187.7L157.6,185.6L156.7,183.7L153.9,184.5L150.0,181.1L152.2,174.2L151.4,167.2L153.0,167.0L153.8,164.0L152.5,161.1L157.0,160.3L164.6,162.1L169.4,158.3L171.3,154.0L173.5,153.4L175.2,147.1L179.0,148.9L178.9,151.8L180.5,148.1L183.5,149.1L186.8,146.7L191.1,147.8L194.5,142.9L196.0,144.2L198.1,143.4L203.5,138.5L207.3,138.4L210.7,135.0L212.2,136.5L216.4,134.5L218.4,135.6L221.4,132.5L223.1,134.4L225.3,133.6L230.0,135.2L230.7,138.0L223.7,140.7L223.1,143.1L223.2,145.7L228.3,148.6L227.8,151.8L223.4,155.5L220.9,162.9L222.8,166.1L222.6,172.8L221.0,173.7L221.8,176.0L218.6,181.2L217.6,187.4L214.8,189.3L217.8,191.9L218.6,195.1L216.9,207.2L215.0,210.5L213.6,210.0L211.8,212.1L209.1,211.6L208.9,218.7L207.2,220.2L199.8,219.8L196.6,225.1L198.8,226.6L198.0,227.9L194.0,229.8L193.2,226.5L190.2,225.7L174.6,225.5L171.3,217.7L173.1,211.6L172.3,210.0L162.7,208.7L161.4,206.4L157.5,208.7L155.1,208.7L153.5,206.3L152.0,207.7L153.6,200.1L152.7,194.5L154.5,193.8Z"}, {"id": "10009", "d": "M91.3,219.1L92.9,220.7L88.3,222.9L89.3,224.3L88.2,223.4L87.1,224.8L87.6,222.6L85.0,226.9L83.5,226.2L84.5,229.6L82.4,225.2ZM106.6,178.1L110.4,181.9L116.3,183.6L130.0,182.4L138.2,185.9L152.8,187.7L154.5,193.8L152.7,194.5L153.6,200.1L151.7,207.4L154.2,206.5L154.0,208.1L155.9,208.9L161.4,206.4L162.7,207.8L163.3,213.5L153.9,213.3L153.3,210.8L146.2,212.1L141.0,210.4L137.7,205.8L131.2,206.4L129.2,207.8L126.9,205.9L121.8,210.6L119.2,210.8L118.3,213.1L114.3,214.5L112.3,218.3L109.2,216.8L108.7,221.1L98.8,219.7L97.6,205.8L96.2,207.4L95.0,205.9L100.6,193.0L99.6,187.9L105.0,181.9Z"}, {"id": "10017", "d": "M280.6,25.7L279.6,28.5L277.2,27.6L274.7,28.8L277.5,33.6L272.7,35.7L264.3,30.8L261.2,25.2L270.3,20.8L270.1,22.2L274.5,23.2L276.3,22.4L281.0,24.1Z"}, {"id": "63000", "d": "M255.0,18.3L256.4,18.6L255.7,22.0L259.1,26.4L257.9,28.9L261.1,30.5L260.3,36.8L265.5,38.4L257.9,40.2L258.2,44.8L260.4,45.7L258.3,46.7L254.0,46.2L249.1,39.5L246.4,40.9L245.5,37.5L247.7,36.0L247.9,33.1L246.0,30.4L242.5,29.1L247.5,21.2L249.4,21.7L253.6,16.8Z"}, {"id": "65000", "d": "M298.4,44.0L296.0,43.4L289.9,46.4L285.4,46.8L284.5,48.6L286.1,50.9L284.0,53.2L279.3,54.1L277.5,58.2L272.6,59.4L268.8,61.9L267.9,64.1L261.1,64.9L261.0,66.6L257.3,67.5L257.9,74.7L255.4,76.8L252.0,77.3L251.3,79.4L245.0,81.1L244.4,78.5L241.8,77.3L240.0,74.4L238.8,70.6L241.7,67.7L240.2,64.5L236.5,60.8L233.3,62.0L229.2,60.7L231.6,59.6L230.2,58.0L231.1,56.8L227.5,54.0L227.2,52.0L229.6,50.6L227.0,49.4L228.7,48.5L227.9,45.3L229.9,44.1L232.9,44.8L236.6,42.1L235.3,40.5L237.6,39.7L235.2,37.0L236.3,35.8L231.3,34.2L229.7,33.1L230.7,32.1L224.3,29.7L223.4,27.9L235.1,24.3L235.3,21.8L236.5,22.9L238.3,20.7L236.8,19.2L238.3,19.0L242.0,11.7L244.1,11.3L248.4,7.0L249.3,7.8L251.3,6.0L252.8,7.0L255.8,6.1L260.8,9.1L262.0,13.3L264.0,14.1L265.1,17.1L266.8,17.7L269.5,16.0L267.6,19.3L270.2,20.9L261.2,25.2L264.3,30.8L274.2,35.6L277.5,33.6L274.7,28.8L277.2,27.6L279.6,28.5L280.6,25.7L283.1,25.7L282.7,27.4L284.8,26.5L290.9,27.6L294.0,26.4L292.8,31.7L294.7,34.4L294.7,37.7L296.4,39.5L299.7,38.8L303.0,40.6Z"}, {"id": "66000", "d": "M227.2,109.0L228.3,109.9L228.2,114.0L232.4,115.3L233.3,117.8L240.0,116.0L242.0,118.2L238.8,125.0L236.8,125.0L234.1,128.5L234.6,131.4L231.0,132.7L230.0,135.2L225.3,133.6L223.1,134.4L221.4,132.5L218.4,135.6L216.4,134.5L212.2,136.5L210.7,135.0L207.3,138.4L203.5,138.5L198.1,143.4L196.0,144.2L194.5,142.9L191.1,147.8L186.8,146.7L183.5,149.1L180.3,148.1L178.9,151.8L179.0,148.9L175.2,147.1L173.5,153.4L171.3,154.0L169.4,158.3L164.4,162.2L162.8,160.9L158.8,161.1L153.5,157.9L153.3,158.9L151.1,158.4L149.7,149.7L142.3,148.0L137.8,139.1L132.6,137.1L140.0,124.1L150.7,109.2L158.6,118.0L175.7,127.4L182.6,126.7L183.8,125.6L183.2,121.7L185.2,120.9L192.8,122.2L194.5,124.9L197.7,126.5L200.3,123.3L202.4,123.8L205.6,122.3L207.8,118.8L210.7,118.7L214.0,114.4L215.4,114.5L216.0,116.5L217.7,116.0L220.7,109.4L221.9,110.7Z"}, {"id": "67000", "d": "M154.2,255.1L152.9,260.0L148.5,264.7L144.7,272.2L135.2,281.6L133.0,281.5L128.2,292.0L124.4,291.5L121.1,295.5L113.7,293.4L110.3,294.7L107.5,292.0L106.4,292.8L103.5,291.5L101.6,292.6L101.3,288.0L97.9,282.5L85.4,273.9L88.4,266.9L94.9,241.7L102.0,247.0L103.2,247.2L103.1,245.9L105.7,247.0L108.6,242.7L111.8,241.1L111.6,239.7L113.8,240.0L114.6,237.0L120.8,233.8L130.7,232.4L135.1,235.5L136.7,234.6L135.6,237.7L137.9,237.7L137.9,240.6L141.7,242.7L139.8,244.6L139.6,249.4L140.9,251.4L139.5,253.5L145.9,256.2L147.5,253.2L149.4,255.3Z"}, {"id": "68000", "d": "M245.0,81.1L241.7,82.5L238.9,89.6L235.3,91.6L233.2,90.7L231.1,81.9L229.5,82.0L227.2,78.2L225.2,78.5L225.4,70.4L220.9,68.2L219.0,65.0L216.6,66.1L216.4,64.6L214.8,65.1L208.8,60.7L210.0,58.8L209.4,56.3L205.1,56.2L204.3,54.3L198.6,53.3L198.7,49.6L197.4,48.8L190.3,49.2L195.4,39.5L202.2,34.4L218.6,27.2L223.4,27.9L224.3,29.7L230.7,32.1L229.7,33.1L231.3,34.2L235.3,34.6L234.5,35.7L236.3,35.8L235.2,37.0L237.6,39.7L235.5,40.1L236.6,42.1L232.9,44.8L228.3,44.6L228.7,48.5L227.0,49.4L229.6,50.6L227.2,52.0L227.5,54.0L231.1,56.8L230.2,58.0L231.6,59.6L229.2,60.7L233.3,62.0L236.5,60.8L240.2,64.5L241.7,67.7L238.8,70.6L240.0,74.4L241.8,77.3L244.4,78.5Z"}, {"id": "10005", "d": "M220.7,109.4L217.7,116.0L216.0,116.5L215.4,114.5L214.0,114.4L210.7,118.7L207.8,118.8L205.6,122.3L202.4,123.8L200.3,123.3L197.7,126.5L194.5,124.9L192.8,122.2L185.2,120.9L183.2,121.7L183.8,125.6L182.6,126.7L175.7,127.4L158.6,118.0L150.7,109.2L155.5,104.0L161.1,89.9L168.0,82.5L173.0,81.2L178.5,73.4L180.3,74.2L182.2,73.1L182.9,76.0L187.1,77.5L189.4,76.6L188.4,80.0L198.0,88.2L199.2,87.4L200.6,88.6L201.4,91.2L198.7,95.1L201.1,97.1L199.7,99.2L200.2,102.2L216.1,100.2L216.3,102.2L221.1,107.4Z"}, {"id": "10020", "d": "M131.6,219.8L133.6,222.2L135.5,221.4L138.4,225.3L136.8,227.7L133.9,226.6L130.7,229.3L129.6,226.7L125.7,226.5L125.2,222.2Z"}, {"id": "10010", "d": "M162.7,208.7L172.3,210.0L173.1,211.6L171.3,217.7L174.3,225.3L187.6,225.7L181.3,227.6L179.9,229.8L175.8,231.5L173.1,237.4L170.9,237.5L168.5,240.9L165.7,240.7L162.7,245.3L160.1,245.4L159.3,247.9L153.1,246.5L152.6,249.7L154.2,255.1L149.4,255.3L147.5,253.2L145.9,256.2L140.2,254.2L139.8,244.6L141.7,242.7L137.9,240.6L137.9,237.7L135.6,237.7L136.7,234.6L135.1,235.5L130.7,232.4L117.0,235.4L116.6,236.9L113.8,238.0L113.8,240.0L111.6,239.7L111.8,241.1L108.6,242.7L105.7,247.0L103.1,245.9L103.2,247.2L102.0,247.0L95.4,241.2L96.9,235.8L99.1,235.4L99.6,236.4L100.4,234.9L98.8,233.3L99.5,230.6L98.4,230.6L99.5,228.2L97.1,227.8L99.5,223.1L101.1,222.9L96.1,223.4L95.8,219.7L108.7,221.1L109.2,216.8L112.3,218.3L114.3,214.5L118.3,213.1L119.2,210.8L121.8,210.6L126.9,205.9L129.2,207.8L131.2,206.4L137.7,205.8L141.4,210.6L146.3,212.1L153.6,210.8L153.9,213.3L163.3,213.5Z"}, {"id": "64000", "d": "M187.6,225.7L193.9,227.4L195.4,233.5L192.6,234.6L193.1,235.8L190.9,239.0L194.5,240.0L197.6,244.2L194.9,246.8L189.3,248.1L185.5,252.6L183.0,253.5L182.5,260.1L178.7,263.8L180.1,268.7L177.9,274.8L179.1,277.7L177.1,278.3L177.0,281.0L172.6,286.5L173.5,293.5L174.7,296.1L177.5,297.3L177.4,300.8L173.0,298.0L168.0,301.8L162.1,296.3L159.8,296.3L156.3,299.2L153.3,295.8L149.0,297.2L143.3,302.5L134.7,301.4L130.3,322.6L130.1,327.9L131.5,331.7L128.9,339.8L129.0,345.8L121.8,341.9L119.0,338.5L118.2,339.2L118.6,337.9L116.7,340.2L114.1,336.7L117.8,338.7L110.6,327.9L111.4,326.9L109.9,323.8L111.5,321.0L111.2,317.8L106.1,305.5L103.3,304.4L105.2,303.3L101.6,292.6L103.5,291.5L106.4,292.8L107.5,292.0L110.3,294.7L113.7,293.4L121.0,295.5L124.4,291.5L128.2,292.0L133.0,281.5L135.2,281.6L143.6,273.4L148.5,264.7L152.9,260.0L154.5,255.9L152.6,249.7L153.1,246.5L159.3,247.9L160.1,245.4L162.7,245.3L165.7,240.7L168.5,240.9L170.9,237.5L173.1,237.4L175.8,231.5L179.9,229.8L181.3,227.6Z"}, {"id": "10014", "d": "M247.7,391.8L254.9,392.1L255.6,394.8L254.3,396.2L258.5,399.6L257.5,401.8L254.9,401.7L253.5,399.4L248.2,396.4ZM246.3,320.7L248.3,320.8L247.9,326.1L244.3,324.4L243.3,321.4ZM177.4,300.8L177.5,297.3L174.7,296.1L173.5,293.5L172.6,286.5L177.0,281.0L177.1,278.3L179.1,277.7L177.9,274.8L180.1,268.7L178.7,263.8L182.5,260.1L183.0,253.5L185.5,252.6L189.3,248.1L196.6,245.9L198.8,247.7L201.0,254.1L206.5,255.2L208.3,258.1L211.6,256.8L213.1,257.6L215.6,264.7L220.6,266.9L222.2,270.3L227.0,268.8L228.2,263.7L227.3,261.8L229.1,260.6L231.8,251.7L233.8,249.6L233.8,245.9L238.7,239.3L236.2,235.6L241.3,228.8L246.8,229.8L243.1,244.5L239.9,247.4L238.5,254.8L235.9,257.4L237.1,262.0L236.2,265.8L238.9,266.9L232.2,270.7L227.9,282.7L223.3,288.3L221.8,292.7L217.9,298.3L213.3,300.0L214.4,306.5L212.2,308.1L211.7,310.9L195.1,323.3L193.3,331.3L189.8,335.5L180.7,361.8L180.9,372.4L177.6,374.4L172.0,370.4L170.1,371.0L170.9,367.9L167.8,365.7L169.9,364.1L169.5,361.7L164.1,357.9L165.2,353.4L169.2,351.9L167.7,348.0L164.9,346.8L166.4,342.6L163.6,335.6L165.1,328.6L168.7,322.7L168.9,318.9L174.4,318.3L175.7,316.0L179.5,316.0L180.7,313.5L181.7,306.0L177.9,304.0Z"}, {"id": "10015", "d": "M242.0,118.2L247.0,121.3L252.1,121.5L254.5,123.7L258.8,124.9L257.7,122.2L260.1,122.0L260.3,120.6L261.8,121.8L260.5,118.5L261.6,117.5L266.6,121.5L277.3,124.5L274.0,130.8L265.2,138.7L265.2,145.9L260.3,151.3L260.3,155.6L263.5,160.9L261.3,165.7L260.7,164.7L259.1,166.8L258.0,179.2L255.2,185.9L255.2,191.2L252.7,196.0L250.1,212.8L247.6,219.6L248.8,223.5L246.8,229.8L241.3,228.8L238.4,231.7L236.2,235.8L238.7,239.3L233.8,245.9L233.8,249.6L231.8,251.7L229.1,260.6L227.3,261.8L227.7,267.9L222.2,270.3L220.6,266.9L215.6,264.7L213.1,257.6L211.6,256.8L208.3,258.1L206.5,255.2L201.0,254.1L198.5,247.2L195.4,246.3L197.7,243.0L190.8,238.1L193.1,235.8L192.6,234.6L195.4,233.5L195.5,231.3L193.7,230.0L198.7,226.8L196.6,225.1L199.8,219.8L207.2,220.2L208.9,218.7L209.1,211.6L211.8,212.1L213.6,210.0L215.7,210.0L218.8,196.9L217.8,191.9L214.8,189.3L217.6,187.4L218.6,181.2L221.8,176.0L221.0,173.7L222.6,172.8L222.8,166.1L220.9,162.9L223.4,155.5L227.8,151.8L228.3,148.6L223.2,145.7L223.7,140.7L230.7,138.0L231.0,132.7L234.6,131.4L234.1,128.5L236.8,125.0L238.8,125.0Z"}, {"id": "10016", "d": "M20.9,255.4L21.2,257.9L19.7,259.6L17.5,256.0ZM26.8,234.3L29.3,237.1L28.9,239.7L26.0,239.3ZM36.7,200.8L39.4,202.5L39.8,204.0L38.2,205.2L39.6,205.7L38.7,206.6L39.9,209.8L41.9,209.1L41.2,212.4L42.6,210.1L43.4,211.3L44.1,208.8L45.1,211.0L46.4,209.9L48.8,214.8L47.0,215.8L46.1,214.6L43.0,215.0L39.1,218.6L39.1,221.1L35.5,221.0L35.4,219.4L32.0,217.3L32.8,215.5L33.5,218.5L35.4,218.2L35.6,219.6L38.8,217.2L37.6,215.7L34.3,216.0L35.8,215.4L35.6,213.8L33.6,214.4L34.3,211.8L36.7,210.7L36.9,213.2L38.2,213.7L39.8,209.3L38.1,208.0L39.0,207.0L37.2,207.3L38.0,205.7L36.3,202.6L33.5,203.1L31.9,205.9L29.5,206.6L29.3,214.2L23.9,214.6L27.8,212.5L26.4,210.6L27.9,210.4L27.4,207.6L29.0,203.3L31.6,205.3L33.5,201.8ZM39.8,191.3L41.1,192.7L38.8,195.0L38.0,193.5Z"}, {"id": "10018", "d": "M185.2,76.5L182.8,75.9L182.2,73.1L180.3,74.2L178.5,73.4L181.1,70.2L180.4,67.0L182.7,59.5L192.8,63.7L195.1,66.1L196.0,70.3L194.6,71.2L193.2,69.1L190.7,68.8L191.0,69.8L186.2,72.7Z"}, {"id": "10004", "d": "M236.6,91.0L237.6,93.2L235.7,95.3L236.4,98.5L229.9,104.2L225.9,110.1L220.8,110.5L221.1,107.4L216.3,102.2L216.1,100.2L200.2,102.2L199.7,99.2L201.1,97.1L198.7,95.1L201.4,91.2L200.6,88.6L199.2,87.4L198.0,88.2L188.4,80.0L189.4,76.6L187.1,77.5L185.2,76.5L186.2,72.7L191.0,69.8L190.7,68.8L193.2,69.1L194.6,71.2L196.0,70.3L195.1,66.1L193.2,64.1L184.1,59.4L189.0,50.6L190.3,49.2L196.5,48.4L198.7,49.6L198.6,53.3L204.3,54.3L205.1,56.2L209.4,56.3L210.0,58.8L208.8,60.7L214.8,65.1L216.4,64.6L216.6,66.1L219.0,65.0L220.9,68.2L225.4,70.4L225.2,78.5L227.2,78.2L229.5,82.0L231.1,81.9L232.7,90.1L234.9,91.6Z"}, {"id": "10013", "d": "M124.1,359.3L125.0,360.9L121.4,363.2L122.1,360.4ZM129.0,345.8L128.9,339.8L131.5,331.7L130.1,327.9L130.3,322.6L134.5,301.6L143.1,302.6L149.8,296.9L153.3,295.8L156.3,299.2L161.6,296.2L165.4,298.3L168.0,301.8L173.0,298.0L176.2,299.1L177.9,304.0L181.4,305.5L181.7,308.9L179.5,316.0L175.7,316.0L174.4,318.3L171.3,319.4L168.9,318.9L168.8,322.4L165.4,328.0L163.6,335.6L166.4,342.6L165.0,347.0L167.7,348.0L169.2,351.9L165.2,353.4L164.1,357.9L169.5,361.7L170.0,363.8L167.9,366.2L170.9,367.9L170.1,371.0L172.0,370.4L177.6,374.4L180.9,372.4L181.2,373.9L181.0,384.7L179.8,386.6L181.5,389.3L180.5,393.8L181.4,398.0L178.6,402.1L175.4,403.5L174.9,406.8L177.4,414.2L175.9,414.4L172.8,409.9L166.4,406.9L164.6,408.1L163.7,411.7L160.5,409.9L160.9,404.5L157.7,398.9L161.1,389.4L157.7,376.8L153.9,371.8L153.0,365.8L146.8,357.7Z"}], "venues": {"北": [252.0, 39.2], "中": [156.2, 144.5], "南": [117.2, 327.0], "東": [259.0, 164.5]}};
+</script>
+<script>
+'use strict';
+const SESS = [
+  {d:'10/17',w:'六',r:'北',c:'A',v:'國立臺北教育大學',ok:true},
+  {d:'10/24',w:'六',r:'南',c:'A',v:'國立高雄師範大學',ok:true},
+  {d:'10/25',w:'日',r:'中',c:'A',v:'國立臺中教育大學',ok:true},
+  {d:'10/31',w:'六',r:'中',c:'T',v:'國立臺中教育大學',ok:false},
+  {d:'11/7',w:'六',r:'中',c:'B',t:'學校行政',v:'國立臺中教育大學',ok:true},
+  {d:'11/14',w:'六',r:'南',c:'B',t:'學校教師',v:'國立高雄師範大學',ok:true}
+];
+const LV = {A:['初階研習','#2185B5'],B:['進階研習','#1E97A3'],T:['講師培訓','#EE7A1D']};
+const LOGO = '<svg viewBox="0 0 34 30" width="30" height="27" aria-hidden="true"><rect x="1" y="18" width="6" height="11" rx="1.5" fill="#1B5FA6"/><rect x="9.5" y="13" width="6" height="16" rx="1.5" fill="#2185B5"/><rect x="18" y="9" width="6" height="20" rx="1.5" fill="#1E97A3"/><rect x="26.5" y="3" width="6" height="26" rx="1.5" fill="#EE7A1D"/></svg>';
+const arrow = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+const S = {m:'I', vp:'desk', notes:true, st:'jin', todo:{}, toast:'', n:0};
+const $ = id => document.getElementById(id);
+
+/* ---------- I：路線圖 × 海報 ---------- */
+const STATIONS = {
+  chu:{n:'初階站',en:'BASIC',c:'#1B5FA6',t:'研習線・3 小時',p:'不限資格。教育數據從哪裡來、圖表怎麼看、常見的誤讀。',b:'看初階場次'},
+  jin:{n:'進階站',en:'ADVANCED',c:'#1B5FA6',t:'研習線・6 小時',p:'依職務分流（縣市行政／學校行政／學校教師），用自己單位的資料實作。',b:'看進階場次'},
+  xfer:{n:'開通站',en:'TRANSFER',c:'#16222C',t:'轉乘站：研習線 ⇄ 平台線',p:'完成進階研習，當下自動開通 AI 分析平台，在這裡轉乘到平台線。',b:'看開通條件'},
+  try:{n:'試玩站',en:'TRY IT',c:'#EE7A1D',t:'平台線・30 秒',p:'不用登入，先玩一次：放入資料、去識別、看 AI 解讀。',b:'開始試玩'},
+  go:{n:'平台站',en:'PLATFORM',c:'#EE7A1D',t:'平台線・終點',p:'用網站同一組帳號進入 AI 輔助教育數據分析平台。',b:'登入平台'},
+  rec:{n:'縣市推薦',en:'NOMINATION',c:'#1E97A3',t:'講師線・起點',p:'講師培訓由各縣市推薦，被推薦人會收到邀請信。',b:'了解推薦方式'},
+  tt:{n:'講師培訓',en:'TRAINER',c:'#1E97A3',t:'講師線・兩天 12 小時',p:'先修 A1、A2、B5-1。四區開班，10/31 起。',b:'看講師培訓場次'},
+  lic:{n:'講師資格',en:'CERTIFIED',c:'#1E97A3',t:'講師線・終點',p:'結訓後繳交試教影片，審查通過取得講師資格（效期 2 年）。',b:'看認證方式'}
+};
+function metroDesk(){
+  const L = (d,c,len,delay) => '<path class="ln" d="'+d+'" stroke="'+c+'" style="--len:'+len+';animation-delay:'+delay+'s"/>';
+  const st = (k,x,y,c,dx,dy,anchor,delay) => '<g class="st'+(S.st===k?' on':'')+'" data-a="st" data-v="'+k+'" tabindex="0" role="button" aria-label="'+STATIONS[k].n+'" style="animation-delay:'+delay+'s;transform-origin:'+x+'px '+y+'px"><circle cx="'+x+'" cy="'+y+'" r="15" stroke="'+c+'"/><text x="'+(x+dx)+'" y="'+(y+dy)+'" text-anchor="'+anchor+'">'+STATIONS[k].n+'</text><text class="en" x="'+(x+dx)+'" y="'+(y+dy+17)+'" text-anchor="'+anchor+'">'+STATIONS[k].en+'</text></g>';
+  return '<svg class="metro" viewBox="0 0 1100 430" role="group" aria-label="學習路線圖">'
+    +L('M60,250 H760','#1B5FA6',720,0)
+    +L('M470,70 H710 Q760,70 760,120 V250 H1040','#EE7A1D',900,.3)
+    +L('M180,380 H900','#1E97A3',740,.6)
+    +'<g class="xg"><rect x="736" y="226" width="48" height="48" rx="24"/></g>'
+    +st('chu',200,250,'#1B5FA6',0,-34,'middle',1.0)
+    +st('jin',470,250,'#1B5FA6',0,-34,'middle',1.1)
+    +'<g class="st'+(S.st==='xfer'?' on':'')+'" data-a="st" data-v="xfer" tabindex="0" role="button" aria-label="開通站" style="animation-delay:1.2s;transform-origin:760px 250px"><circle cx="760" cy="250" r="15" stroke="#16222C"/><text x="790" y="298">開通站</text><text class="en" x="790" y="315">TRANSFER</text></g>'
+    +st('try',470,70,'#EE7A1D',0,-30,'middle',1.3)
+    +st('go',1010,250,'#EE7A1D',0,-34,'middle',1.4)
+    +st('rec',200,380,'#1E97A3',0,44,'middle',1.5)
+    +st('tt',540,380,'#1E97A3',0,44,'middle',1.6)
+    +st('lic',880,380,'#1E97A3',0,44,'middle',1.7)
+    +'<g class="you" aria-hidden="true"><path d="M200,276 l-9,16 h18 z" fill="#E2541B"/><text x="200" y="312" text-anchor="middle" style="font:800 15px var(--f-body);fill:#E2541B">你在這裡</text></g>'
+    +'<g class="legend"><rect x="880" y="14" width="26" height="8" rx="4" fill="#1B5FA6"/><text x="914" y="23">研習線</text><rect x="880" y="40" width="26" height="8" rx="4" fill="#EE7A1D"/><text x="914" y="49">平台線</text><rect x="880" y="66" width="26" height="8" rx="4" fill="#1E97A3"/><text x="914" y="75">講師線（縣市推薦）</text></g>'
+    +'</svg>';
+}
+function metroPhone(){
+  const L = (d,c,len,delay) => '<path class="ln" d="'+d+'" stroke="'+c+'" style="--len:'+len+';animation-delay:'+delay+'s"/>';
+  const st = (k,x,y,c,delay,lx,ly,an) => '<g class="st'+(S.st===k?' on':'')+'" data-a="st" data-v="'+k+'" tabindex="0" role="button" aria-label="'+STATIONS[k].n+'" style="animation-delay:'+delay+'s;transform-origin:'+x+'px '+y+'px"><circle cx="'+x+'" cy="'+y+'" r="15" stroke="'+c+'"/><text x="'+(lx||x+30)+'" y="'+(ly||y+8)+'" text-anchor="'+(an||'start')+'">'+STATIONS[k].n+'</text></g>';
+  return '<svg class="metro" viewBox="0 0 360 600" role="group" aria-label="學習路線圖">'
+    +L('M70,30 V330','#1B5FA6',300,0)+L('M250,120 V230 Q250,330 160,330 H70 V560','#EE7A1D',700,.3)+L('M300,380 V560','#1E97A3',180,.6)
+    +st('chu',70,70,'#1B5FA6',1)+st('jin',70,200,'#1B5FA6',1.1)
+    +'<g class="xg"><rect x="46" y="306" width="48" height="48" rx="24"/></g>'+st('xfer',70,330,'#16222C',1.2,104,382)
+    +st('try',250,140,'#EE7A1D',1.3,224,148,'end')+st('go',70,540,'#EE7A1D',1.4)
+    +st('tt',300,440,'#1E97A3',1.5,276,448,'end')+'</svg>';
+}
+function I(){
+  const s = STATIONS[S.st];
+  const tw = window.TAIWAN_MAP;
+  const twsvg = '<svg class="tw" viewBox="0 0 '+tw.w+' '+tw.h+'" aria-hidden="true"><defs><pattern id="dots" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="1.7" fill="#1B5FA6" opacity=".55"/></pattern></defs>'+tw.counties.map(c=>'<path d="'+c.d+'"/>').join('')+'</svg>';
+  const rows = SESS.map((x,i)=>'<div class="r" style="animation-delay:'+(.15+i*.09)+'s;--lc:'+LV[x.c][1]+'" data-a="toast" data-t="場次 '+x.d+'"><span class="d">'+x.d+'</span><span class="c"><i></i>'+LV[x.c][0]+(x.t?'・'+x.t:'')+'</span><span class="p">'+x.r+'區</span><span class="v">'+x.v+'</span><span class="s '+(x.ok?'ok':'no')+'">'+(x.ok?'可報名':'縣市推薦')+'</span></div>').join('');
+  return '<div class="pg mI">'
+    +'<header class="bar"><span class="mark">'+LOGO+'教育資料素養提升計畫</span><nav><button class="line" style="--c:#1B5FA6" data-a="st" data-v="chu"><i></i>研習線</button><button class="line" style="--c:#EE7A1D" data-a="st" data-v="try"><i></i>平台線</button><button data-a="toast" data-t="最新消息">最新消息</button><button data-a="toast" data-t="關於計畫">關於計畫</button></nav><button class="login" data-a="toast" data-t="登入後，「你在這裡」會停在你目前那一站">登入</button></header>'
+    +'<section class="poster">'+twsvg+'<div class="vt">資料素養<small>教育部補助</small></div><div class="head"><h1>你要去哪一站？<br><em>從這裡出發。</em></h1><p>兩條線、一張圖：研習線帶你學會看數據，平台線讓你用 AI 分析學校資料。點任何一站看看。</p></div></section>'
+    +'<div class="mapwrap"><div class="only-desk">'+metroDesk()+'</div><div class="only-phone">'+metroPhone()+'</div></div>'
+    +'<div class="sign" style="--c:'+s.c+'" aria-live="polite"><div class="n">'+s.n+'<small>'+s.en+'</small></div><p><b style="color:#fff">'+s.t+'</b><br>'+s.p+'</p><button data-a="toast" data-t="'+s.b+'">'+s.b+' →</button></div>'
+    +'<section class="board"><h2>下一班研習 <small>NEXT DEPARTURES</small></h2><div class="tt"><div class="r h"><span>日期</span><span>課程</span><span>月台</span><span>地點</span><span style="justify-self:end">狀態</span></div>'+rows+'</div></section>'
+    +'</div>';
+}
+
+/* ---------- II：資料故事 × 路線圖 ---------- */
+const BEATS = [
+  {k:'01 / 計畫',c:'#1B5FA6',h:'<span class="big">22</span><br>縣市一起參與',p:'教育部補助、國立高雄師範大學執行，國教署與 22 縣市一起推動教育資料素養。'},
+  {k:'02 / 初階研習',c:'#2185B5',h:'先學會<br>看懂數據',p:'3 小時，不限資格。教育數據從哪裡來、圖表怎麼看、哪些是常見的誤讀。'},
+  {k:'03 / 進階研習',c:'#1E97A3',h:'用自己學校的<br>資料練習',p:'6 小時，依職務分流：縣市行政、學校行政、學校教師，各自處理真實會碰到的問題。'},
+  {k:'04 / 分析平台',c:'#EE7A1D',h:'結業當下<br>開通 AI 分析平台',p:'資料在你的電腦上去識別，AI 只看統計摘要。數字由平台計算，判讀由你決定。'},
+  {k:'05 / 你的起點',c:'#16222C',h:'你想從<br>哪裡開始？',p:'',fork:true}
+];
+function II(){
+  const W=900,H=480;
+  const bars=[[90,330,120,'#1B5FA6'],[290,260,190,'#2185B5'],[490,190,260,'#1E97A3'],[690,90,360,'#EE7A1D']];
+  const pts=[[150,330],[350,260],[550,190],[750,90]];
+  const svg='<svg class="chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="LOGO 長條圖長成學習路線">'
+    +'<line class="base" x1="40" y1="452" x2="'+(W-20)+'" y2="452"/>'
+    +bars.map((b,i)=>'<rect class="b" id="b'+i+'" x="'+b[0]+'" y="'+b[1]+'" width="120" height="'+(452-b[1])+'" rx="14" fill="'+b[3]+'" opacity=".16" style="transform:scaleY(0)"/>').join('')
+    +'<path class="tline" id="tl" d="M550,190 C600,300 760,320 860,330"/>'
+    +'<text class="lbl" id="tll" x="700" y="355" style="fill:#1E97A3;font-size:16px">講師培訓：另一條路（縣市推薦）</text>'
+    +'<path class="path" id="pth" d="M150,330 L350,260 L550,190 L750,90" stroke="#1B5FA6"/>'
+    +pts.map((p,i)=>'<circle class="node" id="n'+i+'" cx="'+p[0]+'" cy="'+p[1]+'" r="0" fill="#fff" stroke="'+bars[i][3]+'" stroke-width="7"/>').join('')
+    +['計畫','初階','進階','分析平台'].map((t,i)=>'<text class="lbl" id="l'+i+'" x="'+pts[i][0]+'" y="'+(pts[i][1]-26)+'" text-anchor="middle">'+t+'</text>').join('')
+    +'</svg>';
+  const caps = BEATS.map((b,i)=>'<div class="cap" id="cap'+i+'" style="--c:'+b.c+'"><span class="k">'+b.k+'</span><h2>'+b.h+'</h2>'+(b.p?'<p>'+b.p+'</p>':'')+(b.fork?'<div class="fork"><button style="--c:#1B5FA6" data-a="toast" data-t="研習：找場次">參加研習 '+arrow+'</button><button style="--c:#EE7A1D" data-a="toast" data-t="分析平台：30 秒試玩">用數據分析 '+arrow+'</button></div><p style="margin-top:14px;font-size:.92rem;color:var(--soft)">講師培訓由縣市推薦，<button style="background:none;border:0;padding:0;color:var(--teal);font-weight:800;cursor:pointer" data-a="toast" data-t="講師培訓說明">看推薦方式</button></p>':'')+'</div>').join('');
+  return '<div class="pg mII">'
+    +'<div class="quick"><span class="mark">'+LOGO+'<b>教育資料素養提升計畫</b></span><span>已經知道要做什麼？</span><button style="--c:#1B5FA6" data-a="toast" data-t="研習：找場次">找場次</button><button style="--c:#EE7A1D" data-a="toast" data-t="分析平台：試玩">試玩平台</button></div>'
+    +'<section class="open"><h1>一條線，<br>看懂<span>這個計畫</span>。</h1><p>往下捲，LOGO 上的那條折線會長成你的學習路線：從看懂數據，到用 AI 分析自己學校的資料。</p><div class="scrollcue"><i></i>往下捲動</div></section>'
+    +'<section class="story" id="story"><div class="stick"><div class="caps">'+caps+'</div><div>'+svg+'</div><div class="prog"><i id="prog"></i></div></div></section>'
+    +'<section class="after">'+SESS.slice(0,3).map(x=>'<div style="--c:'+LV[x.c][1]+'"><span class="d">'+x.d+'</span><h3>'+x.r+'區・'+LV[x.c][0]+'</h3><p>'+x.v+'</p></div>').join('')+'</section>'
+    +'</div>';
+}
+function storyTick(){
+  const sec=$('story'); if(!sec) return;
+  const r=sec.getBoundingClientRect(), vh=innerHeight;
+  const p=Math.max(0,Math.min(1,(80-r.top)/(r.height-vh+60)));
+  const pr=$('prog'); if(pr) pr.style.width=(p*100)+'%';
+  const beat = p<.18?0:p<.38?1:p<.58?2:p<.8?3:4;
+  BEATS.forEach((_,i)=>{const c=$('cap'+i); if(c) c.classList.toggle('on',i===beat)});
+  [0,1,2,3].forEach(i=>{const b=$('b'+i); if(b) b.style.transform='scaleY('+(p>i*.04?1:0)+')'});
+  const pth=$('pth'); if(pth){const len=pth.getTotalLength(); const lp=Math.max(0,Math.min(1,(p-.18)/(.62))); pth.style.strokeDasharray=len; pth.style.strokeDashoffset=len*(1-lp); pth.setAttribute('stroke', p>.6?'#EE7A1D':'#1B5FA6');}
+  const th=[.02,.25,.45,.66];
+  th.forEach((t,i)=>{const n=$('n'+i); if(n) n.setAttribute('r', p>t?16:0); const l=$('l'+i); if(l) l.classList.toggle('on',p>t)});
+  $('tl')&&$('tl').classList.toggle('on',p>.85); $('tll')&&$('tll').classList.toggle('on',p>.85);
+}
+addEventListener('scroll',()=>{if(S.m==='II')requestAnimationFrame(storyTick)},{passive:true});
+
+/* ---------- III：筆記本 × 路線圖 ---------- */
+function wob(x,y,r){ // 手繪的圓（不完全閉合）
+  return 'M'+(x+r)+','+(y-2)+' C'+(x+r+2)+','+(y+r*.7)+' '+(x+r*.4)+','+(y+r+1)+' '+(x-1)+','+(y+r)+' C'+(x-r*.9)+','+(y+r-1)+' '+(x-r-1)+','+(y+r*.3)+' '+(x-r)+','+(y-r*.2)+' C'+(x-r*.8)+','+(y-r-2)+' '+(x+r*.3)+','+(y-r-1)+' '+(x+r+2)+','+(y-r*.4);
+}
+function III(){
+  const stp=(x,y,c,t,s,ty,go)=>'<g class="stp" data-a="toast" data-t="'+go+'"><path class="o" d="'+wob(x,y,17)+'" stroke="'+c+'"/><text x="'+x+'" y="'+(y+ty)+'" text-anchor="middle">'+t+'</text>'+(s?'<text class="s" x="'+x+'" y="'+(y+ty+22)+'" text-anchor="middle">'+s+'</text>':'')+'</g>';
+  const route='<svg class="rt" viewBox="0 0 1000 360" role="group" aria-label="手繪學習路線">'
+    +'<path class="pen" d="M70,210 C160,198 230,224 300,206 S440,190 520,208 S650,228 720,200" stroke="#1B5FA6" stroke-width="7" style="--len:720"/>'
+    +'<path class="pen" d="M720,200 C760,160 770,110 820,92 S920,84 950,96" stroke="#EE7A1D" stroke-width="7" style="--len:340;animation-delay:1.4s"/>'
+    +'<path class="pen" d="M520,208 C540,262 600,300 700,306 S860,314 930,300" stroke="#1E97A3" stroke-width="5" stroke-dasharray="3 14" style="--len:520;animation-delay:2s"/>'
+    +stp(110,207,'#1B5FA6','初階','3 小時・不限資格',-54,'初階場次')
+    +stp(410,198,'#1B5FA6','進階','6 小時・依職務分流',-54,'進階場次')
+    +stp(720,200,'#22303A','開通平台','',46,'開通條件')
+    +stp(940,96,'#EE7A1D','用 AI 分析','',-32,'分析平台')
+    +'<text class="s" x="760" y="336" style="fill:#14808B">講師培訓：另一條路，由縣市推薦</text>'
+    +'<text class="note" x="128" y="286">先從這裡！</text>'
+    +'<path d="M124,268 C118,256 114,244 112,232 M104,242 L112,230 L120,241" fill="none" stroke="#C8352B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'
+    +'</svg>';
+  const todo = SESS.map((x,i)=>'<li class="'+(S.todo[i]?'done':'')+'" data-a="todo" data-v="'+i+'" style="--c:'+LV[x.c][1]+'"><span class="box" aria-hidden="true"></span><span class="d">'+x.d+'（'+x.w+'）</span><span><span class="tag">'+LV[x.c][0]+(x.t?'・'+x.t:'')+'</span>　'+x.r+'區 <span class="x">'+x.v+'</span></span></li>').join('');
+  const ul = c => '<svg class="ul" viewBox="0 0 200 16" preserveAspectRatio="none" aria-hidden="true"><path d="M2,10 C50,4 110,14 198,6" stroke="'+c+'"/></svg>';
+  return '<div class="pg mIII">'
+    +'<header class="bar"><span class="mark">'+LOGO+'教育資料素養提升計畫</span><nav><button data-a="toast" data-t="研習">研習</button><button data-a="toast" data-t="分析平台">分析平台</button><button data-a="toast" data-t="最新消息">最新消息</button><button data-a="toast" data-t="關於計畫">關於計畫</button></nav><button class="login" data-a="toast" data-t="登入">登入</button></header>'
+    +'<section class="page"><p class="date">115 學年度・上學期</p><h1>這學期的<br><span class="hl">資料素養</span>學習路線</h1><p class="lead">給縣市行政、校長主任與老師：先上研習學會看數據，再用 AI 分析平台處理自己學校的資料。</p>'
+    +'<div class="route">'+route+'<div class="sticky" style="right:30px;top:-170px" data-a="toast" data-t="10/17 北區初階場次"><b>下一站 ✎</b><span class="big">10/17（六）<svg viewBox="0 0 200 60" preserveAspectRatio="none" aria-hidden="true"><path d="M8,32 C10,6 190,2 194,28 C198,54 30,62 10,40"/></svg></span><p>北區・初階研習<br>國立臺北教育大學</p></div></div>'
+    +'<div class="choose"><button data-a="toast" data-t="研習：找場次"><b>→ 我想上研習</b><span>找場次、報名、拿研習證明</span>'+ul('#1B5FA6')+'</button><button data-a="toast" data-t="分析平台：試玩"><b>→ 我想分析資料</b><span>30 秒試玩，看平台怎麼幫你</span>'+ul('#EE7A1D')+'</button></div></section>'
+    +'<section class="lower"><div><h2>近期場次 <span style="font-size:1rem;color:#7B8893">（打勾看詳情）</span></h2><ul class="todo">'+todo+'</ul></div>'
+    +'<div class="sketch"><h2 style="font:700 1.7rem var(--f-hand)">平台會幫你看什麼？</h2><svg viewBox="0 0 420 230" role="img" aria-label="手繪長條圖：703 班平均較低"><line x1="20" y1="190" x2="400" y2="190" stroke="#22303A" stroke-width="2.5"/>'
+    +'<g class="bars">'+[[40,73],[130,70],[220,64],[310,71]].map(([x,v],i)=>'<rect x="'+x+'" y="'+(190-(v-40)*4)+'" width="60" height="'+(v-40)*4+'" rx="3" fill="'+(i===2?'#BFD6EE':'#FFE3C8')+'"/>').join('')+'</g>'
+    +['701','702','703','705'].map((t,i)=>'<text x="'+(70+i*90)+'" y="214" text-anchor="middle">'+t+'</text>').join('')
+    +'<path class="red" d="'+wob(250,92,40)+'"/><path class="red" d="M236,54 C226,42 214,34 196,30"/><text class="redt" x="40" y="30">703 班低了 7 分？</text></svg>'
+    +'<p style="font-family:var(--f-hand);font-size:1.1rem;color:#46545F">AI 先幫你圈出值得注意的地方，最後由你判斷。</p><button data-a="toast" data-t="分析平台：30 秒試玩">試玩 30 秒 →</button></div></section>'
+    +'</div>';
+}
+
+/* ---------- 說明 ---------- */
+const NOTES = {
+  I:['I・路線圖 × 海報',['首頁就是一張捷運路線圖：研習線（藍）、平台線（橘）、講師線（青綠），開通站是兩線的轉乘站。','點任一站，下方的「站名牌」會換成那一站的說明和下一步，不用卡片。','左側直排標題、網點質感的台灣地圖、斜切的色面，像一張印刷海報。','下面接「下一班研習」時刻表，場次像車站的發車資訊一樣翻出來。','登入後，「你在這裡」會停在你目前那一站。'],['路線圖是台灣人最熟悉的「找方向」工具，承辦擔心的方向感問題直接解決','沒有一張卡片，畫面靠線、字和色面撐起來'],['站點多了要注意不要變成太複雜的路網','手機上路線圖改成直式'],'點地圖上的各站，或上方「研習線／平台線」；切到手機看直式路線圖。'],
+  II:['II・資料故事 × 路線圖',['開場一句「一條線，看懂這個計畫」，往下捲才開始說故事。','捲動時 LOGO 的四根長條依序長出，折線一路畫過「計畫 → 初階 → 進階 → 分析平台」，左邊的文字跟著換段。','線畫到分析平台時從藍轉橘，講師培訓用虛線另外分出去。','故事最後停在分岔口：「參加研習／用數據分析」。','頂端一直有「已經知道要做什麼？找場次／試玩平台」捷徑，回訪的人不用重看故事。'],['最有敘事感，第一次來的人和長官最容易被說服','LOGO 本身變成說明工具，識別度高'],['回訪者需要靠頂端捷徑，否則會嫌慢','製作與測試成本最高（捲動動畫要在各種裝置上順）'],'在預覽框裡慢慢往下捲，看折線怎麼長、文字怎麼換。'],
+  III:['III・筆記本 × 路線圖',['方格紙、左邊紅色邊線，像老師的筆記本。','標題用手寫感的楷體，「資料素養」被螢光筆劃過。','學習路線是手繪的：藍筆畫研習線、橘筆轉到分析平台，講師培訓用點線另外標出。','便利貼貼著「下一站」，日期被紅筆圈起來；近期場次是可以打勾的待辦清單。','平台的介紹是一張手繪長條圖，紅筆圈出「703 班低了 7 分？」。'],['人味最重，最不像 AI 或模板','老師一看就有親切感，貼近教學現場'],['手寫元素要節制，用太多會變得幼稚','正式公文或對外簡報時，正式感比 I、II 弱'],'滑鼠移到上方選單和「我想上研習」上看螢光筆、底線；點清單的方框打勾。']
+};
+
+/* ---------- 繪製 ---------- */
+function render(){
+  $('t-m').innerHTML=[['I','I 路線圖 × 海報'],['II','II 資料故事 × 路線圖'],['III','III 筆記本 × 路線圖']].map(([k,t])=>'<button data-tool="m" data-v="'+k+'" aria-pressed="'+(S.m===k)+'">'+t+'</button>').join('');
+  $('t-vp').innerHTML=[['desk','桌機'],['phone','手機']].map(([k,t])=>'<button data-tool="vp" data-v="'+k+'" aria-pressed="'+(S.vp===k)+'">'+t+'</button>').join('');
+  $('t-notes').textContent=S.notes?'隱藏說明':'顯示說明';
+  $('browser').className='browser'+(S.vp==='phone'?' phone':'');
+  $('work').className='work'+(S.notes?'':' nonotes');
+  $('frame').innerHTML=({I,II,III})[S.m](); 
+  const n=NOTES[S.m];
+  $('notes').hidden=!S.notes;
+  $('notes').innerHTML='<span class="tag">組合 '+S.m+'</span><h2>'+n[0]+'</h2><ul style="margin-top:8px">'+n[1].map(t=>'<li>'+t+'</li>').join('')+'</ul><h3>為什麼比較不像 AI</h3><ul>'+n[2].map(t=>'<li>'+t+'</li>').join('')+'</ul><h3>要注意</h3><ul>'+n[3].map(t=>'<li>'+t+'</li>').join('')+'</ul><div class="tip"><b>試試看：</b>'+n[4]+'</div>';
+  if(S.m==='II') requestAnimationFrame(storyTick);
+}
+let tt;
+function toast(t){$('frame').querySelectorAll('.toast').forEach(x=>x.remove());const d=document.createElement('div');d.className='toast';d.setAttribute('role','status');d.textContent=t;$('frame').appendChild(d);clearTimeout(tt);tt=setTimeout(()=>d.remove(),2200)}
+const ACT={
+  st:d=>{S.st=d.v;const f=$('frame');f.querySelectorAll('.metro .st').forEach(g=>g.classList.toggle('on',g.dataset.v===d.v));
+    const s=STATIONS[d.v],sg=f.querySelector('.sign');
+    if(sg){const n=sg.cloneNode(false);n.style.setProperty('--c',s.c);n.innerHTML='<div class="n">'+s.n+'<small>'+s.en+'</small></div><p><b style="color:#fff">'+s.t+'</b><br>'+s.p+'</p><button data-a="toast" data-t="'+s.b+'">'+s.b+' →</button>';sg.replaceWith(n);if(S.vp==='phone')n.scrollIntoView({block:'nearest',behavior:'smooth'})}},
+  todo:(d,el)=>{S.todo[d.v]=!S.todo[d.v];el.classList.toggle('done',S.todo[d.v]);if(S.todo[d.v])setTimeout(()=>toast('示意：'+SESS[d.v].d+' 場次頁'),400)},
+  toast:d=>toast('示意：'+d.t)
+};
+document.addEventListener('click',ev=>{
+  const t=ev.target.closest('[data-tool]');
+  if(t){if(t.dataset.tool==='m'){S.m=t.dataset.v;window.scrollTo({top:0})}else S.vp=t.dataset.v;render();return}
+  const a=ev.target.closest('[data-a]');
+  if(a&&ACT[a.dataset.a]){ev.preventDefault();ACT[a.dataset.a](a.dataset,a)}
+});
+document.addEventListener('keydown',ev=>{const g=ev.target.closest&&ev.target.closest('g[data-a]');if(g&&(ev.key==='Enter'||ev.key===' ')){ev.preventDefault();ACT[g.dataset.a](g.dataset,g)}});
+$('t-notes').addEventListener('click',()=>{S.notes=!S.notes;render()});
+$('t-replay').addEventListener('click',()=>{$('frame').innerHTML='';requestAnimationFrame(render);window.scrollTo({top:0})});
+render();
+</script>
+</body>
+</html>

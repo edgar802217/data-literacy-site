@@ -1,5 +1,5 @@
 export type Job = "teacher" | "school_admin" | "county_admin";
-export type Role = "learner" | "lecturer" | "county" | "staff";
+export type Role = "learner" | "lecturer" | "county" | "staff" | "admin";
 export type CourseId = "A" | "B" | "T";
 export type Elig = "open" | "track" | "invite";
 export type RegStatus = "pending" | "admitted" | "waitlist" | "rejected" | "cancelled" | "attended" | "absent" | "completed" | "reported";
@@ -8,7 +8,7 @@ export interface Lecturer { until: string; regions: string[]; tags: string[] }
 export interface User {
   id: string; name: string; email: string; verified: boolean;
   job: Job | null; title: string; org: string; county: string; roles: Role[];
-  persona?: string; hint?: string; lect?: Lecturer;
+  persona?: string; hint?: string; lect?: Lecturer; mustChangePassword?: boolean;
 }
 export interface Course {
   id: CourseId; level: string; code: string; name: string; hours: number; elig: Elig;

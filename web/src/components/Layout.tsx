@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useDemo } from "../demo/store";
 import { has, isAdmin } from "../demo/logic";
 import { useContent } from "../lib/content";
 import { Icon, Modal } from "./ui";
 import type { State } from "../demo/types";
 import { canVT, vt } from "../shell/vt";
+import { api, LIVE } from "../lib/api";
 
 /* ---------- 示範列：切換身分、示範信箱、重設（正式版不會有） ---------- */
 function bindInvite(d: State, inviteId: string, userId: string) {
@@ -71,7 +72,7 @@ export { bindInvite };
 /* ---------- 頁首 ---------- */
 const NAV = [["/trainings", "研習"], ["/platform", "分析平台"], ["/news", "最新消息"], ["/about", "關於計畫"]] as const;
 function Header() {
-  const { me, update, toast } = useDemo();
+  const { me, update, toast, setMe } = useDemo();
   const [menu, setMenu] = useState(false);
   const [mnav, setMnav] = useState(false);
   const loc = useLocation(), nav = useNavigate();
@@ -95,7 +96,7 @@ function Header() {
             <Link to="/account">個人資料</Link>
             {isAdmin(me) && <Link to="/admin" className="strong">後台 →</Link>}
             <hr />
-            <button onClick={() => { update(d => { d.cur = null; }); toast("已登出"); nav("/"); }}><Icon n="out" />登出</button>
+            <button onClick={async () => { if (LIVE) { await api("/auth/logout", { method: "POST" }).catch(() => {}); setMe(null); } else update(d => { d.cur = null; }); toast("已登出"); nav("/"); }}><Icon n="out" />登出</button>
           </div>}
         </div> : <Link to={"/login?next=" + encodeURIComponent(loc.pathname + loc.search)} className="btn btn-s btn-sm login">登入</Link>}
         <button className="ham" aria-label="選單" aria-expanded={mnav} onClick={() => setMnav(!mnav)}><Icon n={mnav ? "close" : "menu"} /></button>
@@ -109,8 +110,8 @@ function Header() {
 function Announcement() {
   const { settings } = useContent();
   // 試算表沒有這一列時，示範版顯示一則範例；有這一列但留白就不顯示
-  const text = "重要公告" in settings ? settings["重要公告"] : "115 年下半年 B6. 與 G1. 工作坊：北區、中區報名至 10/22（四），南區、東區至 10/28（三）。本次由各推動辦公室彙整名單，不受理個人報名。";
-  const link = settings["重要公告連結"] || ("重要公告" in settings ? "" : "/trainings");
+  const text = "重要公告" in settings || LIVE ? settings["重要公告"] || "" : "115 年下半年 B6. 與 G1. 工作坊：北區、中區報名至 10/22（四），南區、東區至 10/28（三）。本次由各推動辦公室彙整名單，不受理個人報名。";
+  const link = settings["重要公告連結"] || ("重要公告" in settings || LIVE ? "" : "/trainings");
   const [hide, setHide] = useState(false);
   if (!text || hide) return null;
   return <div className="notice"><div className="wrap"><Icon n="bell" /><span>{text}</span>{link && (link.startsWith("/") ? <Link to={link}>看詳情</Link> : <a href={link} target="_blank" rel="noopener">看詳情</a>)}<button className="iconbtn" aria-label="關閉公告" onClick={() => setHide(true)}><Icon n="close" /></button></div></div>;
@@ -131,7 +132,7 @@ function Footer() {
 }
 
 export function Layout() {
-  const { toastMsg } = useDemo();
+  const { toastMsg, me } = useDemo();
   const loc = useLocation(), navigate = useNavigate();
   useEffect(() => { window.scrollTo(0, 0); }, [loc.pathname]);
   /* 站內連結換頁時包進轉場：左欄舞台留在原地，場次的日期與標題會飛到新頁 */
@@ -153,7 +154,8 @@ export function Layout() {
   }, [navigate]);
   return (
     <>
-      <DemoBar />
+      {!LIVE && <DemoBar />}
+      {LIVE && me?.mustChangePassword && loc.pathname !== "/account/password" && <Navigate to="/account/password?first=1" replace />}
       <Header />
       {loc.pathname === "/" && <Announcement />}
       <main id="main"><Outlet /></main>

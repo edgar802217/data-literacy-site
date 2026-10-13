@@ -28,7 +28,7 @@ export const course = (st: State, id: CourseId) => st.courses.find(c => c.id ===
 export const sess = (st: State, id: string) => st.sessions.find(s => s.id === id);
 export const user = (st: State, id: string | null) => (id ? st.users.find(u => u.id === id) : undefined);
 export const has = (u: User | undefined, r: User["roles"][number]) => !!u && u.roles.includes(r);
-export const isAdmin = (u?: User) => has(u, "staff") || has(u, "county") || has(u, "lecturer");
+export const isAdmin = (u?: User) => has(u, "staff") || has(u, "county") || has(u, "lecturer") || has(u, "admin");
 
 /** 課程代碼：進階課程依分流是 B6-1／B6-2／B6-3 */
 export const TRACK_CODE: Record<Job, string> = { county_admin: "B6-1.", school_admin: "B6-2.", teacher: "B6-3." };

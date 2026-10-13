@@ -52,3 +52,8 @@ npm run build      # 型別檢查＋打包到 dist/
 | `src/lib/content.tsx` | 讀 Google 試算表 |
 | `src/styles/global.css` | 全站樣式（設計系統見 `docs/design/visual.html`） |
 | `public/platform-demo.js` | 分析平台試玩，與舊網站 `assets/demo.js` 相同；改了舊的要複製一份過來 |
+
+## 示範模式與正式模式
+
+- 預設是示範模式：資料存在瀏覽器裡，可以切換身分、看示範信箱。
+- 設定 `VITE_MODE=live` 是正式模式：登入、網站內容、場次都走後端 `/api`（見 `api/README.md`）。

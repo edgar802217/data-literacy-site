@@ -5,6 +5,7 @@ import { course, elig, JOB, kindOf, levelName, mdw, sess, ST, titleOf, TODAY } f
 import { dot, Stage } from "../shell/Shell";
 import { JudgeLink, JudgeView } from "../shell/sessions";
 import { lastDetail } from "../shell/vt";
+import { LIVE } from "../lib/api";
 
 /* 場次詳情：左欄是大字日期（從列表飛過來），右欄是課程、逐條資格判讀與報名。 */
 const COL = { A: "var(--lv-a-tx)", B: "var(--lv-b-tx)", T: "var(--lv-t-tx)" } as const;
@@ -59,6 +60,7 @@ export default function SessionDetail() {
     <div className="pg-field"><label htmlFor="note">想在研習中解決的資料問題（選填）</label><textarea id="note" name="note" placeholder="例如：學習扶助測驗各班的落差" /></div>
     <div className="pg-btnline" style={{ marginTop: 0 }}><button className="pg-btn" type="submit">送出報名</button><button className="pg-tlink" type="button" onClick={() => { setForm(false); setErr(""); }}>取消</button></div>
   </form>;
+  else if (e.ok && LIVE) action = <p className="pg-note" style={{ margin: 0 }}>線上報名將在下一階段開放。本梯次請由所屬推動辦公室彙整名單，寄到培訓專用信箱。</p>;
   else if (e.ok) action = <div className="pg-btnline"><button type="button" className="pg-btn" onClick={() => { setForm(true); setTimeout(() => document.getElementById("idno")?.focus(), 60); }}>{e.full ? "登記備取" : "我要報名"} <span className="hm-arr" aria-hidden="true">→</span></button>
     <span className="pg-note" style={{ margin: 0 }}>需要：身分證字號{c.proof ? `、${c.proof.join("、")} 完成證明` : ""}、午餐選擇</span></div>;
   else action = <div className="pg-btnline"><JudgeLink st={st} me={me} s={s} skipDetail /></div>;

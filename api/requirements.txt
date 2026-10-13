@@ -1,0 +1,7 @@
+# 入口網後端（FastAPI＋PostgreSQL）。與分析平台 edu-analytics 同一套技術。
+fastapi>=0.115
+uvicorn[standard]>=0.30
+sqlalchemy>=2.0
+psycopg[binary]>=3.2
+argon2-cffi>=23.1
+itsdangerous>=2.2

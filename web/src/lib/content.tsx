@@ -1,69 +1,56 @@
-/* 網站內容（最新消息、活動、常見問題、設定）仍由 Google 試算表「網站內容」維護。
-   讀取順序：試算表 → 瀏覽器快取（上次成功的內容）→ 內建備份 data/content.json。
-   場次與課程已改由示範資料（之後是後端）提供，不再讀試算表的「簡章／場次」。 */
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+/* 網站內容（重要公告、最新消息、活動、常見問題、聯絡資訊）。
+   正式模式：由後台管理，從 /api/public/content 讀取；讀不到時用上次成功的內容，再不行用內建備份 data/content.json。
+   示範模式：直接用內建備份。原本的 Google 試算表已停用。 */
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import backup from "../data/content.json";
+import { api, LIVE } from "./api";
 
-const SHEET_ID = "1Iqu6qJulH0lgWeHmsN78bDnxIN5MAq7GDt-2SdZtetc";
-const TABS = ["設定", "消息", "活動", "常見問題"] as const;
-const CACHE_KEY = "dl-web-content-v1";
+const CACHE_KEY = "dl-web-content-v2";
 type Row = Record<string, string>;
-export interface Content { settings: Record<string, string>; news: Row[]; events: Row[]; faq: Row[] }
+export interface Content { settings: Record<string, string>; news: Row[]; events: Row[]; faq: Row[]; reload: () => void }
+interface ApiContent {
+  settings: Record<string, string>;
+  news: { date: string; category: string; title: string; body: string; link: string }[];
+  events: { date: string; name: string; desc: string }[];
+  faq: { question: string; answer: string }[];
+}
 
-function parseCSV(text: string): Row[] {
-  const rows: string[][] = []; let row: string[] = [], f = "", q = false;
-  for (let i = 0; i < text.length; i++) {
-    const c = text[i];
-    if (q) { if (c === '"' && text[i + 1] === '"') { f += '"'; i++; } else if (c === '"') q = false; else f += c; }
-    else if (c === '"') q = true;
-    else if (c === ",") { row.push(f); f = ""; }
-    else if (c === "\n" || c === "\r") { if (c === "\r" && text[i + 1] === "\n") i++; row.push(f); rows.push(row); row = []; f = ""; }
-    else f += c;
-  }
-  if (f || row.length) { row.push(f); rows.push(row); }
-  const [head = [], ...body] = rows;
-  const keys = head.map(h => h.trim());
-  return body.filter(r => r.some(v => v.trim())).map(r => Object.fromEntries(keys.map((k, i) => [k, (r[i] || "").trim()])));
-}
-async function fetchTab(name: string) {
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&headers=1&sheet=${encodeURIComponent(name)}`;
-  const res = await fetch(url, { cache: "no-store", credentials: "omit" });
-  if (!res.ok) throw new Error(`${name}: HTTP ${res.status}`);
-  const text = await res.text();
-  if (/^\s*</.test(text)) throw new Error(`${name}: 試算表未開放檢視`);
-  return parseCSV(text);
-}
 const shown = (r: Row) => (r["顯示"] || "是") !== "否";
-function shape(raw: Partial<Record<string, Row[]>>): Content {
-  const settings = Object.fromEntries((raw["設定"] || []).map(r => [r["項目"], r["內容"]]));
+function fromBackup(): Omit<Content, "reload"> {
+  const raw = backup as Record<string, Row[]>;
   const byDate = (a: Row, b: Row) => (a["日期"] < b["日期"] ? 1 : -1);
   return {
-    settings,
+    settings: Object.fromEntries((raw["設定"] || []).map(r => [r["項目"], r["內容"]])),
     news: (raw["消息"] || []).filter(shown).sort(byDate),
     events: (raw["活動"] || []).filter(shown).sort((a, b) => -byDate(a, b)),
     faq: (raw["常見問題"] || []).filter(shown),
   };
 }
+/** 後端的英文欄位轉成畫面使用的欄位名稱 */
+function fromApi(c: ApiContent): Omit<Content, "reload"> {
+  return {
+    settings: c.settings,
+    news: c.news.map(n => ({ 日期: n.date, 分類: n.category, 標題: n.title, 內容: n.body, 連結: n.link })),
+    events: c.events.map(e => ({ 日期: e.date, 名稱: e.name, 說明: e.desc })),
+    faq: c.faq.map(f => ({ 問題: f.question, 回答: f.answer })),
+  };
+}
 
-const Ctx = createContext<Content>(shape(backup as Record<string, Row[]>));
+const Ctx = createContext<Content>({ ...fromBackup(), reload: () => {} });
 export function ContentProvider({ children }: { children: ReactNode }) {
-  const [c, setC] = useState<Content>(() => {
-    try { const x = JSON.parse(localStorage.getItem(CACHE_KEY) || "null"); if (x) return shape(x); } catch { /* 忽略 */ }
-    return shape(backup as Record<string, Row[]>);
+  const [c, setC] = useState(() => {
+    if (LIVE) try { const x = JSON.parse(localStorage.getItem(CACHE_KEY) || "null"); if (x) return fromApi(x); } catch { /* 忽略 */ }
+    return fromBackup();
   });
-  useEffect(() => {
-    let off = false;
-    const timeout = new Promise<never>((_, rej) => setTimeout(() => rej(new Error("逾時")), 8000));
-    Promise.race([Promise.all(TABS.map(fetchTab)), timeout])
-      .then(tabs => {
-        const raw = Object.fromEntries(TABS.map((t, i) => [t, tabs[i]]));
-        try { localStorage.setItem(CACHE_KEY, JSON.stringify(raw)); } catch { /* 忽略 */ }
-        if (!off) setC(shape(raw));
-      })
-      .catch(e => console.warn("無法讀取 Google 試算表，改用備份內容：", e.message));
-    return () => { off = true; };
+  const reload = useCallback(() => {
+    if (!LIVE) return;
+    api<ApiContent>("/public/content").then(x => {
+      try { localStorage.setItem(CACHE_KEY, JSON.stringify(x)); } catch { /* 忽略 */ }
+      setC(fromApi(x));
+    }).catch(e => console.warn("無法讀取網站內容，改用備份：", e.message));
   }, []);
-  return <Ctx.Provider value={c}>{children}</Ctx.Provider>;
+  useEffect(reload, [reload]);
+  return <Ctx.Provider value={{ ...c, reload }}>{children}</Ctx.Provider>;
 }
 export const useContent = () => useContext(Ctx);
 

@@ -1,0 +1,36 @@
+# Render Blueprint：入口網後端（api/）＋ PostgreSQL。
+# 用法見 api/README.md。前端仍在 Vercel，透過 web/vercel.json 把 /api 轉到這個服務。
+services:
+  - type: web
+    name: dl-portal-api              # 網址會是 https://dl-portal-api.onrender.com；若名稱被占用，記得同步改 web/vercel.json
+    runtime: python
+    rootDir: api
+    plan: starter
+    region: singapore
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips '*'
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: dl-portal-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ADMIN_BOOTSTRAP_PASSWORD
+        sync: false                  # 在 Render 後台填；admin 首次登入會被要求改密碼
+      - key: BASE_URL
+        sync: false                  # 填前端網址，例如 https://你的網站.vercel.app（寄信連結與來源檢查用）
+      - key: ALLOWED_ORIGINS
+        sync: false                  # 選填；有多個網域時用逗號分隔
+      - key: MAIL_BACKEND
+        value: outbox                # 先只記錄在後台「寄件紀錄」；接上 Google 寄信後改 smtp 並填 SMTP_*
+
+databases:
+  - name: dl-portal-db
+    plan: basic-256mb
+    region: singapore
+    databaseName: dl_portal
+    user: dl_portal

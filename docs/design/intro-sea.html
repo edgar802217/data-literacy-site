@@ -5,32 +5,40 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500&family=Noto+Serif+TC:wght@500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700&display=swap">
 <style>
-/* 版面：設計稿的暖白編輯式雙欄（左：理念＋數字海／右：近期研習＋平台）。開場時數字海先鋪滿畫面，再排成版面的細線與日期。 */
+/* 版面：設計稿的編輯式雙欄，套用現行網站的圓體與 Logo 色（左：理念＋數字海／右：近期研習＋平台）。開場時數字海先鋪滿畫面，再排成版面的細線與日期。 */
 :root {
-  --bg: #F7F5F0; --surface: #FFFFFF; --paper: #EEECE5;
-  --ink: #203B48; --ink-hover: #152C36; --on-ink: #FFFFFF;
-  --muted: #53636B; --brand: #1B5FA6; --sage: #E3E9E1; --sage-ink: #365B46;
-  --line: #B7C1BD; --accent: #EE7A1D;
-  --serif: "Noto Serif TC", "PMingLiU", serif;
+  --bg: #FFFFFF; --paper: #F5F8FA; --line: #DCE4EA;
+  --ink: #1B2833; --muted: #64717D; --sea: #7D8C99;
+  --act: #1B5FA6; --act-dk: #154C86; --on-act: #FFFFFF; --brand: #1B5FA6; --ok: #1F7A4D;
+  --lv-a: #2185B5; --lv-a-tx: #17698F; --lv-a-wash: #E6F2F8;
+  --lv-b: #1E97A3; --lv-b-tx: #0E6E7A; --lv-b-wash: #E4F4F5;
+  --lv-t: #EE7A1D; --lv-t-tx: #A9520B; --lv-t-wash: #FDF0E4;
+  --head: "Chiron GoRound TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
   --sans: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
   --ease: cubic-bezier(.2, 0, 0, 1);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #121719; --surface: #1A2124; --paper: #192124;
-    --ink: #E3E8E5; --ink-hover: #FFFFFF; --on-ink: #121719;
-    --muted: #A2AEB1; --brand: #86B4E8; --sage: #1E2A24; --sage-ink: #9CC6A9;
-    --line: #3B474B; --accent: #F0904A; color-scheme: dark;
+    --bg: #10161D; --paper: #17202A; --line: #2B3844;
+    --ink: #E5EBF0; --muted: #9AA8B5; --sea: #6F8090;
+    --act: #3D82CC; --act-dk: #5B97D8; --on-act: #FFFFFF; --brand: #82B5EC; --ok: #6CCB95;
+    --lv-a: #58B2DD; --lv-a-tx: #7CC4E6; --lv-a-wash: #152836;
+    --lv-b: #45BCC6; --lv-b-tx: #6FCFD6; --lv-b-wash: #122C2F;
+    --lv-t: #F29A55; --lv-t-tx: #F5AE75; --lv-t-wash: #302217;
+    color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #121719; --surface: #1A2124; --paper: #192124;
-  --ink: #E3E8E5; --ink-hover: #FFFFFF; --on-ink: #121719;
-  --muted: #A2AEB1; --brand: #86B4E8; --sage: #1E2A24; --sage-ink: #9CC6A9;
-  --line: #3B474B; --accent: #F0904A; color-scheme: dark;
+  --bg: #10161D; --paper: #17202A; --line: #2B3844;
+  --ink: #E5EBF0; --muted: #9AA8B5; --sea: #6F8090;
+  --act: #3D82CC; --act-dk: #5B97D8; --on-act: #FFFFFF; --brand: #82B5EC; --ok: #6CCB95;
+  --lv-a: #58B2DD; --lv-a-tx: #7CC4E6; --lv-a-wash: #152836;
+  --lv-b: #45BCC6; --lv-b-tx: #6FCFD6; --lv-b-wash: #122C2F;
+  --lv-t: #F29A55; --lv-t-tx: #F5AE75; --lv-t-wash: #302217;
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -45,7 +53,7 @@ a { color: inherit; }
 .head-in { min-height: 88px; display: flex; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 1px solid var(--line); }
 .brand { display: flex; align-items: center; gap: 14px; text-decoration: none; }
 .brand img { width: 52px; height: auto; display: block; }
-.brand span { font: 600 20px/1.3 var(--serif); letter-spacing: .04em; }
+.brand span { font: 700 20px/1.3 var(--head); letter-spacing: .04em; }
 .nav ul { list-style: none; margin: 0; padding: 0; display: flex; align-items: center; gap: 36px; }
 .nav a { text-decoration: none; font-weight: 500; padding-block: 8px; }
 .nav a:hover { text-decoration: underline; text-underline-offset: 6px; }
@@ -55,11 +63,11 @@ a { color: inherit; }
 /* 首頁雙欄 */
 .home { display: grid; grid-template-columns: minmax(0, 46fr) minmax(0, 54fr); column-gap: 48px; padding-block: 60px 64px; align-items: start; }
 .eyebrow { margin: 0; font-size: 14px; letter-spacing: .12em; color: var(--muted); }
-h1 { font: 500 clamp(40px, 3.9vw, 56px)/1.35 var(--serif); margin: 18px 0 24px; text-wrap: balance; }
+h1 { font: 700 clamp(40px, 3.8vw, 54px)/1.38 var(--head); margin: 18px 0 24px; text-wrap: balance; }
 .intro { margin: 0; font-size: 17px; color: var(--ink); max-width: 30em; }
 .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 32px; margin-top: 28px; }
-.btn { display: inline-flex; align-items: center; gap: 14px; min-height: 48px; padding: 0 28px; background: var(--ink); color: var(--on-ink); text-decoration: none; border-radius: 4px; font-weight: 500; letter-spacing: .08em; transition: background-color 140ms var(--ease); }
-.btn:hover { background: var(--ink-hover); }
+.btn { display: inline-flex; align-items: center; gap: 14px; min-height: 48px; padding: 0 28px; background: var(--act); color: var(--on-act); text-decoration: none; border-radius: 8px; font-weight: 500; letter-spacing: .08em; transition: background-color 140ms var(--ease); }
+.btn:hover { background: var(--act-dk); }
 .arr { display: inline-block; transition: transform 140ms var(--ease); }
 a:hover .arr { transform: translateX(2px); }
 .tlink { text-decoration: underline; text-underline-offset: 7px; font-weight: 500; padding-block: 10px; }
@@ -68,13 +76,6 @@ a:hover .arr { transform: translateX(2px); }
 .sea-box { position: relative; aspect-ratio: 5 / 3; max-width: 100%; background: var(--paper); overflow: hidden; cursor: crosshair; touch-action: pan-y; }
 .sea-box canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .sea-slot figcaption { margin-top: 8px; font-size: 13px; color: var(--muted); }
-.figures { display: none; margin: 40px 0 0; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 32px; border-top: 1px solid var(--line); }
-.figures div { padding: 18px 0 14px; border-bottom: 1px solid var(--line); }
-.figures dt { font: 500 40px/1.2 var(--serif); font-variant-numeric: tabular-nums; }
-.figures dd { margin: 4px 0 0; font-size: 14px; color: var(--muted); }
-html[data-v="c"] .sea-slot { display: none; }
-html[data-v="c"] .figures { display: grid; }
-
 /* 近期研習 */
 .th { display: flex; align-items: center; gap: 24px; }
 .th h2 { margin: 0; font: 500 20px/1.5 var(--sans); letter-spacing: .12em; }
@@ -83,25 +84,28 @@ html[data-v="c"] .figures { display: grid; }
 .list { margin-top: 20px; }
 .item { position: relative; border-bottom: 1px solid var(--line); transition: background-color 140ms var(--ease), box-shadow 140ms var(--ease); }
 .item:hover { background: var(--paper); }
-.item.open { background: var(--sage); box-shadow: inset 3px 0 0 var(--sage-ink); }
+.item[data-c="A"] { --c: var(--lv-a); --ct: var(--lv-a-tx); --cw: var(--lv-a-wash); }
+.item[data-c="B"] { --c: var(--lv-b); --ct: var(--lv-b-tx); --cw: var(--lv-b-wash); }
+.item[data-c="T"] { --c: var(--lv-t); --ct: var(--lv-t-tx); --cw: var(--lv-t-wash); }
+.item.open { background: var(--cw); box-shadow: inset 3px 0 0 var(--c); }
 .ihead { position: relative; display: grid; grid-template-columns: 92px minmax(0, 1fr) auto 28px; column-gap: 24px; align-items: start; padding: 24px 16px 24px 20px; }
 .date { padding-top: 2px; }
-.date time { display: block; font: 500 28px/1.25 var(--serif); font-variant-numeric: tabular-nums; }
+.date time { display: block; color: var(--ct); font: 700 28px/1.25 var(--head); font-variant-numeric: tabular-nums; }
 .date small { display: block; font: 400 13px var(--mono); color: var(--muted); margin-top: 4px; }
 .main { border-left: 1px solid var(--line); padding-left: 24px; min-width: 0; }
-.kind { margin: 0; font-size: 13px; font-weight: 500; color: var(--brand); letter-spacing: .08em; }
-.main h3 { margin: 2px 0 4px; font: 500 22px/1.5 var(--serif); }
+.kind { margin: 0; font-size: 13px; font-weight: 700; color: var(--ct); letter-spacing: .08em; }
+.main h3 { margin: 2px 0 4px; font: 700 21px/1.5 var(--head); }
 .main h3 button { all: unset; cursor: pointer; text-wrap: balance; }
 .main h3 button::after { content: ""; position: absolute; inset: 0; }
 .main h3 button:focus-visible { outline: 3px solid var(--brand); outline-offset: 3px; }
 .meta { margin: 0; font-size: 15px; color: var(--muted); }
-.state { align-self: center; font-size: 15px; font-weight: 500; color: var(--sage-ink); white-space: nowrap; }
+.state { align-self: center; font-size: 15px; font-weight: 500; color: var(--ok); white-space: nowrap; }
 .state.inv { color: var(--ink); }
 .sign { align-self: center; justify-self: end; font: 300 26px/1 var(--sans); }
 .sign::before { content: "+"; }
 .open .sign::before { content: "−"; }
 .panel { overflow: hidden; transition: height 220ms var(--ease); }
-.pin { margin: 0 16px 0 calc(20px + 92px + 24px + 25px); padding: 16px 0 26px; border-top: 1px solid color-mix(in srgb, var(--sage-ink) 30%, transparent); display: grid; gap: 12px; }
+.pin { margin: 0 16px 0 calc(20px + 92px + 24px + 25px); padding: 16px 0 26px; border-top: 1px solid color-mix(in srgb, var(--c) 35%, transparent); display: grid; gap: 12px; }
 .pin p { margin: 0; }
 .facts { margin: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 16px; font-size: 15px; }
 .facts dt { color: var(--muted); }
@@ -110,9 +114,9 @@ html[data-v="c"] .figures { display: grid; }
 .all { display: flex; justify-content: flex-end; margin-top: 18px; }
 .all a { color: var(--brand); font-weight: 500; text-decoration: underline; text-underline-offset: 7px; padding-block: 8px; }
 .platform { margin-top: 36px; padding-top: 28px; border-top: 1px solid var(--line); }
-.platform h2 { margin: 6px 0 8px; font: 500 26px/1.45 var(--serif); }
+.platform h2 { margin: 6px 0 8px; font: 700 25px/1.45 var(--head); }
 .platform p { margin: 0; color: var(--muted); }
-.platform a { display: inline-block; margin-top: 12px; font-weight: 500; text-decoration: underline; text-underline-offset: 7px; padding-block: 8px; }
+.platform a { color: var(--brand); display: inline-block; margin-top: 12px; font-weight: 500; text-decoration: underline; text-underline-offset: 7px; padding-block: 8px; }
 
 /* 頁尾 */
 .foot-in { border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px 40px; padding-block: 22px 104px; }
@@ -137,12 +141,11 @@ html.pre .rule { background-color: transparent; }
 html.fast .rv, html.fast [data-ln] { transition-duration: 200ms; transition-delay: 0ms; }
 
 /* 原型切換列 */
-.demo { position: fixed; z-index: 60; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); display: flex; align-items: center; gap: 4px; padding: 5px; background: var(--ink); color: var(--on-ink); border-radius: 4px; font-size: 14px; max-width: calc(100vw - 32px); }
+.demo { position: fixed; z-index: 60; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); display: flex; align-items: center; gap: 4px; padding: 5px; background: var(--ink); color: var(--bg); border-radius: 8px; font-size: 14px; max-width: calc(100vw - 32px); }
 .demo span { padding: 0 10px 0 8px; opacity: .75; white-space: nowrap; }
 .demo button { min-height: 38px; padding: 0 14px; border: 0; border-radius: 3px; background: transparent; color: inherit; font: 500 14px var(--sans); cursor: pointer; white-space: nowrap; }
-.demo button[aria-pressed="true"] { background: var(--on-ink); color: var(--ink); }
-.demo button:hover:not([aria-pressed="true"]) { background: color-mix(in srgb, var(--on-ink) 14%, transparent); }
-.demo .sep { width: 1px; align-self: stretch; margin: 6px 4px; background: color-mix(in srgb, var(--on-ink) 30%, transparent); }
+.demo button:hover:not([aria-pressed="true"]) { background: color-mix(in srgb, var(--bg) 14%, transparent); }
+.demo .sep { width: 1px; align-self: stretch; margin: 6px 4px; background: color-mix(in srgb, var(--bg) 30%, transparent); }
 
 @media (max-width: 1280px) { .home { column-gap: 32px; } }
 @media (max-width: 1199px) { .wrap { padding-inline: 32px; } }
@@ -214,12 +217,6 @@ html.fast .rv, html.fast [data-ln] { transition-duration: 200ms; transition-dela
       <div class="sea-box rv" style="--d:0ms"><canvas id="slot" aria-hidden="true"></canvas></div>
       <figcaption class="rv" style="--d:420ms" id="slot-cap">每個數字都來自計畫資料。把游標移到數字上，看看它代表什麼。</figcaption>
     </figure>
-    <dl class="figures" data-ln="t">
-      <div class="rv" data-tx style="--d:420ms"><dt>22</dt><dd>縣市＋國教署參與</dd></div>
-      <div class="rv" data-tx style="--d:470ms"><dt>59</dt><dd>項資料素養能力指標</dd></div>
-      <div class="rv" data-tx style="--d:520ms"><dt>14</dt><dd>場講師培訓</dd></div>
-      <div class="rv" data-tx style="--d:570ms"><dt>10</dt><dd>場縣市行政研習</dd></div>
-    </dl>
   </section>
 
   <section class="trainings" aria-labelledby="h-tr">
@@ -229,7 +226,7 @@ html.fast .rv, html.fast [data-ln] { transition-duration: 200ms; transition-dela
       <span class="range rv" style="--d:200ms">2026 / 10–11</span>
     </div>
     <div class="list">
-      <div class="item" data-ln="b">
+      <div class="item" data-c="A" data-ln="b">
         <div class="ihead">
           <div class="date"><time class="rv" datetime="2026-10-24">10.24</time></div>
           <div class="main" data-ln="l">
@@ -250,7 +247,7 @@ html.fast .rv, html.fast [data-ln] { transition-duration: 200ms; transition-dela
           </div>
         </div>
       </div>
-      <div class="item" data-ln="b">
+      <div class="item" data-c="T" data-ln="b">
         <div class="ihead">
           <div class="date"><time class="rv" datetime="2026-10-31">10.31</time><small class="rv" style="--d:500ms">–11.21・兩天</small></div>
           <div class="main" data-ln="l">
@@ -271,7 +268,7 @@ html.fast .rv, html.fast [data-ln] { transition-duration: 200ms; transition-dela
           </div>
         </div>
       </div>
-      <div class="item" data-ln="b">
+      <div class="item" data-c="B" data-ln="b">
         <div class="ihead">
           <div class="date"><time class="rv" datetime="2026-11-07">11.07</time></div>
           <div class="main" data-ln="l">
@@ -320,10 +317,7 @@ html.fast .rv, html.fast [data-ln] { transition-duration: 200ms; transition-dela
 </footer>
 
 <div class="demo" role="group" aria-label="原型切換">
-  <span>開場後的數字海</span>
-  <button type="button" data-v="b" aria-pressed="true">B 留在主視覺</button>
-  <button type="button" data-v="c" aria-pressed="false">C 成為背景</button>
-  <i class="sep" aria-hidden="true"></i>
+  <span>原型・場次為示範資料</span>
   <button type="button" id="replay">重播開場</button>
 </div>
 
@@ -347,7 +341,7 @@ html.fast .rv, html.fast [data-ln] { transition-duration: 200ms; transition-dela
 
   let V = "b";
   try { V = localStorage.getItem("dl-sea-v") || "b"; } catch (e) {}
-  if (location.hash === "#c") V = "c"; else if (location.hash === "#b") V = "b";
+  V = "b";
   const setV = v => {
     V = v; root.dataset.v = v;
     document.querySelectorAll(".demo [data-v]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === v)));
@@ -359,7 +353,7 @@ html.fast .rv, html.fast [data-ln] { transition-duration: 200ms; transition-dela
   const readColors = () => {
     const cs = getComputedStyle(root);
     const g = n => cs.getPropertyValue(n).trim();
-    C = { bg: g("--bg"), ink: g("--ink"), muted: g("--muted"), paper: g("--paper"), brand: g("--brand") };
+    C = { bg: g("--bg"), ink: g("--ink"), muted: g("--muted"), paper: g("--paper"), brand: g("--brand"), sea: g("--sea"), A: g("--lv-a-tx"), B: g("--lv-b-tx"), T: g("--lv-t-tx") };
   };
   readColors();
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { readColors(); kick(); });
@@ -372,7 +366,9 @@ html.fast .rv, html.fast [data-ln] { transition-duration: 200ms; transition-dela
   const ease = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
   const MONO = '"IBM Plex Mono", ui-monospace, Menlo, monospace';
-  const SERIF = '"Noto Serif TC", "PMingLiU", serif';
+  const HEAD = '"Chiron GoRound TC", "Noto Sans TC", sans-serif';
+  /* 數字屬於哪一種課程：被看懂時才染上該課程的顏色 */
+  const CAT = { "3": "A", "10.24": "A", "6": "B", "11.07": "B", "12": "T", "10.31": "T", "B5-1": "T", "A1": "T", "4": "T", "2": "T", "14": "T" };
   const SANS = '"Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif';
 
   /* 讓數字緩慢往右流動、輕微上下起伏 */
@@ -394,7 +390,7 @@ html.fast .rv, html.fast [data-ln] { transition-duration: 200ms; transition-dela
     const vis = b => b.bottom > 0 && b.top < H;
     document.querySelectorAll(".date time").forEach(el => {
       const b = el.getBoundingClientRect(); if (!vis(b)) return;
-      T.push({ x: b.left, y: b.top + b.height * 0.8, kind: "date", tok: el.textContent.trim(), size: parseFloat(getComputedStyle(el).fontSize) });
+      T.push({ x: b.left, y: b.top + b.height * 0.8, kind: "date", tok: el.textContent.trim(), size: parseFloat(getComputedStyle(el).fontSize), cat: el.closest(".item").dataset.c });
     });
     document.querySelectorAll("[data-ln]").forEach(el => {
       if (!el.offsetParent && el.tagName !== "DL") return;
@@ -438,7 +434,7 @@ html.fast .rv, html.fast [data-ln] { transition-duration: 200ms; transition-dela
       if (best < 0) break;
       const p = parts[bb[best]]; bb.splice(best, 1);
       p.kind = t.kind; p.tx = t.x; p.ty = t.y;
-      if (t.kind === "date") { p.tok = t.tok; p.size = t.size; }
+      if (t.kind === "date") { p.tok = t.tok; p.size = t.size; p.cat = t.cat; }
     }
   }
 
@@ -485,15 +481,15 @@ html.fast .rv, html.fast [data-ln] { transition-duration: 200ms; transition-dela
           p.x = p.sx + (p.tx - p.sx) * q; p.y = p.sy + (p.ty - p.sy) * q;
           if (p.kind === "line") { sz = 11 - 3 * q; a = a + (0.75 - a) * q; }
           else if (p.kind === "text") { sz = 11 - q; a = a + (0.38 - a) * q; }
-          else if (p.kind === "date") { sz = 11 + (p.size - 11) * q; a = a + (1 - a) * q; }
-          else if (p.kind === "slot") { a = a + (0.24 - a) * q; }
+          else if (p.kind === "date") { sz = 11 + (p.size - 11) * q; a = a + (1 - a) * q; p.q = q; }
+          else if (p.kind === "slot") { a = a + (0.42 - a) * q; }
         }
         if (p.kind !== "slot") a *= gone;
       }
       if (a <= 0.01) continue;
-      const f = p.kind === "date" && t > M0 ? `500 ${sz.toFixed(1)}px ${SERIF}` : `${sz.toFixed(1)}px ${MONO}`;
+      const f = p.kind === "date" && t > M0 ? `700 ${sz.toFixed(1)}px ${HEAD}` : `${sz.toFixed(1)}px ${MONO}`;
       if (f !== font) { octx.font = f; font = f; }
-      octx.globalAlpha = a; octx.fillStyle = C.ink;
+      octx.globalAlpha = a; octx.fillStyle = p.kind === "date" && p.q > 0.55 ? C[p.cat] : C.sea;
       octx.fillText(p.tok, p.x, p.y);
     }
     octx.globalAlpha = 1;
@@ -551,7 +547,7 @@ html.fast .rv, html.fast [data-ln] { transition-duration: 200ms; transition-dela
   }
   function drawBg(now, dt) {
     octx.clearRect(0, 0, W, H);
-    octx.font = `11px ${MONO}`; octx.fillStyle = C.ink; octx.textBaseline = "alphabetic";
+    octx.font = `11px ${MONO}`; octx.fillStyle = C.sea; octx.textBaseline = "alphabetic";
     const R = 130; let near = null, nd = 70 * 70;
     for (const p of bgParts) {
       if (dt) drift(p, dt, now, W, H);
@@ -584,10 +580,10 @@ html.fast .rv, html.fast [data-ln] { transition-duration: 200ms; transition-dela
     let bx = px + 14, by = py - 34;
     if (bx + bw > w - 8) bx = px - bw - 14;
     if (by < 6) by = py + 10;
-    x.strokeStyle = C.ink; x.lineWidth = 1;
+    x.strokeStyle = C[CAT[t]] || C.ink; x.lineWidth = 1;
     x.beginPath(); x.moveTo(px - 3, py - 4); x.lineTo(bx + (bx > px ? 0 : bw), by + bh / 2); x.stroke();
     x.fillStyle = C.bg; x.fillRect(bx, by, bw, bh); x.strokeRect(bx + .5, by + .5, bw - 1, bh - 1);
-    x.fillStyle = C.ink; x.font = `500 13px ${MONO}`; x.fillText(t, bx + 10, by + 19);
+    x.fillStyle = C[CAT[t]] || C.ink; x.font = `500 13px ${MONO}`; x.fillText(t, bx + 10, by + 19);
     x.fillStyle = C.muted; x.font = `13px ${SANS}`; x.fillText(txt, bx + 20 + tw, by + 19);
     x.restore();
   }
@@ -623,13 +619,17 @@ html.fast .rv, html.fast [data-ln] { transition-duration: 200ms; transition-dela
     const R = 86; let near = null, nd = 64 * 64;
     for (const p of sParts) {
       if (dt) drift(p, dt, now, sW, sH);
-      let a = 0.24, sz = 11;
+      let a = 0.42, sz = 11, col = C.sea;
       if (sPtr) {
         const d2 = (p.x - sPtr.x) ** 2 + (p.y - sPtr.y) ** 2;
-        if (d2 < R * R) { const k = 1 - Math.sqrt(d2) / R; a = 0.24 + 0.76 * k; sz = 11 * (1 + 0.55 * k * k); if (MEAN[p.tok] && d2 < nd) { nd = d2; near = p; } }
+        if (d2 < R * R) {
+          const k = 1 - Math.sqrt(d2) / R; a = 0.42 + 0.58 * k; sz = 11 * (1 + 0.55 * k * k);
+          col = k > 0.35 ? (C[CAT[p.tok]] || C.ink) : C.sea;
+          if (MEAN[p.tok] && d2 < nd) { nd = d2; near = p; }
+        }
       }
       sctx.font = `${sz.toFixed(1)}px ${MONO}`;
-      sctx.globalAlpha = a; sctx.fillStyle = C.ink;
+      sctx.globalAlpha = a; sctx.fillStyle = col;
       sctx.fillText(p.tok, p.x, p.y);
     }
     if (near) label(sctx, near.x, near.y, near.tok, sW);

@@ -14,7 +14,7 @@
   --act: #1B5FA6; --act-dk: #154C86; --on-act: #FFFFFF; --brand: #1B5FA6; --ok: #1F7A4D;
   --lv-a: #2185B5; --lv-a-tx: #17698F; --lv-a-wash: #E6F2F8;
   --lv-b: #1E97A3; --lv-b-tx: #0E6E7A; --lv-b-wash: #E4F4F5;
-  --lv-t: #EE7A1D; --lv-t-tx: #A9520B; --lv-t-wash: #FDF0E4;
+  --lv-t: #EE7A1D; --lv-t-tx: #A9520B; --lv-t-wash: #FDF0E4; --bad: #B42318;
   --head: "Chiron GoRound TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
   --sans: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
@@ -27,7 +27,7 @@
     --act: #3D82CC; --act-dk: #5B97D8; --on-act: #FFFFFF; --brand: #82B5EC; --ok: #6CCB95;
     --lv-a: #58B2DD; --lv-a-tx: #7CC4E6; --lv-a-wash: #152836;
     --lv-b: #45BCC6; --lv-b-tx: #6FCFD6; --lv-b-wash: #122C2F;
-    --lv-t: #F29A55; --lv-t-tx: #F5AE75; --lv-t-wash: #302217;
+    --lv-t: #F29A55; --lv-t-tx: #F5AE75; --lv-t-wash: #302217; --bad: #F08A80;
     color-scheme: dark;
   }
 }
@@ -37,7 +37,7 @@
   --act: #3D82CC; --act-dk: #5B97D8; --on-act: #FFFFFF; --brand: #82B5EC; --ok: #6CCB95;
   --lv-a: #58B2DD; --lv-a-tx: #7CC4E6; --lv-a-wash: #152836;
   --lv-b: #45BCC6; --lv-b-tx: #6FCFD6; --lv-b-wash: #122C2F;
-  --lv-t: #F29A55; --lv-t-tx: #F5AE75; --lv-t-wash: #302217;
+  --lv-t: #F29A55; --lv-t-tx: #F5AE75; --lv-t-wash: #302217; --bad: #F08A80;
   color-scheme: dark;
 }
 
@@ -110,6 +110,28 @@ a:hover .arr { transform: translateX(2px); }
 .facts { margin: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 16px; font-size: 15px; }
 .facts dt { color: var(--muted); }
 .facts dd { margin: 0; }
+.item.linked:not(.open) { background: var(--cw); }
+.judge { display: grid; gap: 6px; }
+.who { font-size: 13px; color: var(--muted); }
+.checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: 15px; }
+.checks li { display: flex; gap: 10px; align-items: baseline; opacity: 0; transform: translateX(-4px); transition: opacity 240ms var(--ease) calc(var(--i) * 150ms + 120ms), transform 240ms var(--ease) calc(var(--i) * 150ms + 120ms); }
+.run .checks li { opacity: 1; transform: none; }
+.run .checks li[data-ok="-"] { opacity: .5; }
+.mk { width: 16px; flex: none; font-weight: 700; text-align: center; }
+li[data-ok="1"] .mk::before { content: "✓"; color: var(--ok); }
+li[data-ok="0"] .mk::before { content: "✕"; color: var(--bad); }
+li[data-ok="-"] .mk::before { content: "–"; color: var(--muted); }
+.verdict { font-weight: 700; opacity: 0; transition: opacity 300ms var(--ease) calc(var(--n) * 150ms + 220ms); }
+.run .verdict { opacity: 1; }
+.verdict.ok { color: var(--ok); }
+.meters { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px 14px; align-items: center; font-size: 14px; color: var(--muted); }
+.bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: var(--c); border-radius: 3px; transition: width 650ms var(--ease) 300ms; }
+.run .bar i { width: calc(var(--v) * 100%); }
+.ticks { display: flex; gap: 2px; height: 12px; }
+.ticks i { flex: 1; background: var(--line); transition: background-color 200ms var(--ease) calc(var(--k) * 22ms + 320ms); }
+.run .ticks i.on { background: var(--c); }
+.mv { font: 500 13px var(--mono); font-variant-numeric: tabular-nums; color: var(--ink); white-space: nowrap; }
 .go { justify-self: start; font-weight: 500; text-decoration: underline; text-underline-offset: 7px; padding-block: 6px; }
 .all { display: flex; justify-content: flex-end; margin-top: 18px; }
 .all a { color: var(--brand); font-weight: 500; text-decoration: underline; text-underline-offset: 7px; padding-block: 8px; }
@@ -172,7 +194,7 @@ html.fast .rv, html.fast [data-ln] { transition-duration: 200ms; transition-dela
   .date time { font-size: 22px; }
   .main { padding-left: 14px; }
   .main h3 { font-size: 20px; }
-  .pin { margin: 0 12px 0 calc(12px + 64px + 14px + 15px); }
+  .pin { margin: 0 12px; }
   .platform h2 { font-size: 22px; }
   .org { text-align: left; }
   .demo span { display: none; }
@@ -180,7 +202,7 @@ html.fast .rv, html.fast [data-ln] { transition-duration: 200ms; transition-dela
 }
 @media (max-width: 359px) { .wrap { padding-inline: 16px; } .pin { margin-left: 12px; } }
 @media (prefers-reduced-motion: reduce) {
-  .rv, [data-ln], .panel, .item, .btn, .arr { transition: none; }
+  .rv, [data-ln], .panel, .item, .btn, .arr, .checks li, .verdict, .bar i, .ticks i { transition: none; }
 }
 </style>
 
@@ -242,7 +264,9 @@ html.fast .rv, html.fast [data-ln] { transition-duration: 200ms; transition-dela
         <div class="panel" id="p1" role="region" aria-labelledby="t1" hidden>
           <div class="pin">
             <p>教育數據從哪裡來、圖表怎麼看、常見的誤讀，以及使用學生資料的倫理與個資保護。</p>
-            <dl class="facts"><dt>時間</dt><dd>09:00–12:00・研習 3 小時</dd><dt>地點</dt><dd>國立高雄師範大學</dd><dt>資格</dt><dd>不限資格，教師與行政人員皆可報名</dd><dt>截止</dt><dd>10.14 報名截止</dd></dl>
+            <div class="judge" style="--n:3"><p class="who">以示範身分判讀：國中教師・已完成初階研習</p><ol class="checks" aria-label="報名條件"><li data-ok="1" style="--i:0"><span class="mk" aria-hidden="true"></span><span>不限資格</span></li><li data-ok="1" style="--i:1"><span class="mk" aria-hidden="true"></span><span>報名尚未截止</span></li><li data-ok="1" style="--i:2"><span class="mk" aria-hidden="true"></span><span>還有名額</span></li></ol><p class="verdict ok">可以報名</p></div>
+            <div class="meters"><span class="ml">名額</span><span class="bar" aria-hidden="true"><i style="--v:0.3"></i></span><span class="mv">已錄取 18 / 60</span><span class="ml">截止</span><span class="ticks" data-left="1" aria-hidden="true"></span><span class="mv">還有 1 天・10.14</span></div>
+            <dl class="facts"><dt>時間</dt><dd>09:00–12:00・研習 3 小時</dd><dt>地點</dt><dd>國立高雄師範大學</dd></dl>
             <a class="go" href="#">查看詳情與報名 <span class="arr" aria-hidden="true">→</span></a>
           </div>
         </div>
@@ -263,7 +287,9 @@ html.fast .rv, html.fast [data-ln] { transition-duration: 200ms; transition-dela
         <div class="panel" id="p2" role="region" aria-labelledby="t2" hidden>
           <div class="pin">
             <p>由縣市推薦參加。結訓後繳交公版簡報與試教影片，審查通過取得講師資格（效期 2 年）。</p>
-            <dl class="facts"><dt>時間</dt><dd>兩天 09:00–16:00・研習 12 小時</dd><dt>地點</dt><dd>國立臺中教育大學</dd><dt>資格</dt><dd>收到縣市推薦的邀請信後才能報名，需附先修證明</dd></dl>
+            <div class="judge" style="--n:1"><p class="who">以示範身分判讀：國中教師・已完成初階研習</p><ol class="checks" aria-label="報名條件"><li data-ok="0" style="--i:0"><span class="mk" aria-hidden="true"></span><span>收到縣市推薦的邀請信</span></li><li data-ok="-" style="--i:1"><span class="mk" aria-hidden="true"></span><span>上傳先修證明（A1、A2、B5-1）</span></li><li data-ok="-" style="--i:2"><span class="mk" aria-hidden="true"></span><span>還有名額</span></li></ol><p class="verdict no">尚未收到推薦邀請，這一場無法直接報名。</p></div>
+            <div class="meters"><span class="ml">名額</span><span class="bar" aria-hidden="true"><i style="--v:0.4"></i></span><span class="mv">已錄取 12 / 30</span><span class="ml">截止</span><span class="ticks" data-left="8" aria-hidden="true"></span><span class="mv">還有 8 天・10.21</span></div>
+            <dl class="facts"><dt>時間</dt><dd>兩天 09:00–16:00・研習 12 小時</dd><dt>地點</dt><dd>國立臺中教育大學</dd></dl>
             <a class="go" href="#">講師培訓怎麼推薦 <span class="arr" aria-hidden="true">→</span></a>
           </div>
         </div>
@@ -284,8 +310,10 @@ html.fast .rv, html.fast [data-ln] { transition-duration: 200ms; transition-dela
         <div class="panel" id="p3" role="region" aria-labelledby="t3" hidden>
           <div class="pin">
             <p>依職務分組，用自己單位的資料實際整理、分析與判讀。結業後自動開通分析平台。</p>
-            <dl class="facts"><dt>時間</dt><dd>09:00–16:00・研習 6 小時</dd><dt>地點</dt><dd>國立臺中教育大學</dd><dt>資格</dt><dd>已完成初階研習，且職務為學校行政</dd><dt>截止</dt><dd>10.28 報名截止</dd></dl>
-            <a class="go" href="#">查看詳情與報名 <span class="arr" aria-hidden="true">→</span></a>
+            <div class="judge" style="--n:2"><p class="who">以示範身分判讀：國中教師・已完成初階研習</p><ol class="checks" aria-label="報名條件"><li data-ok="1" style="--i:0"><span class="mk" aria-hidden="true"></span><span>已完成初階研習</span></li><li data-ok="0" style="--i:1"><span class="mk" aria-hidden="true"></span><span>職務為學校行政（你的職務是教師）</span></li><li data-ok="-" style="--i:2"><span class="mk" aria-hidden="true"></span><span>還有名額</span></li></ol><p class="verdict no">這一場是學校行政軌。教師可以報 11.14 的教師軌（高雄）。</p></div>
+            <div class="meters"><span class="ml">名額</span><span class="bar" aria-hidden="true"><i style="--v:0.55"></i></span><span class="mv">已錄取 22 / 40</span><span class="ml">截止</span><span class="ticks" data-left="15" aria-hidden="true"></span><span class="mv">還有 15 天・10.28</span></div>
+            <dl class="facts"><dt>時間</dt><dd>09:00–16:00・研習 6 小時</dd><dt>地點</dt><dd>國立臺中教育大學</dd></dl>
+            <a class="go" href="#">看 11.14 教師軌 <span class="arr" aria-hidden="true">→</span></a>
           </div>
         </div>
       </div>
@@ -571,26 +599,26 @@ html.fast .rv, html.fast [data-ln] { transition-duration: 200ms; transition-dela
   addEventListener("pointerout", e => { if (!e.relatedTarget) bgPtr = null; });
 
   /* 數字旁的說明標籤 */
-  function label(x, px, py, t, w) {
+  function label(x, px, py, t, w, al = 1, sz = 11) {
     const txt = MEAN[t]; if (!txt) return;
-    x.save(); x.globalAlpha = 1;
-    x.font = `500 13px ${MONO}`; const tw = x.measureText(t).width;
+    x.save(); x.globalAlpha = al;
+    x.font = `500 ${sz}px ${MONO}`; const nw = x.measureText(t).width;
     x.font = `13px ${SANS}`; const lw = x.measureText(txt).width;
-    const bw = tw + lw + 30, bh = 28;
-    let bx = px + 14, by = py - 34;
-    if (bx + bw > w - 8) bx = px - bw - 14;
-    if (by < 6) by = py + 10;
-    x.strokeStyle = C[CAT[t]] || C.ink; x.lineWidth = 1;
-    x.beginPath(); x.moveTo(px - 3, py - 4); x.lineTo(bx + (bx > px ? 0 : bw), by + bh / 2); x.stroke();
+    const bw = lw + 22, bh = 28, my = py - sz * 0.36;
+    let bx = px + nw + 18;
+    if (bx + bw > w - 6) bx = px - bw - 18;
+    const by = Math.max(4, my - bh / 2), col = C[CAT[t]] || C.ink;
+    x.strokeStyle = col; x.lineWidth = 1;
+    x.beginPath(); x.moveTo(bx > px ? px + nw + 5 : px - 5, my); x.lineTo(bx > px ? bx : bx + bw, my); x.stroke();
     x.fillStyle = C.bg; x.fillRect(bx, by, bw, bh); x.strokeRect(bx + .5, by + .5, bw - 1, bh - 1);
-    x.fillStyle = C[CAT[t]] || C.ink; x.font = `500 13px ${MONO}`; x.fillText(t, bx + 10, by + 19);
-    x.fillStyle = C.muted; x.font = `13px ${SANS}`; x.fillText(txt, bx + 20 + tw, by + 19);
+    x.fillStyle = C.ink; x.font = `13px ${SANS}`; x.fillText(txt, bx + 11, by + 19);
     x.restore();
   }
 
-  /* ---------- B：主視覺數字海 ---------- */
+  /* ---------- B：主視覺數字海（指到的數字留下，其他數字讓開） ---------- */
   const box = document.querySelector(".sea-box"), slot = document.getElementById("slot");
-  let sctx, sParts = [], sRaf = 0, sW = 0, sH = 0, sPtr = null, sOn = true, sTimer = 0, sLast = 0;
+  let sctx, sParts = [], sRaf = 0, sW = 0, sH = 0, sPtr = null, sOn = true, sLast = 0, kept = null, rowCat = null;
+  const PUSH = 92, SNAP = 64;
   function seedSlot() {
     const P = [];
     for (let y = 16; y < sH - 4; y += 22) for (let x = 6; x < sW; x += 30)
@@ -599,12 +627,11 @@ html.fast .rv, html.fast [data-ln] { transition-duration: 200ms; transition-dela
   }
   function startSlot(seed) {
     stopSlot();
-    if (V !== "b") return;
     const b = box.getBoundingClientRect(); sW = b.width; sH = b.height;
     if (!sW) return;
     sctx = fit(slot, sW, sH);
-    sParts = seed && seed.length ? seed : seedSlot();
-    sLast = performance.now();
+    sParts = (seed && seed.length ? seed : seedSlot()).map(p => ({ ...p, ox: 0, oy: 0, s: 0, f: 0 }));
+    kept = null; sLast = performance.now();
     if (RM.matches) drawSlot(sLast, 0); else sRaf = requestAnimationFrame(slotFrame);
   }
   function stopSlot() { cancelAnimationFrame(sRaf); sRaf = 0; }
@@ -613,38 +640,76 @@ html.fast .rv, html.fast [data-ln] { transition-duration: 200ms; transition-dela
     if (sOn) drawSlot(now, dt);
     sRaf = requestAnimationFrame(slotFrame);
   }
+  /* 只有講得出意義的數字會被留下；新的候選要明顯更近才換，避免抖動 */
+  function pickKept() {
+    if (!sPtr) return null;
+    let best = null, bd = SNAP * SNAP;
+    for (const p of sParts) {
+      if (!MEAN[p.tok]) continue;
+      const d2 = (p.x - sPtr.x) ** 2 + (p.y - sPtr.y) ** 2;
+      if (d2 < bd) { bd = d2; best = p; }
+    }
+    if (kept && kept !== best) {
+      const kd = (kept.x - sPtr.x) ** 2 + (kept.y - sPtr.y) ** 2;
+      if (kd < (SNAP * 1.35) ** 2 && (!best || bd > kd * 0.5)) return kept;
+    }
+    return best;
+  }
+  function setKept(p) {
+    if (p === kept) return;
+    kept = p;
+    const cat = p ? CAT[p.tok] : null;
+    document.querySelectorAll(".item").forEach(it => it.classList.toggle("linked", !!cat && it.dataset.c === cat));
+  }
   function drawSlot(now, dt) {
+    const rm = RM.matches || !dt;
+    const k1 = rm ? 1 : 1 - Math.exp(-dt / 90);   /* 平滑趨近，不彈跳 */
+    setKept(pickKept());
+    const cx = kept ? kept.x : sPtr ? sPtr.x : 0, cy = kept ? kept.y : sPtr ? sPtr.y : 0;
     sctx.clearRect(0, 0, sW, sH);
     sctx.textBaseline = "alphabetic";
-    const R = 86; let near = null, nd = 64 * 64;
+    let font = "";
     for (const p of sParts) {
-      if (dt) drift(p, dt, now, sW, sH);
-      let a = 0.42, sz = 11, col = C.sea;
-      if (sPtr) {
-        const d2 = (p.x - sPtr.x) ** 2 + (p.y - sPtr.y) ** 2;
-        if (d2 < R * R) {
-          const k = 1 - Math.sqrt(d2) / R; a = 0.42 + 0.58 * k; sz = 11 * (1 + 0.55 * k * k);
-          col = k > 0.35 ? (C[CAT[p.tok]] || C.ink) : C.sea;
-          if (MEAN[p.tok] && d2 < nd) { nd = d2; near = p; }
+      if (dt && p !== kept) drift(p, dt, now, sW, sH);
+      let tox = 0, toy = 0, fade = 0;
+      if (sPtr && p !== kept) {
+        const dx = p.x - cx, dy = p.y - cy, d = Math.hypot(dx, dy) || 1;
+        if (d < PUSH) {
+          const q = 1 - d / PUSH;
+          if (!RM.matches) { tox = dx / d * (PUSH - d) * 0.95; toy = dy / d * (PUSH - d) * 0.95; }
+          fade = Math.min(1, q * 1.6);
         }
       }
-      sctx.font = `${sz.toFixed(1)}px ${MONO}`;
+      p.ox += (tox - p.ox) * k1; p.oy += (toy - p.oy) * k1;
+      p.f += (fade - p.f) * k1;
+      const hit = rowCat && CAT[p.tok] === rowCat;
+      p.s += ((p === kept || hit ? 1 : 0) - p.s) * k1;
+      const big = p === kept ? 9 : 3;
+      const sz = 11 + big * p.s;
+      let a = (0.42 + 0.58 * p.s) * (1 - 0.82 * p.f);
+      const col = p.s > 0.35 ? (C[CAT[p.tok]] || C.ink) : C.sea;
+      const f = `${p.s > 0.35 ? 500 : 400} ${sz.toFixed(1)}px ${MONO}`;
+      if (f !== font) { sctx.font = f; font = f; }
       sctx.globalAlpha = a; sctx.fillStyle = col;
-      sctx.fillText(p.tok, p.x, p.y);
+      sctx.fillText(p.tok, p.x + p.ox, p.y + p.oy);
     }
-    if (near) label(sctx, near.x, near.y, near.tok, sW);
+    if (kept && kept.s > 0.2) label(sctx, kept.x, kept.y, kept.tok, sW, Math.min(1, kept.s * 1.4), 20);
     sctx.globalAlpha = 1;
   }
   const local = e => { const b = box.getBoundingClientRect(); return { x: e.clientX - b.left, y: e.clientY - b.top }; };
-  box.addEventListener("pointermove", e => { if (e.pointerType === "mouse") { sPtr = local(e); if (RM.matches) drawSlot(0, 0); } });
-  box.addEventListener("pointerleave", e => { if (e.pointerType === "mouse") { sPtr = null; if (RM.matches) drawSlot(0, 0); } });
-  box.addEventListener("pointerdown", e => {
-    if (e.pointerType === "mouse") return;
-    sPtr = local(e); clearTimeout(sTimer);
-    if (RM.matches) drawSlot(0, 0);
-    sTimer = setTimeout(() => { sPtr = null; if (RM.matches) drawSlot(0, 0); }, 2600);
+  const redraw = () => { if (RM.matches) drawSlot(0, 0); };
+  box.addEventListener("pointermove", e => { if (e.pointerType === "mouse") { sPtr = local(e); redraw(); } });
+  box.addEventListener("pointerleave", e => { if (e.pointerType === "mouse") { sPtr = null; redraw(); } });
+  box.addEventListener("pointerdown", e => { if (e.pointerType !== "mouse") { sPtr = local(e); kept = null; redraw(); } });
+  document.addEventListener("pointerdown", e => { if (e.pointerType !== "mouse" && !box.contains(e.target)) { sPtr = null; redraw(); } });
+  /* 場次 → 數字海：滑到某個場次，跟它有關的數字亮起來 */
+  document.querySelectorAll(".item").forEach(it => {
+    it.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") { rowCat = it.dataset.c; redraw(); } });
+    it.addEventListener("pointerleave", e => { if (e.pointerType === "mouse") { rowCat = null; redraw(); } });
+    it.addEventListener("focusin", () => { rowCat = it.dataset.c; redraw(); });
+    it.addEventListener("focusout", () => { rowCat = null; redraw(); });
   });
-  if (!fine.matches) document.getElementById("slot-cap").textContent = "每個數字都來自計畫資料。點一下數字，看看它代表什麼。";
+  if (!fine.matches) document.getElementById("slot-cap").textContent = "每個數字都來自計畫資料。點一下數字，其他數字會讓開，留下它的意思。";
   if ("IntersectionObserver" in window) new IntersectionObserver(es => { sOn = es[0].isIntersecting; }).observe(box);
   document.addEventListener("visibilitychange", () => { sOn = !document.hidden; });
 
@@ -679,21 +744,28 @@ html.fast .rv, html.fast [data-ln] { transition-duration: 200ms; transition-dela
 
   /* ---------- 近期研習：一次只展開一場 ---------- */
   const items = [...document.querySelectorAll(".item")];
+  /* 截止刻度：一格一天，以 30 天為尺度，剩下的天數用課程顏色 */
+  document.querySelectorAll(".ticks").forEach(el => {
+    const left = +el.dataset.left;
+    for (let k = 0; k < 30; k++) { const i = document.createElement("i"); i.style.setProperty("--k", k); if (k < left) i.className = "on"; el.appendChild(i); }
+  });
   function expand(it) {
     const btn = it.querySelector("h3 button"), pn = it.querySelector(".panel");
     btn.setAttribute("aria-expanded", "true"); it.classList.add("open"); pn.hidden = false;
+    const pin = pn.querySelector(".pin"); pin.classList.remove("run"); pin.offsetHeight;
+    requestAnimationFrame(() => pin.classList.add("run"));
     if (RM.matches) return;
     const h = pn.scrollHeight; pn.style.height = "0px"; pn.offsetHeight; pn.style.height = h + "px";
-    const done = () => { pn.style.height = ""; pn.removeEventListener("transitionend", done); };
+    const done = e => { if (e && e.target !== pn) return; pn.style.height = ""; pn.removeEventListener("transitionend", done); };
     pn.addEventListener("transitionend", done); setTimeout(done, 320);
   }
   function collapse(it) {
     const btn = it.querySelector("h3 button"), pn = it.querySelector(".panel");
     if (pn.contains(document.activeElement)) btn.focus();
     btn.setAttribute("aria-expanded", "false"); it.classList.remove("open");
-    if (RM.matches) { pn.hidden = true; return; }
+    if (RM.matches) { pn.hidden = true; pn.querySelector(".pin").classList.remove("run"); return; }
     pn.style.height = pn.scrollHeight + "px"; pn.offsetHeight; pn.style.height = "0px";
-    const done = () => { if (btn.getAttribute("aria-expanded") === "false") pn.hidden = true; pn.style.height = ""; pn.removeEventListener("transitionend", done); };
+    const done = e => { if (e && e.target !== pn) return; if (btn.getAttribute("aria-expanded") === "false") { pn.hidden = true; pn.querySelector(".pin").classList.remove("run"); } pn.style.height = ""; pn.removeEventListener("transitionend", done); };
     pn.addEventListener("transitionend", done); setTimeout(done, 320);
   }
   items.forEach(it => it.querySelector("h3 button").addEventListener("click", () => {

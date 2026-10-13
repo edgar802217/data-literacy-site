@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useLayoutEffect, use
 import { createPortal } from "react-dom";
 import { Outlet, useLocation } from "react-router-dom";
 import { useDemo } from "../demo/store";
-import { course, upcoming } from "../demo/logic";
+import { codeOf, upcoming } from "../demo/logic";
 import type { State } from "../demo/types";
 import { createSlot, playIntro, reduced, type Cat, type SeaWords, type Slot, type SlotSeed } from "../home/sea";
 import "../styles/home.css";
@@ -12,22 +12,23 @@ import "../styles/shell.css";
    各頁用 <Stage> 把標題放進舞台，用 useSea() 控制數字海要亮哪些數字。 */
 
 export const dot = (d: string) => d.slice(5).replace("-", ".");
-export const lvName = (lv: string) => (lv.endsWith("培訓") ? lv : lv + "研習");
-
+/* 數字海裡「講得出意義」的數字：依 115 年下半年培訓簡章 */
 const BASE_MEAN: Record<string, string> = {
-  "22": "縣市＋國教署參與", "59": "項資料素養能力指標", "14": "場講師培訓", "10": "場縣市行政研習",
-  "4": "每縣市講師培訓推薦名額", "2": "講師資格效期（年）", "90": "登錄全教網後，身分證字號保存天數",
-  "3": "初階研習時數", "6": "進階研習時數", "12": "講師培訓時數", "115": "計畫年度（民國）",
-  "B5-1": "講師培訓先修課程", "A1": "講師培訓先修課程",
+  "22": "縣市＋國教署推動辦公室", "4": "區培訓：北、中、南、東", "3": "B6. 教育資料素養工作坊時數",
+  "6": "進階課程時數（B6-1／B6-2／B6-3）", "9": "G1. 講師培訓時數", "12": "B6.＋G1. 兩天合計時數",
+  "2": "講師資格效期（年）", "1": "各推動辦公室至少推薦的 G1. 人數", "90": "登錄全教網後，身分證字號保存天數",
+  "115": "計畫年度（民國）", "116": "進階課程開始開設的年度",
+  "A1": "報名前需完成的全教網課程", "A2": "報名前需完成的全教網課程", "B5-1": "報名前需完成的全教網課程",
+  "10.22": "北區、中區報名截止", "10.28": "南區、東區報名截止",
 };
-const BASE_CAT: Record<string, Cat> = { "3": "A", "6": "B", "12": "T", "B5-1": "T", "A1": "T", "4": "T", "2": "T", "14": "T" };
+const BASE_CAT: Record<string, Cat> = { "3": "A", "A1": "A", "A2": "A", "B5-1": "A", "6": "B", "116": "B", "9": "T", "12": "T", "2": "T", "1": "T" };
 function buildWords(st: State): SeaWords {
   const mean = { ...BASE_MEAN }, cat = { ...BASE_CAT };
   upcoming(st).forEach(s => {
-    const k = dot(s.date), t = `${lvName(course(st, s.course).level)}・${s.address.slice(0, 3) || s.region}`;
+    const k = dot(s.date), t = `${codeOf(st, s)} ${s.region}`;
     if (!mean[k]) { mean[k] = t; cat[k] = s.course; } else if (!mean[k].includes(t)) mean[k] += "／" + t;
   });
-  return { mean, cat, raw: ["09:00", "12:00", "16:00", "60", "40", "30", "DL115", "A2", "116", "0", "1", "5", "7", "8", "9", "2026"] };
+  return { mean, cat, raw: ["08:30", "09:00", "12:00", "13:00", "16:00", "40", "25", "DL115", "0", "5", "7", "8", "2026"] };
 }
 
 interface SeaApi { setPage: (l: string[]) => void; setRow: (l: string[] | null) => void; kept: string | null; words: SeaWords; ready: boolean }

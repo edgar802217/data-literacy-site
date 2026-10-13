@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useSearchParams } from "react-router-dom";
 import { useDemo } from "../demo/store";
-import { course, elig, entitled, has, JOB, mask, mdw, pendingInvites, sess, ST, upcoming } from "../demo/logic";
+import { course, elig, entitled, has, JOB, kindOf, levelName, mask, mdw, pendingInvites, sess, ST, titleOf, upcoming } from "../demo/logic";
 import type { Cert, CourseId, RegStatus, Session } from "../demo/types";
 import { useContent, Rich } from "../lib/content";
 import { Modal } from "../components/ui";
 import { bindInvite } from "../components/Layout";
-import { dot, lvName, Stage, useSea } from "../shell/Shell";
+import { dot, Stage, useSea } from "../shell/Shell";
 import { stateText } from "../shell/sessions";
 import { lastDetail, vt } from "../shell/vt";
 
@@ -41,9 +41,9 @@ export function TrainRow({ s, why }: { s: Session; why?: boolean }) {
       onPointerEnter={e2 => e2.pointerType === "mouse" && on()} onPointerLeave={e2 => e2.pointerType === "mouse" && off()} onFocus={on} onBlur={off}>
       <div className="d"><time dateTime={s.date} data-vt="date" style={back ? { viewTransitionName: "vt-date" } : undefined}>{dot(s.date)}</time>{s.date2 && <small>–{dot(s.date2)}・兩天</small>}</div>
       <div className="m">
-        <p className="k">{lvName(c.level)}{s.track ? "・" + JOB[s.track] + "軌" : ""}</p>
-        <span className="t" data-vt="title" style={back ? { viewTransitionName: "vt-title" } : undefined}>{c.name}</span>
-        <p className="meta">{s.address.slice(0, 3) || s.region}・{s.venue}</p>
+        <p className="k">{kindOf(st, s)}</p>
+        <span className="t" data-vt="title" style={back ? { viewTransitionName: "vt-title" } : undefined}>{titleOf(st, s)}</span>
+        <p className="meta">{s.region}・{s.venue}{s.venue2 ? "、" + s.venue2 : ""}</p>
         {why && e.why && !e.reg && !e.ok && <p className="pg-why">{e.why}</p>}
       </div>
       <span className={"s" + (good ? " good" : "")}>{txt}</span>
@@ -68,16 +68,16 @@ export function Find() {
   const chip = (k: string, v: string, t: string, cur: string) => <button key={v} type="button" className="pg-chip" aria-pressed={cur === v} onClick={() => set(k, v)}>{t}</button>;
   return (
     <>
-      <Stage eyebrow="研習" doc="找場次" title="找到適合你的場次" lead="初階不限資格；進階依職務分成三軌；講師培訓由縣市推薦。"
+      <Stage eyebrow="研習" doc="找場次" title="找到適合你的場次" lead="115 年下半年開設 B6. 與 G1. 工作坊，由各推動辦公室彙整名單報名；進階課程 116 年起開設。"
         cap="亮起的是目前列出的場次日期。滑過場次，對應的數字會更明顯。" focus={list.map(s => dot(s.date))}><Back /></Stage>
       <div className="pg-filters" role="group" aria-label="篩選場次">
-        <div className="pg-chips"><span className="pg-lb">課程</span>{chip("course", "all", "全部", fc)}{chip("course", "A", "初階", fc)}{chip("course", "B", "進階", fc)}{chip("course", "T", "講師培訓", fc)}</div>
+        <div className="pg-chips"><span className="pg-lb">課程</span>{chip("course", "all", "全部", fc)}{chip("course", "A", "B6. 基礎", fc)}{chip("course", "B", "進階", fc)}{chip("course", "T", "G1. 講師培訓", fc)}</div>
         <div className="pg-chips"><span className="pg-lb">區域</span>{chip("region", "all", "全部", fr)}{REGIONS.map(r => chip("region", r, r, fr))}</div>
         {learner && <label className="pg-check"><input type="checkbox" checked={only} onChange={() => vt(() => setOnly(!only))} />只看我可以報名的</label>}
       </div>
       <p className="pg-count" aria-live="polite">共 {list.length} 個場次</p>
       {list.length ? Object.entries(months).map(([m, ss]) => <section key={m}><h2 className="pg-sec">{m}</h2><div className="pg-list">{ss.map(s => <TrainRow key={s.id} s={s} why={learner} />)}</div></section>)
-        : <p className="pg-empty">沒有符合條件的場次。<button type="button" className="pg-tlink" onClick={() => vt(() => { setQ({}, { replace: true }); setOnly(false); })}>清除篩選</button></p>}
+        : <p className="pg-empty">{fc === "B" ? "進階課程（B6-1／B6-2／B6-3）116 年起由各推動辦公室開設，目前還沒有場次。" : "沒有符合條件的場次。"}<button type="button" className="pg-tlink" onClick={() => vt(() => { setQ({}, { replace: true }); setOnly(false); })}>清除篩選</button></p>}
     </>
   );
 }
@@ -90,7 +90,7 @@ function CertView({ c, onClose }: { c: Cert; onClose: () => void }) {
     <div className="certdoc">
       <h2>研習證明</h2>
       <p className="body"><b>{p.name}</b>（{p.org}）於 <span className="num">{c.date}</span> 參加教育資料素養提升計畫 {c.title}，研習時數共 <b className="num">{c.hours}</b> 小時，特此證明。</p>
-      <div className="foot2"><div>教育部補助｜國立高雄師範大學執行<br />查驗碼 <span className="code">{c.code}</span><br />可至「研習 › 證書查驗」核對</div><div className="qr" aria-label="查驗 QR code（示意）" /></div>
+      <div className="foot2"><div>教育部資訊及科技教育司指導｜國立高雄師範大學承辦<br />查驗碼 <span className="code">{c.code}</span><br />可至「研習 › 證書查驗」核對</div><div className="qr" aria-label="查驗 QR code（示意）" /></div>
     </div>
     <p className="muted small">正式版可下載 PDF；QR code 掃描後會直接打開證書查驗並帶入查驗碼。</p>
   </Modal>;
@@ -137,10 +137,9 @@ export function Mine() {
 
       <h2 className="pg-sec" style={{ marginTop: 28 }}>進行中</h2>
       {going.length ? <div className="pg-list">{going.map(({ r, s }) => {
-        const c = course(st, s.course);
         return <div className="pg-row" data-c={s.course} key={r.id}>
           <div className="d"><time dateTime={s.date}>{dot(s.date)}</time>{s.date2 && <small>–{dot(s.date2)}</small>}</div>
-          <div className="m"><p className="k">{lvName(c.level)}{s.track ? "・" + JOB[s.track] + "軌" : ""}</p><Link to={"/trainings/" + s.id} className="t">{c.name}</Link><p className="meta">{s.address.slice(0, 3) || s.region}・{s.venue}</p></div>
+          <div className="m"><p className="k">{kindOf(st, s)}</p><Link to={"/trainings/" + s.id} className="t">{titleOf(st, s)}</Link><p className="meta">{s.address.slice(0, 3) || s.region}・{s.venue}</p></div>
           <span className="s pg-now">{ST[r.status][0]}</span><span />
           <div className="extra">
             <Steps status={r.status} />
@@ -155,18 +154,18 @@ export function Mine() {
         {past.map(({ r, s }) => { const c = course(st, s.course), ce = st.certs.find(x => x.reg === r.id);
           return <div className="pg-row" data-c={s.course} key={r.id}>
             <div className="d"><time dateTime={s.date}>{dot(s.date)}</time></div>
-            <div className="m"><p className="k">{lvName(c.level)}{s.track ? "・" + JOB[s.track] + "軌" : ""}</p><span className="t">{c.name}</span><p className="meta">{s.venue}・{c.hours} 小時</p>
+            <div className="m"><p className="k">{kindOf(st, s)}</p><span className="t">{titleOf(st, s)}</span><p className="meta">{s.venue}・{c.hours} 小時</p>
               {ce && <div className="pg-cert"><span>研習證明</span><code>{ce.code}</code><button type="button" className="pg-tlink" onClick={() => setCert(ce)}>檢視</button></div>}</div>
             <span className="s good">{ST[r.status][0]}</span><span />
           </div>; })}
         {extraCerts.map(ce => <div className="pg-row" data-c="T" key={ce.code}>
           <div className="d"><time dateTime={ce.date}>{dot(ce.date)}</time></div>
-          <div className="m"><p className="k">講師培訓</p><span className="t">{ce.title}</span><p className="meta">{ce.hours} 小時</p>
+          <div className="m"><p className="k">講師培訓｜G1.</p><span className="t">{ce.title.replace(/^G1\. /, "")}</span><p className="meta">{ce.hours} 小時</p>
             <div className="pg-cert"><span>研習證明</span><code>{ce.code}</code><button type="button" className="pg-tlink" onClick={() => setCert(ce)}>檢視</button></div></div>
           <span className="s good">已結業</span><span />
         </div>)}
       </div> : <p className="pg-empty">還沒有完成的研習。結業後研習證明會出現在這裡。</p>}
-      {other.length > 0 && <details className="pg-older"><summary>已取消、未錄取或缺席（{other.length}）</summary>{other.map(({ r, s }) => <p key={r.id}>{course(st, s.course).name}・{s.region} {mdw(s.date)}・{ST[r.status][0]}</p>)}</details>}
+      {other.length > 0 && <details className="pg-older"><summary>已取消、未錄取或缺席（{other.length}）</summary>{other.map(({ r, s }) => <p key={r.id}>{levelName(st, s)}・{s.region} {mdw(s.date)}・{ST[r.status][0]}</p>)}</details>}
       {cert && <CertView c={cert} onClose={() => setCert(null)} />}
       {cancel && <Modal title="取消這筆報名？" onClose={() => setCancel(null)}><p>取消後名額會釋出給備取的人。</p>
         <div className="row"><button className="btn btn-d btn-sm" onClick={() => { update(d => { d.regs.find(r => r.id === cancel)!.status = "cancelled"; }); setCancel(null); toast("已取消報名"); }}>取消報名</button><button className="btn btn-g btn-sm" onClick={() => setCancel(null)}>保留</button></div></Modal>}
@@ -205,9 +204,9 @@ export function Faq() {
   const { faq } = useContent();
   return (
     <>
-      <Stage eyebrow="研習" doc="常見問題" title="常見問題" lead="報名、資格、時數與研習證明。" cap="亮起的是常被問到的數字：時數、名額與效期。" focus={["3", "6", "12", "4", "2"]}><Back /></Stage>
+      <Stage eyebrow="研習" doc="常見問題" title="常見問題" lead="報名方式、資格、時數與研習證明。" cap="亮起的是常被問到的數字：時數、先修課程與講師資格效期。" focus={["3", "9", "12", "2", "A1", "B5-1"]}><Back /></Stage>
       <div className="pg-disc" style={{ marginTop: 16 }}>{faq.map((x, i) => <details key={i}><summary>{x["問題"]}</summary><div className="a"><Rich text={x["回答"]} /></div></details>)}</div>
-      <p className="pg-note">找不到答案？請寫信給計畫辦公室。</p>
+      <p className="pg-note">找不到答案？培訓相關請寄 edl.office+training@tlkr.nknu.edu.tw，其他業務請寄 edl.office@tlkr.nknu.edu.tw，或來電 07-7172930 分機 7028。</p>
     </>
   );
 }

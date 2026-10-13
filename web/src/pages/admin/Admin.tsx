@@ -1,8 +1,8 @@
-/* 後台：講師工作台、縣市承辦、計畫承辦。顏色與元件同前台，版面改成左側選單＋表格，方便處理大量資料。 */
+/* 後台：講師工作台、推動辦公室、計畫承辦。顏色與元件同前台，版面改成左側選單＋表格，方便處理大量資料。 */
 import { useState, type FormEvent, type ReactNode } from "react";
 import { Link, NavLink, Navigate, Outlet, useNavigate, useParams } from "react-router-dom";
 import { useDemo } from "../../demo/store";
-import { addMail, course, done, ELIG_LABEL, ended, entitled, graduate, has, inviteMail, JOB, mdw, QUOTA, sess, sessName, ST, taken, TODAY, user } from "../../demo/logic";
+import { addMail, course, done, ELIG_LABEL, ended, entitled, graduate, has, inviteMail, JOB, mdw, MIN_G1, sess, sessName, ST, taken, TODAY, user } from "../../demo/logic";
 import type { Elig, Invite, State, User } from "../../demo/types";
 import { Badge, Modal } from "../../components/ui";
 
@@ -12,7 +12,7 @@ function groups(me: User): [string, Item[]][] {
   if (has(me, "lecturer")) g.push(["講師工作台", [
     ["teach", "我的授課", () => 0],
     ["roll", "點名", (st, u) => st.sessions.filter(s => s.lect === u.id && ended(s) && !s.roll && st.regs.some(r => r.sess === s.id && r.status === "admitted")).length]]]);
-  if (has(me, "county")) g.push(["縣市承辦", [["nominate", "講師培訓推薦", () => 0]]]);
+  if (has(me, "county")) g.push(["推動辦公室", [["nominate", "推薦參訓人員", () => 0]]]);
   if (has(me, "staff")) g.push(["計畫管理", [
     ["dash", "總覽", () => 0],
     ["review", "報名審核", st => st.regs.filter(r => r.status === "pending").length],
@@ -27,7 +27,7 @@ export function AdminLayout() {
   const { st, me } = useDemo();
   if (!me) return <Navigate to="/login?next=/admin" replace />;
   const g = groups(me);
-  if (!g.length) return <div className="wrap narrow"><h1 className="h2">{me.name}沒有後台功能</h1><p className="muted">後台只開放給講師、縣市承辦與計畫承辦。</p><Link to="/" className="btn btn-p">回到首頁</Link></div>;
+  if (!g.length) return <div className="wrap narrow"><h1 className="h2">{me.name}沒有後台功能</h1><p className="muted">後台只開放給講師、推動辦公室與計畫承辦。</p><Link to="/" className="btn btn-p">回到首頁</Link></div>;
   return (
     <div className="admin">
       <nav className="aside" aria-label="後台選單">
@@ -88,32 +88,34 @@ export function Roll() {
   </>;
 }
 
-/* ---------- 縣市承辦 ---------- */
+/* ---------- 推動辦公室 ---------- */
+const TYPE: Record<string, string> = { A: "B6. 單日", T: "G1. 雙日（含 B6.）" };
 const INV: Record<Invite["status"], [string, "wait" | "ok" | "no"]> = { sent: ["已寄邀請・未回應", "wait"], accepted: ["已接受", "ok"], withdrawn: ["已撤回", "no"] };
 export function Nominate() {
   const { st, me, update, toast } = useDemo();
-  const mine = st.invites.filter(i => i.county === me!.county && i.course === "T");
-  const used = mine.filter(i => i.status !== "withdrawn").length;
+  const mine = st.invites.filter(i => i.county === me!.county);
+  const g1 = mine.filter(i => i.course === "T" && i.status !== "withdrawn").length;
   const add = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault(); const fd = new FormData(e.currentTarget); const f = e.currentTarget;
-    update(d => { const i: Invite = { id: "i" + Date.now(), course: "T", county: me!.county, name: String(fd.get("name")).trim(), email: String(fd.get("email")).trim().toLowerCase(), org: String(fd.get("org")).trim(), status: "sent", user: null, by: me!.id, sent: TODAY }; d.invites.push(i); inviteMail(d, i); });
-    f.reset(); toast("已推薦 " + fd.get("name") + "，邀請信已寄出（可在示範信箱看到）");
+    update(d => { const i: Invite = { id: "i" + Date.now(), course: fd.get("type") === "A" ? "A" : "T", county: me!.county, name: String(fd.get("name")).trim(), email: String(fd.get("email")).trim().toLowerCase(), org: String(fd.get("org")).trim(), status: "sent", user: null, by: me!.id, sent: TODAY }; d.invites.push(i); inviteMail(d, i); });
+    f.reset(); toast("已推薦 " + fd.get("name") + "，報名連結已寄出（可在示範信箱看到）");
   };
   return <>
-    <H t="講師培訓推薦" sub={<>{course(st, "T").name}・{me!.county}名額 <b className="num">{used} / {QUOTA}</b></>} />
-    <Table head={["被推薦人", "服務單位", "邀請", "報名", ""]}>{mine.map(i => {
-      const r = i.user ? st.regs.find(x => x.user === i.user && sess(st, x.sess)?.course === "T" && x.status !== "cancelled") : undefined;
-      return <tr key={i.id}><td>{i.name}<div className="sub">{i.email}</div></td><td>{i.org}</td><td><Badge kind={INV[i.status][1]}>{INV[i.status][0]}</Badge><div className="sub">寄出 {i.sent}</div></td>
+    <H t="推薦參訓人員" sub={<>本學期：B6. 教育資料素養工作坊（單日）、G1. 講師培訓工作坊（雙日，含 B6.）・{me!.county}已推薦 G1. <b className="num">{g1}</b> 位（至少 {MIN_G1} 位）</>} />
+    <Table head={["被推薦人", "服務單位", "參與類型", "邀請", "報名", ""]}>{mine.map(i => {
+      const r = i.user ? st.regs.find(x => x.user === i.user && sess(st, x.sess)?.course === i.course && x.status !== "cancelled") : undefined;
+      return <tr key={i.id}><td>{i.name}<div className="sub">{i.email}</div></td><td>{i.org}</td><td className="small">{TYPE[i.course]}</td><td><Badge kind={INV[i.status][1]}>{INV[i.status][0]}</Badge><div className="sub">寄出 {i.sent}</div></td>
         <td>{r ? <><Badge kind={ST[r.status][1]}>{ST[r.status][0]}</Badge><div className="sub">{sess(st, r.sess)!.region}場</div></> : <span className="muted small">尚未報名</span>}</td>
         <td>{i.status === "sent" && <div className="row"><button className="btn btn-g btn-sm" onClick={() => { update(d => { const x = d.invites.find(y => y.id === i.id)!; x.sent = TODAY; inviteMail(d, x); }); toast("已重寄邀請信給 " + i.name); }}>重寄</button>
-          <button className="btn btn-d btn-sm" onClick={() => { update(d => { d.invites.find(y => y.id === i.id)!.status = "withdrawn"; d.mails.forEach(m => { if (m.action?.id === i.id) m.used = true; }); }); toast("已撤回推薦，名額已釋出"); }}>撤回</button></div>}</td></tr>;
+          <button className="btn btn-d btn-sm" onClick={() => { update(d => { d.invites.find(y => y.id === i.id)!.status = "withdrawn"; d.mails.forEach(m => { if (m.action?.id === i.id) m.used = true; }); }); toast("已撤回推薦"); }}>撤回</button></div>}</td></tr>;
     })}</Table>
-    {used < QUOTA ? <form className="apanel form" onSubmit={add}><b>新增推薦</b><div className="fgrid">
+    <form className="apanel form" onSubmit={add}><b>新增推薦</b><div className="fgrid">
       <div className="fld"><label htmlFor="n-name">姓名</label><input id="n-name" name="name" required /></div>
       <div className="fld"><label htmlFor="n-email">Email</label><input id="n-email" name="email" type="email" required placeholder="建議填常用信箱" /></div>
-      <div className="fld"><label htmlFor="n-org">服務單位</label><input id="n-org" name="org" required /></div></div>
-      <div className="row"><button className="btn btn-p btn-sm" type="submit">推薦並寄出邀請</button><span className="muted small">被推薦人點邀請信就能報名；email 跟他的帳號不同也能綁定。</span></div></form>
-      : <div className="apanel"><p>名額已用完。撤回未回應的推薦可以釋出名額。</p></div>}
+      <div className="fld"><label htmlFor="n-org">服務單位</label><input id="n-org" name="org" required /></div>
+      <div className="fld"><label htmlFor="n-type">參與類型</label><select id="n-type" name="type" defaultValue="T"><option value="T">G1. 雙日（含 B6.）</option><option value="A">B6. 單日</option></select></div></div>
+      <p className="muted small">G1. 推薦對象：完成 A1、A2、B5-1，且為教育行政機關人員、現任或曾任校長主任、或已取得校長遴選或主任聘任資格者；具 B5-1. 講師資格者優先。B6. 單日開放推動辦公室的教育行政人員。</p>
+      <div className="row"><button className="btn btn-p btn-sm" type="submit">推薦並寄出報名連結</button><span className="muted small">被推薦人點信中的連結就能報名；email 跟他的帳號不同也能綁定。</span></div></form>
   </>;
 }
 
@@ -154,8 +156,8 @@ export function Review() {
       const p = user(st, r.user)!, s = sess(st, r.sess)!, c = course(st, s.course);
       const chk: ReactNode[] = [];
       if (s.track) chk.push(p.job === s.track ? <Badge key="j" kind="ok">職務相符</Badge> : <Badge key="j" kind="no">職務不符</Badge>);
-      if (c.elig === "track") chk.push(done(st, p.id, "A") ? <Badge key="a" kind="ok">初階已結業</Badge> : <Badge key="a" kind="no">查無初階紀錄</Badge>);
-      if (c.elig === "invite") { const iv = st.invites.find(i => i.user === p.id && i.course === c.id); chk.push(iv ? <Badge key="i" kind="ok">{iv.county}推薦</Badge> : <Badge key="i" kind="no">無推薦</Badge>); }
+      if (c.elig === "track") chk.push(done(st, p.id, "A") ? <Badge key="a" kind="ok">B6. 已結業</Badge> : <Badge key="a" kind="no">查無 B6. 紀錄</Badge>);
+      if (c.elig === "invite") { const iv = st.invites.find(i => i.user === p.id && i.course === c.id); chk.push(iv ? <Badge key="i" kind="ok">{iv.county}推動辦公室推薦</Badge> : <Badge key="i" kind="no">無推薦</Badge>); }
       if (!chk.length) chk.push(<Badge key="o" kind="can">不限資格</Badge>);
       return <tr key={r.id}><td>{p.name}<div className="sub">{p.org}・{p.job && JOB[p.job]}</div></td><td>{sessName(st, s)}<div className="sub">名額 {taken(st, s)}/{s.cap}</div></td>
         <td><div className="tags">{chk}</div>{r.files && <div className="sub">附件：{r.files.join("、")}</div>}</td><td className="small">{r.note || <span className="muted">—</span>}</td>
@@ -168,21 +170,21 @@ export function Review() {
 }
 export function Invites() {
   const { st, update, toast } = useDemo();
-  const by: Record<string, { n: number; a: number }> = {};
-  st.invites.forEach(i => { by[i.county] = by[i.county] || { n: 0, a: 0 }; if (i.status !== "withdrawn") by[i.county].n++; if (i.status === "accepted") by[i.county].a++; });
+  const by: Record<string, { b6: number; g1: number; a: number; n: number }> = {};
+  st.invites.forEach(i => { const v = by[i.county] = by[i.county] || { b6: 0, g1: 0, a: 0, n: 0 }; if (i.status !== "withdrawn") { v.n++; if (i.course === "A") v.b6++; else v.g1++; } if (i.status === "accepted") v.a++; });
   const imp = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault(); const rows = String(new FormData(e.currentTarget).get("rows")).split("\n").map(l => l.trim()).filter(Boolean);
-    update(d => rows.forEach((l, k) => { const [name, email, county, org] = l.split(/[,，]/).map(x => (x || "").trim()); if (!name || !email) return;
-      const i: Invite = { id: "i" + Date.now() + k, course: "T", county: county || "未填", name, email: email.toLowerCase(), org: org || "", status: "sent", user: null, by: null, sent: TODAY }; d.invites.push(i); inviteMail(d, i); }));
-    toast(`已匯入 ${rows.length} 位，邀請信已寄出`);
+    update(d => rows.forEach((l, k) => { const [name, email, county, org, type] = l.split(/[,，]/).map(x => (x || "").trim()); if (!name || !email) return;
+      const i: Invite = { id: "i" + Date.now() + k, course: /^B6/i.test(type || "") ? "A" : "T", county: county || "未填", name, email: email.toLowerCase(), org: org || "", status: "sent", user: null, by: null, sent: TODAY }; d.invites.push(i); inviteMail(d, i); }));
+    toast(`已匯入 ${rows.length} 位，報名連結已寄出`);
   };
   return <>
-    <H t="推薦與邀請" sub={`${course(st, "T").name}・每縣市 ${QUOTA} 名。縣市可以自己在平台推薦，也可以由承辦匯入名單。`} />
-    <Table head={["縣市", "已推薦", "已接受", "未回應"]}>{Object.entries(by).map(([c, v]) => <tr key={c}><td>{c}</td><td className="num">{v.n} / {QUOTA}</td><td className="num">{v.a}</td><td className="num">{v.n - v.a}</td></tr>)}</Table>
-    <Table head={["被推薦人", "縣市", "推薦方式", "狀態", ""]}>{st.invites.map(i => <tr key={i.id}><td>{i.name}<div className="sub">{i.email}</div></td><td>{i.county}</td><td className="small">{i.by ? "縣市在平台推薦" : "承辦匯入名單"}</td><td><Badge kind={INV[i.status][1]}>{INV[i.status][0]}</Badge></td>
+    <H t="推薦與邀請" sub={`本學期不受理個人報名：各推動辦公室彙整 B6. 與 G1. 名單（G1. 至少 ${MIN_G1} 位），計畫團隊以 email 寄送報名連結。推動辦公室可以在平台推薦，也可以由承辦匯入名單。`} />
+    <Table head={["推動辦公室", "B6. 單日", "G1. 雙日", "已接受", "未回應"]}>{Object.entries(by).map(([c, v]) => <tr key={c}><td>{c}</td><td className="num">{v.b6}</td><td className="num">{v.g1}{v.g1 < MIN_G1 && <span className="sub"> 未達 {MIN_G1}</span>}</td><td className="num">{v.a}</td><td className="num">{v.n - v.a}</td></tr>)}</Table>
+    <Table head={["被推薦人", "推動辦公室", "參與類型", "推薦方式", "狀態", ""]}>{st.invites.map(i => <tr key={i.id}><td>{i.name}<div className="sub">{i.email}</div></td><td>{i.county}</td><td className="small">{TYPE[i.course]}</td><td className="small">{i.by ? "推動辦公室在平台推薦" : "承辦匯入名單"}</td><td><Badge kind={INV[i.status][1]}>{INV[i.status][0]}</Badge></td>
       <td>{i.status === "sent" && <button className="btn btn-g btn-sm" onClick={() => { update(d => { const x = d.invites.find(y => y.id === i.id)!; x.sent = TODAY; inviteMail(d, x); }); toast("已重寄邀請信給 " + i.name); }}>重寄</button>}</td></tr>)}</Table>
-    <form className="apanel form" onSubmit={imp}><b>匯入推薦名單</b><p className="muted small">每行一位：姓名,email,縣市,服務單位</p>
-      <textarea name="rows" aria-label="推薦名單" defaultValue={"何志遠,ho.cy@hl.edu.tw,花蓮縣,花蓮縣立花崗國中\n李明珠,lee.mc@hl.edu.tw,花蓮縣,花蓮縣花蓮市明義國小"} />
+    <form className="apanel form" onSubmit={imp}><b>匯入推薦名單</b><p className="muted small">每行一位：姓名,email,縣市,服務單位,參與類型（B6 或 G1）</p>
+      <textarea name="rows" aria-label="推薦名單" defaultValue={"何志遠,ho.cy@hl.edu.tw,花蓮縣,花蓮縣政府教育處,G1\n李明珠,lee.mc@hl.edu.tw,花蓮縣,花蓮縣政府教育處,B6"} />
       <div><button className="btn btn-p btn-sm" type="submit">匯入並寄出邀請</button></div></form>
   </>;
 }
@@ -201,11 +203,11 @@ export function Complete() {
       return <tr key={s.id}><td>{sessName(st, s)}<div className="sub">講師 {s.lect ? user(st, s.lect)!.name : "—"}</div></td>
         <td>{s.roll ? <Badge kind="ok">已點名</Badge> : <Badge kind="wait">等講師點名</Badge>}</td><td className="num">{att + cp + rp}</td><td className="num">{cp + rp}</td><td className="num">{rp}</td>
         <td>{!s.roll && c("admitted") ? <Link className="btn btn-g btn-sm" to={"/admin/roll/" + s.id}>代為點名</Link>
-          : att ? <button className="btn btn-p btn-sm" onClick={() => { update(d => { graduate(d, s.id); }); toast(`已核發 ${att} 張研習證明；完成進階或講師培訓的人已自動開通分析平台`); }}>核發結業（{att} 人）</button>
+          : att ? <button className="btn btn-p btn-sm" onClick={() => { update(d => { graduate(d, s.id); }); toast(`已核發 ${att} 張研習證明；完成進階課程或 G1. 的人已自動開通分析平台`); }}>核發結業（{att} 人）</button>
           : cp ? <button className="btn btn-p btn-sm" onClick={() => setExp(s.id)}>匯出全教網名單（{cp} 人）</button>
           : <Badge kind="ok">已完成</Badge>}</td></tr>;
     })}</Table>
-    <p className="muted small">核發結業時同時產生研習證明，完成進階或講師培訓的人會自動開通分析平台。匯出欄位要依全教網實際的批次匯入格式調整。</p>
+    <p className="muted small">核發結業時同時產生研習證明（依參與類型：B6. 單日 3 小時、G1. 雙日 12 小時），完成進階課程或 G1. 的人會自動開通分析平台。匯出欄位要依全教網實際的批次匯入格式調整。</p>
     {es && <Modal title="匯出全教網名單" onClose={() => setExp(null)} wide>
       <p className="muted small">{sessName(st, es)}・共 {rows.length} 人</p><pre className="csv">{csv}</pre>
       <p className="small">示範中身分證字號維持遮罩；正式版匯出時才解密完整字號，每次匯出都寫入稽核紀錄。</p>
@@ -219,7 +221,7 @@ export function Lecturers() {
   const L = st.users.filter(u => has(u, "lecturer"));
   const q = st.reviews.filter(r => r.status === "submitted");
   return <>
-    <H t="講師管理" sub="講師認證：完成講師培訓 → 繳交公版簡報與試教影片 → 審查通過 → 取得講師資格（效期 2 年）。" />
+    <H t="講師管理" sub="講師認證：全程完成 B6.＋G1. → 6 個月內繳交使用公版簡報的教學演示影片 → 專家學者審查 → 通過即為 B6-2. 合格講師（效期 2 年）。" />
     <h2 className="h3">講師認證審查</h2>
     {q.length ? <Table head={["申請人", "培訓梯次", "繳交資料", ""]}>{q.map(r => { const p = user(st, r.user)!; return <tr key={r.id}><td>{p.name}<div className="sub">{p.org}</div></td><td>{r.cohort}<div className="sub">繳交 {r.at}</div></td><td className="small">{r.files.join("、")}</td>
       <td><div className="row"><button className="btn btn-p btn-sm" onClick={() => { update(d => { d.reviews.find(x => x.id === r.id)!.status = "approved"; const u = d.users.find(x => x.id === r.user)!; if (!u.roles.includes("lecturer")) u.roles.push("lecturer"); u.lect = { until: (Number(TODAY.slice(0, 4)) + 2) + TODAY.slice(4), regions: [], tags: [] }; if (!entitled(d, u.id)) d.ents.push({ user: u.id, src: "具講師資格", date: TODAY }); }); toast(p.name + " 已取得講師資格"); }}>通過</button>
@@ -238,7 +240,7 @@ export function Courses() {
   return <>
     <H t="課程設定" sub="改了「資格類型」，網站上的報名按鈕會跟著變。116 年的新課程也用同一套設定開課。" />
     {st.courses.map(c => <div className="apanel" key={c.id}>
-      <div className="row between"><div><b>{c.level}・{c.name}</b><p className="muted small">{c.hours} 小時{c.proof ? "・報名須附先修證明（" + c.proof.join("、") + "）" : ""}</p></div>
+      <div className="row between"><div><b>{c.level}｜{c.code} {c.name}</b><p className="muted small">{c.hours} 小時{c.proof ? "・報名須附先修證明（" + c.proof.join("、") + "）" : ""}</p></div>
         <label className="fld inline">資格類型<select value={c.elig} onChange={e => { const v = e.target.value as Elig; update(d => { d.courses.find(x => x.id === c.id)!.elig = v; }); toast("已改為「" + ELIG_LABEL[v] + "」"); }}>{(Object.keys(ELIG_LABEL) as Elig[]).map(k => <option key={k} value={k}>{ELIG_LABEL[k]}</option>)}</select></label></div>
       <Table head={["場次", "地點", "名額", "報名"]}>{st.sessions.filter(s => s.course === c.id).map(s => <tr key={s.id}><td>{sessName(st, s)}</td><td>{s.venue}</td><td className="num">{taken(st, s)} / {s.cap}</td>
         <td>{ended(s) ? <Badge kind="no">已結束</Badge> : <button className={"btn btn-sm " + (s.open ? "btn-s" : "btn-g")} onClick={() => { update(d => { const x = d.sessions.find(y => y.id === s.id)!; x.open = !x.open; }); toast(s.open ? "已關閉報名" : "已開放報名"); }}>{s.open ? "開放中・點此關閉" : "已關閉・點此開放"}</button>}</td></tr>)}</Table>

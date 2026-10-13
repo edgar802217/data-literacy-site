@@ -1,8 +1,8 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { useDemo } from "../demo/store";
-import { course, elig, JOB, mdw, sess, ST, TODAY } from "../demo/logic";
-import { dot, lvName, Stage } from "../shell/Shell";
+import { course, elig, JOB, kindOf, levelName, mdw, sess, ST, titleOf, TODAY } from "../demo/logic";
+import { dot, Stage } from "../shell/Shell";
 import { JudgeLink, JudgeView } from "../shell/sessions";
 import { lastDetail } from "../shell/vt";
 
@@ -48,7 +48,7 @@ export default function SessionDetail() {
   let action;
   if (e.reg) action = <div className="pg-btnline"><Link to="/trainings/mine" className="pg-btn pg-line">查看我的研習</Link></div>;
   else if (!me) action = c.elig === "invite"
-    ? <div className="pg-btnline"><Link to={loginTo} className="pg-btn pg-line">已收到邀請？登入</Link><Link to="/trainings/faq" className="pg-tlink">講師培訓怎麼推薦</Link></div>
+    ? <div className="pg-btnline"><Link to={loginTo} className="pg-btn pg-line">已收到報名連結？登入</Link><Link to="/trainings/faq" className="pg-tlink">報名方式</Link></div>
     : <div className="pg-btnline"><Link to={loginTo} className="pg-btn">登入後報名</Link><Link to={loginTo + "&signup=1"} className="pg-tlink">還沒有帳號？註冊</Link></div>;
   else if (e.ok && form) action = <form className="pg-form" onSubmit={submit} noValidate>
     <div className="pg-field"><span><b>報名者</b>　{me.name}・{me.org}</span></div>
@@ -60,12 +60,12 @@ export default function SessionDetail() {
     <div className="pg-btnline" style={{ marginTop: 0 }}><button className="pg-btn" type="submit">送出報名</button><button className="pg-tlink" type="button" onClick={() => { setForm(false); setErr(""); }}>取消</button></div>
   </form>;
   else if (e.ok) action = <div className="pg-btnline"><button type="button" className="pg-btn" onClick={() => { setForm(true); setTimeout(() => document.getElementById("idno")?.focus(), 60); }}>{e.full ? "登記備取" : "我要報名"} <span className="hm-arr" aria-hidden="true">→</span></button>
-    <span className="pg-note" style={{ margin: 0 }}>需要：身分證字號{c.proof ? "、先修證明" : ""}、午餐選擇</span></div>;
+    <span className="pg-note" style={{ margin: 0 }}>需要：身分證字號{c.proof ? `、${c.proof.join("、")} 完成證明` : ""}、午餐選擇</span></div>;
   else action = <div className="pg-btnline"><JudgeLink st={st} me={me} s={s} skipDetail /></div>;
 
   return (
     <>
-      <Stage eyebrow="場次詳情" doc={c.name} srTitle={`${lvName(c.level)} ${c.name}（${dot(s.date)}）`}
+      <Stage eyebrow={`場次詳情・${s.region}`} doc={levelName(st, s)} srTitle={`${levelName(st, s)}（${s.region} ${dot(s.date)}）`}
         cap="亮起的是這一場的日期、時數與名額。" focus={[dot(s.date), String(c.hours), String(s.cap)]}>
         <span className="sh-bigdate" style={{ viewTransitionName: "vt-date", color: COL[s.course] }}>{dot(s.date)}</span>
         <small>{s.date2 ? `–${dot(s.date2)}・兩天` : s.date.slice(0, 4)}</small>
@@ -73,15 +73,15 @@ export default function SessionDetail() {
       </Stage>
 
       <div className="pg-dhead" data-c={s.course}>
-        <p className="k">{lvName(c.level)}{s.track ? "・" + JOB[s.track] + "軌" : ""}</p>
-        <h2 style={{ viewTransitionName: "vt-title" }}>{c.name}</h2>
+        <p className="k">{kindOf(st, s)}</p>
+        <h2 style={{ viewTransitionName: "vt-title" }}>{titleOf(st, s)}</h2>
         <p>{c.desc}</p>
       </div>
       <dl className="pg-facts">
         <div><dt>日期</dt><dd>{mdw(s.date)}{s.date2 && <small>{mdw(s.date2)}</small>}</dd></div>
-        <div><dt>時間</dt><dd>{s.time.replace("兩天 ", "")}<small>研習 {c.hours} 小時</small></dd></div>
-        <div><dt>地點</dt><dd>{city}<small>{s.venue}</small></dd></div>
-        <div><dt>對象</dt><dd>{c.elig === "open" ? "不限資格" : c.elig === "invite" ? "縣市推薦" : JOB[s.track!]}<small>{c.elig === "track" ? "需先完成初階" : c.elig === "invite" ? "先修 " + c.proof!.join("、") : "教師、行政人員"}</small></dd></div>
+        <div><dt>時間</dt><dd>{s.time.replace("兩天 ", "")}<small>08:30 報到・研習 {c.hours} 小時{s.course === "T" ? "（B6. 3＋G1. 9）" : ""}</small></dd></div>
+        <div><dt>地點</dt><dd>{city}<small>{s.venue2 ? `第一天 ${s.venue}・第二天 ${s.venue2}` : s.venue}</small></dd></div>
+        <div><dt>對象</dt><dd>{c.elig === "open" ? "不限資格" : c.elig === "invite" ? "推動辦公室推薦" : JOB[s.track!]}<small>{c.elig === "track" ? "需先完成 B6." : c.elig === "invite" ? "先修 " + c.proof!.join("、") : ""}</small></dd></div>
       </dl>
 
       <section className={"pg-judge" + (run ? " run" : "")} data-c={s.course} aria-label="報名">
@@ -91,13 +91,33 @@ export default function SessionDetail() {
       </section>
 
       <div className="pg-disc">
-        <details open><summary>課程內容</summary><div className="a"><ul>{c.content.map(t => <li key={t}>{t}</li>)}</ul></div></details>
-        <details><summary>報名資格與方式</summary><div className="a">{c.elig === "open" ? "不限資格。登入後在本頁報名，承辦審核後寄信通知。" : c.elig === "track" ? `已完成初階研習，且帳號職務為「${JOB[s.track!]}」。登入後在本頁報名，承辦審核後寄信通知。` : "由縣市承辦推薦。被推薦人會收到邀請信，點信中的連結登入或註冊後，即可在本頁報名並上傳先修證明。"}</div></details>
-        <details><summary>研習時數與證明</summary><div className="a">結業後可在「研習 › 我的研習」取得研習證明（附查驗碼），並由計畫登錄全教網研習時數。{s.course === "B" && "結業當下自動開通分析平台。"}{s.course === "T" && "結訓後繳交公版簡報與試教影片，審查通過取得講師資格（效期 2 年）。"}</div></details>
-        <details><summary>交通與注意事項</summary><div className="a">請提早 15 分鐘報到。{s.course !== "A" && "請攜帶筆電。"}停車與交通資訊會在錄取通知信中提供。</div></details>
+        <details open><summary>{s.course === "T" ? "兩天課程表" : "課程內容"}</summary><div className="a"><ul>{c.content.map(t => <li key={t}>{t}</li>)}</ul>
+          {s.course === "T" && <p>課程講師：國立高雄師範大學 沈明勳 教授</p>}</div></details>
+        <details><summary>報名資格與方式</summary><div className="a">{s.course === "A"
+          ? <><p>完成 A1、A2 及 B5-1 的教育相關人員。115 年下半年的 B6. 開放 G1. 參訓人員，以及各直轄市、縣（市）政府與國教署的教育行政相關人員。</p>
+            <p>不受理個人報名：由各推動辦公室彙整名單寄到培訓信箱，計畫團隊再以 email 寄送報名連結。報名時請附 A1、A2、B5-1 全教網完成證明，尚未完成的請在培訓前補齊。</p></>
+          : s.course === "T"
+          ? <><p>由各推動辦公室推薦，須完成 A1、A2、B5-1 與 B6.，並符合下列身分之一：教育行政機關人員、現任或曾任校長或主任、已取得校長遴選或主任聘任資格者。具 B5-1. 講師資格者，推動辦公室可以優先推薦；教育行政機關人員可以跨單位推薦。</p>
+            <p>須全程參與兩天課程。不受理個人報名：由推動辦公室彙整名單，計畫團隊以 email 寄送報名連結。報名時請附 A1、A2、B5-1 全教網完成證明。</p></>
+          : <p>已完成 B6.，且帳號職務與分流相符。116 年起由各推動辦公室開設。</p>}
+          <p>報名結果在報名截止後 3 個工作天內以 email 通知；行前須知在開課前 2 個工作天寄送。國教署及離島地區可以擇一區域參加。</p></div></details>
+        <details><summary>研習時數與證明</summary><div className="a">依參與類型核發時數：B6. 單日 3 小時，G1. 全程兩天 12 小時。結業後可在「研習 › 我的研習」取得研習證明（附查驗碼），並由計畫登錄全教網研習時數。{s.course !== "A" && "結業後自動開通分析平台。"}</div></details>
+        {s.course === "T" && <details><summary>講師資格認證</summary><div className="a"><ol>
+          <li>全程參與兩天 B6.（3 小時）與 G1.（9 小時）課程。</li>
+          <li>完成培訓後 6 個月內，繳交使用公版簡報的教學演示影片，由計畫團隊邀請專家學者審查。</li>
+          <li>通過審查即為「B6-2. 教育資料實務應用工作坊（學校行政）」合格講師，效期 2 年。</li>
+          <li>12 月中辦理「跨區共通講師實作分享交流會」，歡迎通過培訓的講師參加。</li>
+          <li>116 年起協助各縣市及國教署辦理 B6-2. 並擔任講師，計畫團隊提供輔導與支持。</li></ol></div></details>}
+        <details><summary>注意事項</summary><div className="a"><ul>
+          <li>課程包含資料搜尋與分析實作，請攜帶筆記型電腦或平板。請在 08:30 前報到。</li>
+          <li>培訓期間蒐集、處理及利用的個人資料，依個人資料保護法及相關法規辦理。</li>
+          <li>遇颱風等不可抗力因素，依研習地點所在縣市公告辦理，延期日期另行通知。</li>
+          <li>主辦單位保留調整研習內容、時間及相關安排的權利，異動會另行公告或通知。</li></ul>
+          <p>聯絡：培訓專用信箱 edl.office+training@tlkr.nknu.edu.tw・電話 07-7172930 分機 7028</p></div></details>
       </div>
-      <p className="pg-place"><b>{s.venue}</b><span>{s.address}</span>
-        <a className="pg-link" href={"https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(s.venue + " " + s.address)} target="_blank" rel="noopener">用 Google 地圖開啟</a></p>
+      {[[s.venue, s.address, s.venue2 ? "第一天" : ""], ...(s.venue2 ? [[s.venue2, s.address2 || "", "第二天"]] : [])].map(([v, a, d]) =>
+        <p className="pg-place" key={v}><b>{d && d + "　"}{v}</b><span>{a}</span>
+          <a className="pg-link" href={"https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(v + " " + a)} target="_blank" rel="noopener">用 Google 地圖開啟</a></p>)}
     </>
   );
 }

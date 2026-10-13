@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import type { State, User } from "./types";
 import { seed } from "./seed";
 
-const KEY = "dl-web-demo-v1";
+const KEY = "dl-web-demo-v2";
 
 function load(): State {
   try { const raw = localStorage.getItem(KEY); if (raw) { const s = JSON.parse(raw); if (s?.users) return s; } } catch { /* 無痕模式等 */ }

@@ -57,7 +57,7 @@ function DemoBar() {
       {inv && me && <Modal title="把邀請綁到目前的帳號？" onClose={() => setBind(null)}>
         <dl className="kv"><dt>邀請寄送的信箱</dt><dd>{inv.email}</dd><dt>目前登入的帳號</dt><dd>{me.name}・{me.email}</dd></dl>
         {inv.email !== me.email && <p className="small">兩個 email 不同沒關係：能點開這封信，就代表你收得到學校信箱。綁定後，推薦資格會掛在目前這個帳號上。</p>}
-        <div className="row"><button className="btn btn-p btn-sm" onClick={() => { update(d => bindInvite(d, inv.id, me.id)); setBind(null); toast("已接受邀請，現在可以報名講師培訓了"); nav("/trainings?course=T"); }}>接受並綁定</button><button className="btn btn-g btn-sm" onClick={() => setBind(null)}>取消</button></div>
+        <div className="row"><button className="btn btn-p btn-sm" onClick={() => { update(d => bindInvite(d, inv.id, me.id)); setBind(null); toast("已接受邀請，現在可以報名了"); nav("/trainings?course=" + inv.course); }}>接受並綁定</button><button className="btn btn-g btn-sm" onClick={() => setBind(null)}>取消</button></div>
       </Modal>}
       {confirmReset && <Modal title="重設示範資料？" onClose={() => setConfirmReset(false)}>
         <p>所有操作（新註冊的帳號、報名、審核結果）都會清除，回到初始狀態。</p>
@@ -85,7 +85,7 @@ function Header() {
   return (
     <header className="nav">
       <div className="wrap">
-        <Link to="/" className="brand"><img src={import.meta.env.BASE_URL + "logo.png"} alt="" /><span>教育資料素養提升計畫<small>教育部補助｜國立高雄師範大學執行</small></span></Link>
+        <Link to="/" className="brand"><img src={import.meta.env.BASE_URL + "logo.png"} alt="" /><span>教育資料素養提升計畫<small>教育部資科司指導｜國立高雄師範大學承辦</small></span></Link>
         <nav className="menu-l" aria-label="主選單">{NAV.map(([to, t]) => <NavLink key={to} to={to}>{t}</NavLink>)}</nav>
         {me ? <div className="acct" ref={ref}>
           <button className="me" aria-expanded={menu} onClick={() => setMenu(!menu)}><i>{me.name[0]}</i><span>{me.name}</span></button>
@@ -109,8 +109,8 @@ function Header() {
 function Announcement() {
   const { settings } = useContent();
   // 試算表沒有這一列時，示範版顯示一則範例；有這一列但留白就不顯示
-  const text = "重要公告" in settings ? settings["重要公告"] : "進階研習（學校行政軌）11/7 中區場次，報名至 10/28（三）截止。";
-  const link = settings["重要公告連結"] || ("重要公告" in settings ? "" : "/trainings/B1");
+  const text = "重要公告" in settings ? settings["重要公告"] : "115 年下半年 B6. 與 G1. 工作坊：北區、中區報名至 10/22（四），南區、東區至 10/28（三）。本次由各推動辦公室彙整名單，不受理個人報名。";
+  const link = settings["重要公告連結"] || ("重要公告" in settings ? "" : "/trainings");
   const [hide, setHide] = useState(false);
   if (!text || hide) return null;
   return <div className="notice"><div className="wrap"><Icon n="bell" /><span>{text}</span>{link && (link.startsWith("/") ? <Link to={link}>看詳情</Link> : <a href={link} target="_blank" rel="noopener">看詳情</a>)}<button className="iconbtn" aria-label="關閉公告" onClick={() => setHide(true)}><Icon n="close" /></button></div></div>;
@@ -123,8 +123,8 @@ function Footer() {
       <div className="wrap">
         <div><div className="fb"><img src={import.meta.env.BASE_URL + "logo.png"} alt="" /><b>教育資料素養提升計畫</b></div><p>數據治理．決策有理</p></div>
         <div className="links"><b>研習</b><Link to="/trainings">找場次</Link><Link to="/trainings/verify">研習證明查驗</Link><Link to="/trainings/faq">常見問題</Link></div>
-        <div><b>計畫</b><p>補助單位：教育部<br />執行單位：國立高雄師範大學<br />計畫主持人：李文廷 教授</p>
-          {settings["聯絡信箱"] && <p>聯絡信箱：{settings["聯絡信箱"]}</p>}</div>
+        <div><b>計畫</b><p>指導單位：教育部資訊及科技教育司<br />承辦單位：國立高雄師範大學<br />計畫主持人：李文廷 教授</p>
+          <p>一般業務：{settings["聯絡信箱"] || "edl.office@tlkr.nknu.edu.tw"}<br />培訓專用：edl.office+training@tlkr.nknu.edu.tw<br />電話：{settings["聯絡電話"] || "07-7172930 分機 7028"}</p></div>
       </div>
     </footer>
   );

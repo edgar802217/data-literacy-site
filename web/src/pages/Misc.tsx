@@ -27,32 +27,44 @@ export function News() {
   );
 }
 
-/* ---------- 關於計畫 ---------- */
+/* ---------- 關於計畫（依 115 年下半年培訓簡章） ---------- */
+const ARCH: [string, string, string, string, string, boolean?][] = [
+  ["基礎課程", "B6.", "教育資料素養工作坊", "基礎教育資料素養：教育資料理解與識讀", "3 小時"],
+  ["進階課程", "B6-1.", "教育資料實務應用工作坊（縣市行政）", "行政決策應用與資料整合實作；AI 協作資料判讀與實務應用", "6 小時", true],
+  ["進階課程", "B6-2.", "教育資料實務應用工作坊（學校行政）", "校務決策應用與科技領導實作；AI 協作資料判讀與實務應用", "6 小時", true],
+  ["進階課程", "B6-3.", "教育資料實務應用工作坊（學校教師）", "資料識別判讀與教學應用實作；AI 協作資料判讀與實務應用", "6 小時", true],
+  ["講師培訓", "G1.", "教育資料實務應用（學校行政）講師培訓工作坊", "培育 B6-2. 講師：校務決策、科技領導案例與 AI 協作應用", "9 小時"],
+  ["講師培訓", "G2.", "教育資料實務應用（學校教師）講師培訓工作坊", "培育 B6-3. 講師：教學應用案例與 AI 協作課務資料判讀", "9 小時", true],
+];
 export function About() {
   const { settings } = useContent();
   const { setRow } = useSea();
-  const figs = [["22", "縣市＋國教署參與"], ["59", "項資料素養能力指標"], ["14", "場講師培訓"], ["10", "場縣市行政研習"]];
+  const figs = [["4", "區培訓：北、中、南、東"], ["12", "小時：B6.＋G1. 兩天"], ["2", "年：講師資格效期"], ["22", "縣市＋國教署推動辦公室"]];
   return (
     <>
-      <Stage eyebrow="關於計畫" doc="關於計畫" title="讓教育現場看懂、用好數據" lead="給縣市行政人員、校長主任與老師的資料素養研習。"
-        cap="亮起的是計畫的四個關鍵數字。指到右邊的數字，左邊對應的數字會放大。" focus={figs.map(f => f[0])}>
+      <Stage eyebrow="關於計畫" doc="關於計畫" title="提升教育人員的資料素養" lead="不只看懂數據，也能應用數據。教育部資訊及科技教育司指導，國立高雄師範大學承辦。"
+        cap="亮起的是 115 年下半年培訓的關鍵數字。指到右邊的數字，左邊對應的數字會放大。" focus={figs.map(f => f[0])}>
         <Link className="sh-back" to="/">← 回首頁</Link>
       </Stage>
-      <h2 className="pg-sec">計畫目標</h2>
+      <h2 className="pg-sec">計畫目的</h2>
       <ul className="pg-goals">
-        <li>建立教育現場看懂、使用數據的共同基礎</li>
-        <li>依縣市行政、學校行政、教師的工作，用真實資料練習分析與判讀</li>
-        <li>培育各縣市的種子講師，讓研習能在地延續</li>
-        <li>提供 AI 輔助分析平台，降低使用數據的門檻</li>
+        <li>落實「教育資料素養提升計畫」推動目標，提升教育人員的教育資料素養及實務應用能力。</li>
+        <li>培育 116 年起由各縣市及國教署數位學習推動辦公室辦理「B6-2. 教育資料實務應用工作坊（學校行政）」所需的種子講師，各推動辦公室至少培育 1 位，建立自主辦理培訓的量能。</li>
+        <li>協助校長及主任透過分析校務資料，掌握學生學習與學校發展情況，並依分析結果支持校務治理與決策。</li>
       </ul>
-      <h2 className="pg-sec">計畫數字</h2>
+      <h2 className="pg-sec">培訓架構</h2>
+      <div className="pg-arch">{ARCH.map(([cat, code, name, focus, h, fut]) => <div key={code} className={fut ? "fut" : undefined}>
+        <span className="c">{cat}</span><code>{code}</code><span>{name}{fut ? "（116 年起）" : ""}<small>{focus}</small></span><span className="h">{h}</span></div>)}</div>
+      <p className="pg-note">115 年下半年開設 B6. 與 G1.；參加 G1. 的人員須同時參加 B6.。</p>
+      <h2 className="pg-sec">培訓數字</h2>
       <div className="pg-figs">{figs.map(([n, t]) => <button type="button" key={n} onPointerEnter={() => setRow([n])} onPointerLeave={() => setRow(null)} onFocus={() => setRow([n])} onBlur={() => setRow(null)}><b>{n}</b><span>{t}</span></button>)}</div>
-      <h2 className="pg-sec">執行團隊與聯絡</h2>
+      <h2 className="pg-sec">辦理單位與聯絡</h2>
       <dl className="pg-kv">
-        <dt>補助單位</dt><dd>教育部</dd><dt>執行單位</dt><dd>國立高雄師範大學</dd><dt>計畫主持人</dt><dd>李文廷 教授</dd>
-        {settings["聯絡窗口"] && <><dt>聯絡窗口</dt><dd>{settings["聯絡窗口"]}</dd></>}
-        <dt>電子信箱</dt><dd>{settings["聯絡信箱"] || "（待公告）"}</dd>
-        {settings["聯絡電話"] && <><dt>聯絡電話</dt><dd>{settings["聯絡電話"]}</dd></>}
+        <dt>指導單位</dt><dd>教育部資訊及科技教育司</dd><dt>承辦單位</dt><dd>國立高雄師範大學</dd><dt>計畫主持人</dt><dd>李文廷 教授</dd>
+        <dt>依據</dt><dd>教育部「教育資料素養提升計畫」核定函（臺教資(三)字第1152702590號）</dd>
+        <dt>一般業務信箱</dt><dd>{settings["聯絡信箱"] || "edl.office@tlkr.nknu.edu.tw"}</dd>
+        <dt>培訓專用信箱</dt><dd>edl.office+training@tlkr.nknu.edu.tw</dd>
+        <dt>電話</dt><dd>{settings["聯絡電話"] || "07-7172930 分機 7028"}</dd>
       </dl>
     </>
   );
@@ -80,7 +92,7 @@ export function Login() {
       else addMail(d, email, "【教育資料素養提升計畫】請驗證您的 email", "您好：\n請點下方按鈕完成 email 驗證，驗證後即可報名研習。", { type: "verify", id, label: "驗證 email" });
     });
     toast(inv ? "帳號已建立，邀請已接受" : "帳號已建立，驗證信已寄到示範信箱");
-    nav(inv ? "/trainings?course=T" : next);
+    nav(inv ? "/trainings?course=" + inv.course : next);
   };
   return (
     <div className="wrap narrow auth">
@@ -91,7 +103,7 @@ export function Login() {
         <p className="muted small center">示範中不需要密碼，選一個示範帳號登入：</p>
         <div className="people">{st.users.filter(u => u.persona).map(u => <button key={u.id} className="person" onClick={() => go(u.id)}><b>{u.name}</b><span>{u.persona}</span></button>)}</div>
       </> : <form className="form" onSubmit={signup}>
-        {inv && <p className="banner small"><span><b>{inv.county}</b>推薦你參加講師培訓。email 由邀請連結帶入，視為已驗證。</span></p>}
+        {inv && <p className="banner small"><span><b>{inv.county}</b>推動辦公室推薦你參加「{st.courses.find(c => c.id === inv.course)?.code} {st.courses.find(c => c.id === inv.course)?.name}」。email 由報名連結帶入，視為已驗證。</span></p>}
         <div className="fgrid"><div className="fld"><label htmlFor="s-name">姓名</label><input id="s-name" name="name" required defaultValue={inv?.name} /></div>
           <div className="fld"><label htmlFor="s-email">Email</label><input id="s-email" name="email" type="email" required defaultValue={inv?.email} readOnly={!!inv} placeholder="name@school.edu.tw" /></div></div>
         <fieldset className="fld"><legend className="lb">職務</legend><div className="seg2">{(Object.keys(JOB) as Job[]).map((k, i) => <label key={k}><input type="radio" name="job" value={k} defaultChecked={i === (inv ? 1 : 0)} /><span>{JOB[k]}</span></label>)}</div><span className="help">決定你可以報名哪一個進階分流。</span></fieldset>

@@ -60,7 +60,7 @@ button{font:inherit;color:inherit}
 .notes h3{font-size:.8rem;letter-spacing:.06em;color:var(--soft);margin:14px 0 4px}
 .notes ul{margin:0;padding-left:1.1em}
 .notes li+li{margin-top:4px}
-.notes .try{margin-top:14px;padding:10px 12px;background:var(--paper);border-radius:10px}
+.notes .tip{margin-top:14px;padding:10px 12px;background:var(--paper);border-radius:10px}
 @media (max-width:1100px){.notes{position:static}}
 
 /* ---------- 共用：產品內元素 ---------- */
@@ -149,7 +149,7 @@ button{font:inherit;color:inherit}
 .cA .fork:hover .bar.big:not(:hover){--h:290px;filter:saturate(.75)}
 .cA .fork .bar.big:hover{--h:410px}
 .cA .bar .deco{position:absolute;right:-20px;bottom:-20px;width:160px;height:160px;opacity:.16}
-.cA.chose .fork{height:auto;border-bottom:0}
+.cA.chose .fork{height:auto;border-bottom:0;gap:0}
 .cA.chose .fork .bar{height:0;padding:0;flex:0 0 0;opacity:0}
 .cA.chose .fork .bar.sel{flex:1 1 100%;height:150px;padding:24px 28px;opacity:1;border-radius:18px;justify-content:center}
 .cA.chose .fork .bar.sel .go,.cA.chose .fork .bar.sel p{display:none}
@@ -583,7 +583,7 @@ function render(){
   $('frame').innerHTML=({A,B,C})[S.c]()+(S.toast?'<div class="toast" role="status">'+S.toast+'</div>':'');
   const n=NOTES[S.c];
   $('notes').hidden=!S.notes;
-  $('notes').innerHTML='<span class="tag" style="--c:'+n[0]+'">方向 '+S.c+'</span><h2>'+n[1]+'</h2><p style="margin-top:8px">'+n[2]+'</p><h3>優點</h3><ul>'+n[3].map(t=>'<li>'+t+'</li>').join('')+'</ul><h3>要注意</h3><ul>'+n[4].map(t=>'<li>'+t+'</li>').join('')+'</ul><div class="try"><b>試試看：</b>'+n[5]+'</div>';
+  $('notes').innerHTML='<span class="tag" style="--c:'+n[0]+'">方向 '+S.c+'</span><h2>'+n[1]+'</h2><p style="margin-top:8px">'+n[2]+'</p><h3>優點</h3><ul>'+n[3].map(t=>'<li>'+t+'</li>').join('')+'</ul><h3>要注意</h3><ul>'+n[4].map(t=>'<li>'+t+'</li>').join('')+'</ul><div class="tip"><b>試試看：</b>'+n[5]+'</div>';
   requestAnimationFrame(drawALine);
   const fk=$('frame').querySelector('.cA .fork'); if(fk) fk.addEventListener('transitionend',drawALine);
   bindDrag();
